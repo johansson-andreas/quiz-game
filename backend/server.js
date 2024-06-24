@@ -123,14 +123,16 @@ function shuffleArray(array) {
 // Store a queue for each connected client
 const clientQueues = {};
 
+function getQuestionArray(enabledCategories) {
+  let unusedQuestions = enabledCategories.flatMap(tag => getQuestionsByCategory(tag));
+  return shuffleArray(unusedQuestions);
+}
+
 function getNewQuestion(client) {
+  console.log(`${client} is requesting new question. Current amount of unused questions ${client.unusedQuestions.length}`)
   if (client.unusedQuestions.length === 0) {
-    let newQuestionsArray = [];
-    categories.forEach((category) => {
-      newQuestionsArray = newQuestionsArray.concat(category.questions);
-    });
-    client.unusedQuestions = shuffleArray([...newQuestionsArray]);
-    console.log(`Created new question queue for ${client}. Length: ${newQuestionsArray.length}`);
+    client.unusedQuestions = getQuestionArray(client.enabledCategories);
+    console.log(`Created new question queue for ${client}. Length: ${client.unusedQuestions.length}`);
   }
   return client.unusedQuestions.pop();
 }
@@ -146,11 +148,15 @@ io.on('connection', (socket) => {
   console.log('A user connected to socket.IO:', socket.id);
 
   clientQueues[socket.id] = {
-    unusedQuestions: shuffleArray(
-      categories.reduce((acc, category) => acc.concat(category.questions), [])
-    )
+    enabledCategories: [],
+    unusedQuestions: []
   };
-
+  
+  clientQueues[socket.id].enabledCategories = [...categories.map(category => category.categoryName)];
+  clientQueues[socket.id].unusedQuestions = getQuestionArray(clientQueues[socket.id].enabledCategories);
+  console.log(`Created default q queue for ${socket.id} Amount of questions: ${clientQueues[socket.id].unusedQuestions.length}`)
+  
+  
   // Handle answer submission from controller client
   socket.on('sendAnswer', (answer) => {
     console.log(`Received answer "${answer}" from controller client ${socket.id}`);
@@ -162,7 +168,6 @@ io.on('connection', (socket) => {
     const newQuestion = getNewQuestion(clientQueues[socket.id]);
     socket.emit('newQuestion', newQuestion);
     console.log('Received newQuestion request', newQuestion);
-    console.log(categories['T']);
     // Logic to process the answer (e.g., update score, check correctness)
     // For simplicity, let's just log the answer for now
   });
@@ -171,6 +176,12 @@ io.on('connection', (socket) => {
     socket.emit('questionCategories', questionCategories);
     const newQuestion = getNewQuestion(clientQueues[socket.id]);
     socket.emit('newQuestion', newQuestion);
+  });
+
+  socket.on('requestQuestions', (activeCategories) => {
+    console.log(`${socket.id} is updating activeCategories to ${activeCategories}`)
+    clientQueues[socket.id].enabledCategories = activeCategories;
+    clientQueues[socket.id].unusedQuestions = getQuestionArray(clientQueues[socket.id].enabledCategories);
   });
 
   socket.on('disconnect', () => {

@@ -23,6 +23,8 @@ const Controller = () => {
   const [data, setData] = useState(null);
   const location = useLocation();
   const [questionCategories, setQuestionCategories] = useState([]);
+  const [activeCategories, setActiveCategories] = useState([]);
+
 
   useEffect(() => {
     
@@ -121,18 +123,6 @@ const Controller = () => {
 
   };
 
-  const handleInputChange = (event) => {
-    setInputText(event.target.value);
-  };
-
-  const handleSave = () => {
-    setSavedText(inputText);
-  };
-  const handleEnableChange = () => {
-    //TODO: CHECKBOX LOGIC
-    setQuestionCategories(inputText);
-  };
-
   const submitButtonStyle = {
     display: activeQuestion ? 'block' : 'none'
   };
@@ -140,6 +130,35 @@ const Controller = () => {
   const nextButtonStyle = {
     display: activeQuestion ? 'none' : 'block'
   };
+
+const handleCheckboxChange = (category) => {
+  setQuestionCategories(prevCategories =>
+    prevCategories.map(cat =>
+      cat.categoryName === category.categoryName
+        ? { ...cat, enabled: !cat.enabled }
+        : cat
+    )
+  );
+};
+
+useEffect(() => {
+  let newActiveCategories = questionCategories.map(category => {
+    if (category.enabled) {
+      return category.categoryName;
+    }
+    return null; // Handle disabled categories or return undefined if needed
+  }).filter(categoryName => categoryName !== null);
+  setActiveCategories(newActiveCategories);
+}, [questionCategories]);
+
+
+useEffect(() => {
+  if(activeCategories.length > 0){
+    socket.emit('requestQuestions', activeCategories)
+    console.log(activeCategories);
+  }
+}, [activeCategories]); 
+
 
   return (
     <div>
@@ -163,7 +182,12 @@ const Controller = () => {
 
       {questionCategories.map((category, index) => (
         <div key={index}>
-          <input type="checkbox" checked={category.enabled} onChange={handleEnableChange(category)}/> {category.categoryName} ({category.numberOfQuestions})
+          <label><input 
+            type="checkbox" 
+            defaultChecked={category.enabled} 
+            onChange={() => handleCheckboxChange(category)}/> 
+            {category.categoryName} ({category.numberOfQuestions})
+            </label>
         </div>
       ))}
   </div>
