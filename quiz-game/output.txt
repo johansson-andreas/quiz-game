@@ -1,0 +1,185 @@
+[Q]Vad jobbar Homer Simpson med? [C]Säkerhetsinspektör på ett Springsfields kärnkraftverk [W1]Kontrollant på Duffs ölbryggeri [W2]Kassör på Kwik-E-Mart [T]TV
+[Q]Vilket varumärke ligger bakom parfymen No.5? [C]Chanel [W1]Dior [W2]Yves Saint Laurent [T]Mode
+[Q]Joe DiMaggio var gift med Marilyn Monroe och en legendar inom sin sport. Vilken var sporten? [C]Baseball [W1]Ishockey [W2]Golf [T]Sport
+[Q]Vad kallas en invånare i Monaco? [C]Monegask [W1]Monecan [W2]Monack [T]Geografi
+[Q]Hennes pappa är före detta norsk landslagsmålvakt i fotboll och hon har varit gift med Hans Fahlen. Vad heter hon? [C]Kristin Kaspersen [W1]Mia Skäringer [W2]Nina Persson [T]Kultur
+[Q]Vad heter de tennisspelande systrarna Williams i förnamn? [C]Serena & Venus [W1]Tellus & Venus [W2]Serena & Tellus [T]Sport
+[Q]Vad hette konstnären som enligt historien skar av sig ett öra? [C]Vincent van Gogh [W1]Salvador Dalí [W2]Carl Larsson [T]Konst, Historia
+[Q]Vad heter företaget som äger YouTube? [C]Google [W1]Amazon [W2]Microsoft [T]Teknik
+[Q]Vad heter författaren som skrev boken Da Vinci Koden? [C]Dan Brown [W1]Tom Clancy [W2]Stephen King [T]Litteratur
+[Q]Vad heter drinken som James Bond vill ha "Shaken, Not Stirred”? [C]Vodka Martini [W1]Old Fashioned [W2]Bloody Mary [T]Film
+[Q]Låten ”Flottarkärlek” blev en landsplåga på tidigt 50-tal. Sångaren hette Gösta Nordgren men vad kallades han? [C]Snoddas [W1]Bollnäs-Gurra [W2]Gummi-Görra [T]Musik
+[Q]Vad heter Italiens näst största stad? [C]Milano [W1]Florens [W2]Turin [T]Geografi
+[Q]Vad bör du associera Österrike och Georg von Trapp till? [C]Musikalen ”Sound of Music” [W1]Skotten i Sarajevo [W2]Röda armé-fraktionen [T]Kultur, Historia
+[Q]Vem var det som målade Nattvakten? [C]Rembrandt van Rijn [W1]Hieronymus Bosch [W2]Johannes Vermeer [T]Konst
+[Q]Vad heter kärleksgudinnan i den Grekiska mytologin? [C]Afrodite [W1]Venus [W2]Hera [T]Religion & Mytologi
+[Q]Vad kallas tornet i anslutning till en moskebyggnad från vilket böneutropen görs? [C]Minaret [W1]Menora [W2]Madrasa [T]Religion & Mytologi
+[Q]Vem skrev Hemsöborna? [C]August Strindberg [W1]Elsa Beskow [W2]Margareta Garpe [T]Litteratur
+[Q]Vad heter mannen som 1953 grundade Tidningen Playboy? [C]Hugh Hefner [W1]Stan Lee [W2]Larry Flynt [T]Media
+[Q]Vad heter Nalle Puh på engelska? [C]Winnie-the-Pooh [W1]Pooh-the-Teddy [W2]Teddy-the-Bear [T]Litteratur, Film
+[Q]Vad heter de minatyrträd som odlas i kruka och är populära i Japan? [C]Bonsai [W1]Benkyo [W2]Bankai [T]Allmän Kunskap
+[Q]Vad heter sångaren i gruppen Kent som delar namn med sångaren i Hardcore Superstar? [C]Joakim Berg [W1]Ola Salo [W2]Andreas "Dregen" Svensson [T]Musik
+[Q]Vad heter Australiens huvudstad? [C]Canberra [W1]Sydney [W2]Melbourne [T]Geografi
+[Q]Vad heter den kända 1,2 km långa prommenadgatan i Barcelona? [C]Las Ramblas [W1]Paseo de Gracia [W2]Calle Fuencarral [T]Geografi
+[Q]Vilket år föll Berlinmuren? [C]1989 [W1]1992 [W2]1886 [T]Historia
+[Q]Vad är det för skillnad på sill och strömming? [C]Traditionellt har man kallat sill som fångats norr om Kalmarsundet för strömming  [W1]Traditionellt har man kallat sill som är över 20 centimeter lång för strömming [W2]Traditionellt har man kallat sill som fångats i Sveriges floder för strömming[T]Mat
+[Q]Hur många invånare har USA (2024)? [C]341 miljoner [W1]420 miljoner [W2]256 miljoner [T]Geografi
+[Q]Vad kallas den punkt där gränsen mellan Sverige, Norge och Finland sammanfaller? [C]Treriksröset [W1]Triumviratet [W2]Treenigheten [T]Geografi
+[Q]Vad kallas de nord-sydliga gatorna på Manhattan? [C]Avenues [W1]Boulevards [W2]Boroughs [T]Geografi
+[Q]Pol Pot var en diktator i ett sydostasiatiskt land där han orsakade miljontals dödsfall. Vilket land? [C]Kambodja [W1]Vietnam [W2]Laos [T]Geografi, Historia, Politik
+[Q]Vilken är Sveriges sydligaste stad? [C]Trelleborg [W1]Ystad [W2]Simrishamn [T]Geografi
+[Q]Vad heter gummistövlar på engelska? [C]Wellingtons [W1]Trenchies [W2]Auckies [T]Språk
+[Q]Vad ska man kunna göra för att få simborgarmärket? [C]Simma 200 meter på ett valfritt sätt [W1]Simma 500 meter på ett valfritt sätt [W2]Simma 100 meter på varje av de fyra simsätten (bröstsim, ryggsim, fjärsilsim, frisim) [T]Sport
+[Q]Vem skrev romanen Robinson Kruse? [C]Daniel Defoe [W1]Jonathan Swift [W2]A.A. Milne [T]Litteratur
+[Q]Vilken europeisk stad hette fram till 1925 Kristiania? [C]Oslo [W1]Köpenhamn [W2]Bergen [T]Historia, Geografi
+[Q]Ekonomichef förkortas CFO på engelska. Vad står akronymen CFO för? [C]Chief Financial Officer [W1]Central Franchise Operator [W2]Chief Fiscal Official [T]Språk
+[Q]SMS kan vi skicka med våra mobiltelefoner. Men vad står förkortningen SMS för? [C]Short Message Service [W1]Send Message System [W2]System (of) Messages Services [T]Teknik
+[Q]Vad hette presidenten som fick avgå efter den så kallade Watergateaffären? [C]Richard M Nixon [W1]Ronald Reagan [W2]Gerald Ford [T]Historia, Politik
+[Q]I vilket land var Idi Amin diktator? [C]Uganda [W1]Rwanda [W2]Sudan [T]Historia, Geografi, Politik
+[Q]Vad är Golgata? [C]Den kulle där Jesus korsfästes [W1]Det hebreiska namnet för Klagomuren i Jerusalem [W2]Det är namnet för templet i Jerusalem i gamla testamentet [T]Religion & Mytologi
+[Q]Vad heter författaren och tennisoraklet som var domare i TV-programmet På Spåret? [C]Björn Hellberg [W1]Ingvar Oldsberg [W2]Fredrik Lindström [T]TV
+[Q]Hur förkortades Östtyskland med tre bokstäver? [C]DDR [W1]CCP [W2]RAF [T]Geografi, Historia
+[Q]Vem var Sovjetunionens första ledare?  [C]Vladimir Lenin [W1]Joseph Stalin [W2]Leon Trotsky [T]Historia, Politik
+[Q]I vilket land ligger Antwerpen? [C]Belgien [W1]Nederländerna [W2]Luxemburg [T]Geografi
+[Q]Vad betyder förkortningen ”lol” på datorspråk? [C]Laughing out loud [W1]Lots of Love [W2]Lots of laughs [T]Teknik
+[Q]Hans riktiga namn är Marshall Bruce Mathers III. Under vilket artistnamn känner vi honom? [C]Eminem [W1]Dr. Dre [W2]50 Cent [T]Musik
+[Q]Vad heter Alfie Atkins på svenska? [C]Alfons Åberg [W1]Farbror Frej [W2]Ture Sventon [T]Litteratur, Språk
+[Q]Vad heter floden som rinner förbi Köln? [C]Rhen [W1]Donau [W2]Elbe [T]Geografi
+[Q]Vad är en Trattoria? [C]Ett italienskt matställe [W1]En italiensk fontän [W2]Ett italienskt hotel [T]Språk
+[Q]Vad kallas ett ord som exempelvis naturrutan, som blir samma både fram och baklänges? [C]Palindrom [W1]Homonym [W2]Parallax [T]Språk
+[Q]Vad hette Beatles manager? [C] Brian Epstein [W1] Jeffrey Epstein [W2] Jacob Epstein [T] Musik
+[Q]Albert Einstein formulerade ekvationen E=mc2. Vad står bokstaven E för? [C]Energi [W1]Excitation [W2]Entropi [T]Vetenskap
+[Q]Vilken planet ligger närmast solen? [C]Merkurius [W1]Venus [W2]Jupiter [T]Vetenskap
+[Q]I vilken stad dog och begravdes Jim Morrison? [C]Paris [W1]New York [W2]London [T]Musik
+[Q]Hur många rutor finns det på ett schackbräde? [C]64 st [W1]100 st [W2]81 st [T]Spel
+[Q]Vad heter i nordisk mytologi den slutliga striden som leder till jordens undergång? [C]Ragnarök [W1]Jörmungandr [W2]Nibelungen [T]Religion & Mytologi
+[Q]I vilken delstat ligger Boston?  [C]Massachusetts [W1]Connecticut [W2]Illinois [T]Geografi
+[Q]Vad heter den basiska separatistiska rebellgruppen som vill skapa en självständig baskisk stat? [C]ETA [W1]RAF [W2]IRA [T]Historia, Politik
+[Q]Vad kallar man en person som spelar orgel? [C]Organist [W1]Orgelist [W2]Orgelanist [T]Språk
+[Q]Mellan vilka städer går Vasaloppet? [C]Sälen och Mora [W1]Sälen och Malung [W2]Mora och Orsa [T]Sport
+[Q]Vad heter konststilen som utvecklades av Georges Braque och Pablo Picasso? [C]Kubismen [W1]Surrealism [W2]Postmodernism [T]Konst
+[Q]Vad heter svensken som tillsammans med dansken Janus Frils skapade Skype? [C]Niklas Zennström [W1]Daniel Ek [W2]Markus Persson [T]Teknik
+[Q]Vilket parti tillhörde Tysklands före detta förbundskansler Angela Merkel? [C]CDU (Christlich Demokratische Union Deutschlands) [W1]SPD (Sozialdemokratische Partei Deutschlands) [W2]AFD (Alternative für Deutschland) [T]Politik
+[Q]Vad betyder FAQ? [C]Frequently Asked Questions [W1]Fast Answers Queried [W2]Fortis Animus Quaestio [T]Språk, Teknik
+[Q]Vad heter författaren till böckerna om James Bond? [C]Ian Flemming [W1]Tom Clancy [W2]Dennis Lehane [T]Litteratur
+[Q]Med vilken artist förknippar man med Ziggy Stardust? [C]David Bowie [W1]Elton John [W2]Jon Bon Jovi [T]Musik
+[Q]Vad heter Nordkoreas ledare? [C]Kim Jong-Un [W1]Kim Jong-Il  [W2]Kim Il-Sung [T]Geografi, Politik
+[Q]Vad heter huvudstaden i USA? [C]Washington DC [W1]Philadelphia [W2]Chicago [T]Geografi
+[Q]Vad heter Kinas största stad? [C]Shanghai [W1]Beijing [W2]Guangzhou [T]Geografi
+[Q]Vad heter ubåtens kapten i Jules Vernes roman ”En världsomsegling under havet? [C]Kapten Nemo [W1]Kapten Nero [W2]Kapten Marko [T]Litteratur
+[Q]Vad heter Rumäniens huvudstad? [C]Bukarest [W1]Budapest [W2]Sofia [T]Geografi
+[Q]Vad är ”Flickorna i Avignon”? [C]En målning av Pablo Picasso [W1]En bok av Alexandre Dumas [W2]En pjäs av William Shakespeare [T]Kultur
+[Q]Vilket av de här länderna gränsar inte mot Luxemburg? [C]Nederländerna [W1]Tyskland [W2]Belgien [T]Geografi
+[Q]Vad kallas drinken som består av rom och cola med ett annat namn? [C]Cuba Libre [W1]Muscow Mule [W2]Dark & Stormy [T]Mat & Dryck
+[Q]Hur många pjäser har respektive spelare när man inleder ett parti schack? [C]16 [W1]15 [W2]20 [T]Spel
+[Q]Om en dansk har halvfjerds äpplen i en korg, hur många äpplen har han då? [C]70 stycken [W1]20 stycken [W2]40 stycken [T]Språk
+[Q]Hur många exemplar måste en skiva sälja för att man ska kunna säga att den har sålt ”guld”? [C]20 000 exemplar [W1]50 000 exemplar [W2]100 000 exemplar [T]Musik
+[Q]Vilken kompositör skrev operan 'La Traviata'?  [C]Giuseppe Verdi [W1]Giacomo Puccini [W2]Ferdinando Bertoni [T]Kultur
+[Q]Vilken Puccini-opera handlar om en tragisk kärlekshistoria mellan en japansk geisha och en amerikansk marinofficer? [C]Madama Butterfly [W1]Turandot [W2]La bohème [T]Kultur
+[Q]Vilken opera av Bizet berättar historien om en soldats dödsdömda kärlek till en rom? [C]Carmen [W1]Pärlfiskarna [W2]Don Procopio [T]Kultur
+[Q]Vem skrev den episka dikten 'Det förlorade paradiset'? [C]John Milton [W1]John Donne [W2]Geoffrey Chaucer [T]Litteratur
+[Q]Vilken 1500-talsförfattare är mest känd för "Don Quijote"? [C]Miguel de Cervantes [W1]Lope de Vega [W2]Garcilaso de la Vega [T]Litteratur
+[Q]Vem skrev den satiriska romanen "Gullivers resor"? [C]Jonathan Swift [W1]Daniel Defoe [W2]Mark Twain [T]Litteratur
+[Q]Vilken fransk upplysningsfilosof är känd för pikareskromanen "Candide"? [C]Voltaire [W1]Jean-Jacques Rousseau [W2]Denis Diderot [T]Litteratur
+[Q]Vem är författaren till 1700-talsromanen "Robinson Crusoe"? [C]Daniel Defoe [W1]Henry Fielding [W2]Jonathan Swift [T]Litteratur
+[Q]Vem är filosofen och författaren som skrev "Leviathan" och som anses vara en av grundarna av modern politisk filosofi? [C]Thomas Hobbes [W1]John Locke [W2]Jean-Jacques Rousseau [T]Litteratur
+[Q]Vilken 1600-talspoet är känd för den metafysiska dikten "A Valediction: Forbidding Mourning"? [C]John Donne [W1]Andrew Marvell [W2]George Herbert [T]Litteratur
+[Q]Vilken rappare släppte det ikoniska albumet "The Chronic" 1992? [C]Dr. Dre [W1]Tupac Shakur [W2]Nas [T]Musik
+[Q]Vilken kvinnlig rappare var känd för sina hits "U.N.I.T.Y." och "Ladies First"? [C]Queen Latifah [W1]Missy Elliott [W2]Lil' Kim [T]Musik
+[Q]Vilken rappares debutalbum hette "Illmatic"? [C]Nas [W1]The Notorious B.I.G. [W2]Jay-Z [T]Musik
+[Q]Vem var den ledande artisten i gruppen A Tribe Called Quest? [C]Q-Tip [W1]Ice Cube [W2]Method Man [T]Musik
+[Q]Vilken rappare släppte låten "California Love" med Dr. Dre? [C]Tupac Shakur [W1]Snoop Dogg [W2]Ice-T [T]Musik
+[Q]Vilken rappare släppte 'Ice Ice Baby' som var den första hiphop-singel att nå Billboard Hot 100? [C]Vanilla Ice [W1]Ice-T [W2]Ice Cube [T]Musik
+[Q]Vilken svensk grupp hade en hit med "The Sign" 1993? [C]Ace of Base [W1]Roxette [W2]The Cardigans [T]Musik
+[Q]Vilket tyskt band är känt för sin hit "Mr. Vain" från 1993? [C]Culture Beat [W1]La Bouche [W2]Snap! [T]Musik
+[Q]Vilken Eurodance-grupp släppte låten "Blue (Da Ba Dee)" 1999? [C]Eiffel 65 [W1]Aqua [W2]Vengaboys [T]Musik
+[Q]Vilken dansk-norsk grupp är känd för sin hit "Barbie Girl" från 1997? [C]Aqua [W1]Ace of Base [W2]Snap! [T]Musik
+[Q]Vilken Eurodance-grupp släppte låten "Boom, Boom, Boom, Boom!!" 1998? [C]Vengaboys [W1]Aqua [W2]Ace of Base [T]Musik
+[Q]Vilken Eurodance-akt är känd för sin hitlåt "It's My Life"? [C]Dr. Alban [W1]La Bouche [W2]E-Type [T]Musik
+[Q]Vilken låt av Corona blev en massiv Eurodance-hit 1993? [C]The Rhythm of the Night [W1]Rhythm Is a Dancer [W2]Feel the Rhythm [T]Musik
+[Q]Gruppen Rednex är kända för låten 'Cotton Eye Joe' och deras blandning av eurodance och countrymusik. Var är gruppen från? [C]Sverige [W1]Tyskland [W2]Finland [T]Musik
+[Q]Vilken låt av Aqua blev en världshit 1997? [C]Barbie Girl [W1]Scatman (Ski-Ba-Bop-Ba-Dop-Bop) [W2]What Is Love? [T]Musik
+[Q]Martin Erikson, kanske mer känd under artistnamnet E-Type, har drivit en vikingakrog i Gamla Stan, Stockholm sedan 2011. Vad heter denna vikingakrog? [C]Aifur [W1]Särimner [W2]Hugin och Munin [T]Mat, Musik
+[Q]Zlatan Ibrahimović är född och uppvuxen i Malmö och spelade där under hela sin Sverigekarriär, men blev 2019 delägare i ett Stockholmslag, vilket skapade en del kontrovers. Vilket Stockholmslag blev Zlatan delägare av? [C]Hammarby IF [W1]AIK [W2]Djurgårdens IF [T]Sport
+[Q]Från vilket nuvarande land kommer Zlatan Ibrahimovićs far Šefik Ibrahimović? [C]Bosnien och Hercegovina [W1]Serbien [W2]Kroatien [T]Sport, Geografi
+[Q]I vilket nuvarande land var Marie Curie född? [C]Polen [W1]Frankrike [W2]Ryssland [T]Geografi, Vetenskap, Historia
+[Q]Vem var den första personen som blev tilldelad Nobelpriset två gånger? [C]Marie Curie [W1]Linus Pauling [W2]John Bardeen [T]Vetenskap, Historia
+[Q]Hur många personer har blivit tilldelade Nobelpriset två eller fler gånger? [C]4 [W1]1 [W2]7 [T]Vetenskap
+[Q]Vilken av dessa kategorier är inte en av de fem Nobelpriskategorier som Alfred Nobel fastställde i sitt testamente? [C]Ekonomi [W1]Fred [W2]Litteratur [T]Vetenskap, Historia
+[Q]Jorden har haft många olika namn genom historien. Vad är ett av de namn som användes på Latin? [C]Terra [W1]Luna [W2]Mundo [T]Språk
+[Q]Vem var premiärminister i Storbritannien mellan 1997 och 2007? [C]Tony Blair [W1]David Cameron [W2]Margaret Thatcher [T]Politik, Historia
+[Q]Vilket yrke hade Florence Nightingale? [C]Sjuksköterska [W1]Operasångerska [W2]Nunna [T]Historia
+[Q]Vad heter mannen bakom dokumentärerna "Fahrenheit 9/11" och "Sicko"? [C]Michael Moore [W1]Louis Theroux [W2]Ken Burns [T]Film
+[Q]Vad heter grisen i fornnordisk mytologi som slaktades varje dag och blev uppäten för att morgonen efter återuppstå hel och levande? [C]Särimner [W1]Sleipner [W2]Jörmungandr [T]Religion & Mytologi
+[Q]Vad betyder förkortningen ”brb” på datorspråk? [C]Be right back [W1]Bathroom Break [W2]Back Real Soon [T]Språk
+[Q]Vilken drink får du om du blandar cachaca, lime, rörsocker och is? [C]Caipirinha [W1]Negroni [W2]Chimarrão [T]Mat & Dryck
+[Q]JAS 39 Gripen är ett av de stridsflygplan som Saab AB producerar, men vad står JAS för? [C]Jakt, Attack, Spaning [W1]Jord- och sjöangreppssystem [W2]Just Another Stridsflygplan [T]Fordon
+[Q]ABBA sjöng 1974 om Waterloo. Vart ligger Waterloo? [C]Belgien [W1]England [W2]Nederländerna [T]Geografi
+[Q]Vem var president i USA under majoriteten av andra världskriget?  [C]Franklin D. Roosevelt [W1]Dwight D. Eisenhower [W2]John F. Kennedy [T]Politik, Historia
+[Q]Vad heter fotbollsstadion i Barcelona som är hemmaarena för FC Barcelona? [C]Camp Nou [W1]Stadio Olimpico [W2]Parc des Princes [T]Sport
+[Q]Vad kallas lågt tidvatten med ett annat ord? [C]Ebb [W1]Flod [W2]Tide [T]Språk
+[Q]Hur länge har man varit gifta när man firar guldbröllop? [C]50 år [W1]25 år [W2]30 år [T]Språk
+[Q]Vad är en sufflör? [C]En person som hjälper skådespelare/sångare med texthjälp under föreställningar, om dessa glömmer bort sina repliker/sångtexter [W1]En person som yrkesmässigt tillverkar finare bakverk, exempelvis bakelser, tårtor, konfektyr, praliner och kakor [W2]En person som är anställd av ett kasino för att leda och övervaka spelet vid exempelvis bordsspel som Black Jack, poker eller roulette. [T]Språk
+[Q]Siddhartha Gautama var en man som dog runt år 540 f.Kr. Han är kanske mer känd under ett annat namn och var en viktig person för en viss religion. Vilket är Gautamas mer kända namn? [C]Buddha [W1]Tutankhamun [W2]Baháʼu'lláh [T]Relgion & Mytologi
+[Q]Svullo var en svensk skådespelare, sångare och komiker. Vad var hans egentliga namn? [C]Mikael Dubois [W1]Olle Sarri [W2]Sven Ullenius [T]TV
+[Q]Vad heter sångaren i gruppen Coldplay? [C]Chris Martin [W1]Adam Levine [W2]Alex Turner [T]Musik
+[Q]Vem målade tavlan Skriet? [C]Edvard Munch [W1]Vincent Van Gogh [W2]Carl Larsson [T]Konst
+[Q]Vad heter den andra boken i Stieg Larssons Millenniumtrilogi? [C]Flickan som lekte med elden [W1]Flickan med draktatueringen [W2]Luftslottet som sprängdes [T]Litteratur
+[Q]Vad innebär begreppet remi när man spelar schack? [C]Att partiet slutar oavgjort [W1]Ett specialdrag i schack där man i ett drag flyttar kungen och ett av tornen. [W2]Det är ett specialdrag där motståndarens bonde under vissa omständigheter kan tas, som endast kan utföras direkt efter att motståndaren flyttat två steg med bonden från dess startposition [T]Spel
+[Q]Vilken av militärgraderna är den högsta rangen av dessa? [C]Överste [W1]Överstelöjtnant [W2]Major [T]Militär
+[Q]Om man tävlar i Americas's Cup, vilken sport tävlar man då i? [C]Kappsegling [W1]Golf [W2]Tennis [T]Sport
+[Q]Vad är BMW en förkortning för? [C]Bayerische Motoren Werke [W1]Baden-Württembergische Motorisiert Wagen [W2]Bremer Mietwagen [T]Fordon, Språk
+[Q]Vilket är det tredje största landet i världen? [C]USA [W1]Kina [W2]Indien [T]Geografi
+[Q]Vilket av dessa länder är inte bland de tio första i världen? [C]Sydafrika [W1]Kazakstan [W2]Argentina [T]Geografi
+[Q]Vilken är världens största sjö? [C]Kaspiska Sjön [W1]Bajkalsjön [W2]Victoriasjön [T]Geografi
+[Q]I vilket land finns fyra av de tio första sjöarna i världen? [C]Kanada [W1]Kina [W2]Ryssland [T]Geografi
+[Q]Ungefär hur många sjöar finns det i Sverige, med en yta större än en hektar? [C]100 000 [W1]10 000 [W2]1 000 [T]Geografi
+[Q]Vilken är den djupaste sjön i världen? [C]Baikalsjön [W1]Malawisjön [W2]Vostoksjön [T]Geografi
+[Q]I vilken världsdel hittar vi bergskedjan Andera? [C]Sydamerika [W1]Asien [W2]Afrika [T]Geografi
+[Q]Vilken är den högsta bergstoppen utanför Asien? [C]Aconcagua i Sydamerika [W1]Denali i Nordamerika [W2]Mount Kilimanjaro i Afrika [T]Geografi
+[Q]Vilken är den högsta bergstoppen i Europa? [C]Elbrus [W1]Mont Blanc [W2]Matterhorn  [T]Geografi
+[Q]Vilken bergskedja brukar kallas "Världens tak"? [C]Pamir [W1]Himalaya [W2]Anderna [T]Geografi
+[Q]Mount Everest, världens högsta berg, ligger på gränsen mellan vilka två länder? [C]Kina och Nepal [W1]Kina och Indien [W2]Nepal och Indien [T]Geografi
+[Q]Vilken av dessa bergstoppar finns i bergskedjan Skanderna? [C]Kebnekaise [W1]Hoverla  [W2]Toubkal  [T]Geografi
+[Q]Vad heter filmen från 2023 som kretsar kring flygolyckan i Anderna 1972, där passagerarna från krashen tvingades till kannibalism för att överleva? [C]Society of the Snow [W1]Snowpiercer [W2]Snow Angels [T]Geografi, Film
+[Q]Vad heter den norska skräckfilmen från 2009 där ett gäng vänner väcker zombienazister när de hittar en guldskatt under en skidsemester? [C]Død snø [W1]Dawn of the Living Snow [W2]Snøen lever [T]Film
+[Q]Vilket namn fick Ruben Östlunds kritikerrosade film Turist utomlands? [C]Force Majeure  [W1]Voir dire [W2]Judge Rapporteur [T]Film
+[Q]Vilken av dessa latinska fraser översätts till "Kom ihåg att du är dödlig"? [C]Memento Mori [W1]Dies Irae [W2]Mortui Vivos Docent [T]Språk
+[Q]Vilken latinsk fras betyder "tom tavla" och syftar på en humanfilosofisk teori som hävdar att människan föds utan förutbestämda egenskaper? [C]Tabula Rasa [W1]Creatio ex nihilo [W2]Combinatio Nova [T]Språk
+[Q]'En svensk tiger' av Bertil Almqvist är en bild många känner till, men till vilket syfte användes den först? [C]Som en del av Sveriges krigspropaganda under andra världskriget [W1]För att attrahera folk till det nyöppnade Kolmårdens Djurpark [W2]Som omslag till Nette Wermeld Enströms bok om Skanskas mutskandal i Brasilien [T]Kultur
+[Q]1964 upptäcktes vikinga 'klotter' från 1000-talet i Hagia Sophia, beläget i dagens Istanbul. Vad tror man att runinskriften betyder? [C]'Halvdan ristade dessa runor' [W1]'Till minne av Halvdan' [W2]'Halvdan segrade här' [T]Historia
+[Q]Vad hette livgardet, bestående av mestadels Skandinavier, till de Byzantiska kejsarna? [C]Väringagardet [W1]Praetoriangardet [W2]Trabantengardet [T]Historia
+[Q]Vilken legendarisk vikingakung har gett namn till en trådlös kommunikationsteknik? [C]Harald Blåtand [W1]Harald Hårfager [W2]Ragnar Lodbrok [T]Teknik
+[Q]Vilket år ägde slaget vid Hastings rum? Slaget var en viktig vinst för Vilhelm I's erövringen av England. [C]14 oktober 1066 [W1]12 februari 1444 [W2]16 mars 906 [T]Historia
+[Q]Rosornas krig var ett inbördeskrig mellan vilka två engelska kungahus?  [C]York och Lancaster [W1]Lannister och Tyrell [W2]Stuart och Tudor [T]Historia
+[Q]I vilket modernt land styrde Sasaniddynastin från 226e.Kr till 650 e.Kr?  [C]Iran [W1]Etiopien [W2]Marocko [T]Geografi, Historia
+[Q]Vem vann en Oscar för bästa kvinnliga biroll som Fantine i Les Misérables från 2012? Skådespelerskan delar även namn med William Shakespeares fru. [C]Anne Hathaway [W1]Emma Stone [W2]Helen Hunt [T]Film
+[Q]Vad bytte den tysk-finska internetentreprenör Kim Schmitz namn till 2005? [C]Kim Dotcom [W1]Mega Kim [W2]Kim Online [T]Teknik
+[Q]DC Comics är tillsammans med Marvel Comics två av de största serieförlagen i världen. Men vad står DC för? [C]Detective Comics [W1]Detroit Collaborative [W2]David Campiti [T]Popkultur
+[Q]Vlad III Dracula, även känd som Vlad Pålspetsaren, är personen som Bram Stoker baserade vampyren Greve Dracula på i hans roman från 1897. Från vilket nutida land kom Vlad III Dracula? [C]Rumänien [W1]Bulgarien [W2]Polen [T]Litteratur, Historia
+[Q]Vilket namn använde vikingarna för staden som idag heter Istanbul?  [C]Miklagård [W1]Konstantinopel [W2]Naglfar [T]Historia, Geografi
+[Q]Vem spelade Buffy Summers i tv-serien Buffy och vampyrerna från 1997-2003?  [C]Sarah Michelle Gellar [W1]Sarah Jessica Parker [W2]Sarah Jane Morris [T]TV
+[Q]Romanen 'Femtio nyanser av honom' toppade bästsäljarlistor över hela världen när den släpptes 2011 och filmatiseringen av romnanen blev en publiksuccé 2015. Femtio nyanser började som en fanfiktion av en populär bokserie, vilken då?  [C]Twilight  [W1]The Hunger Games [W2]Divergent [T]Litteratur, Film
+[Q]TV-serien Chernobyl från 2019 som skildrar kärnkraftsolyckan i Tjernobyl blev både en kritiker- och publiksuccé över hela världen. Vem är svensken som har regisserat miniserien?  [C]Johan Renck [W1]Ruben Östlund [W2]Ludwig Göransson [T]T
+[Q]Ludwig Göransson vann ett stor antal priser runt världen för musiken i vilken film från 2023? [C]Oppenheimer [W1]Barbie [W2]Dune: Part Two [T]Film
+[Q]Enligt grekiskt mytologi var Sisyfos en kung som blev bestraffad av gudarna för sitt svekfulla och högfärdiga beteende. Vad var det för straff Sisyfos fick? [C] [W1]Att för evigt vandra i den stekheta öknen med en oas vid horisonten som aldrig närmar sig [W2]Att för evigt drunkna i floden Styx utan att kunna nå vattenytan [T]Religion & Mytologi
+[Q]Törnskator är ett fågelsläkte känt för att göra något speciellt med sina fångade byten. Vad då? [C]Spetsa deras fångade byten på törnen och taggtrådar för att bevara oäten mat. [W1]Att dränka deras fångade byten för att avliva bytet[W2]Att släppa deras byten från hög höjd för att avliva bytet [T]Natur
+[Q]"Octopus" och "squid" är två djur som vanligtvis båda översätts till "bläckfisk", men vad är skillnaden mellan "octopus" och "squid"? [C]"Octopuses" är en ordning i klassen bläckfiskar som har 8 armar. "Squid" är en ordning i klassen bläckfiskar som har 10 armar. [W1]"Octopuses" är de bläckfiskarter som främst lever i Atlanten och dess angränsande hav, medan "squid" är de bläckfiskarter som främst lever i Stilla havet? [W2]De är olika ord för samma djur. "Octopus" kommer från grekiskans "okto" vilket betyder åtta, och pous, vilket betyder fot. "Squid" kom in i engelskan via upptäcktsresande till Västindien. [T]Natur, Språk
+[Q]Tom Hanks har vunnit ett stort antal priser för sin medverkan i olika filmer, bland dessa priser finns två Academy Awards, även kallade Oscars, för bästa skådespelare. För vilken av dessa filmer vann han inte en Oscar? [C]Saving Private Ryan [W1]Forrest Gump [W2]Philadelphia [T]Film
+[Q]Academy Awards, Tony Awards, Golden Globe Awards och Guldbaggen är bara några få av de olika filmpriser som existerar idag. Ett annat filmpris heter Golden Raspberry Awards, vad är det så är ovanligt med Golden Raspberry Awards? [C]Golden Raspberry Awards delar ut priser till årets sämsta insatser inom filmvärlden. [W1]Nomineringarna till de olika filmpriserna i Golden Raspberry Awards utses endast av barn under tolv år. [W2]Endast filmer som inte har vunnit något annat filmpris i någon av de andra stora amerikanska filmpriserna är giltiga för att vinna en Golden Raspberry Award. [T]Film
+[Q]Minecraft, världens mest sålda datorspel, är utvecklat av en svensk datorspelsutvecklare. Vad heter företaget? [C]Mojang [W1]DICE [W2]Paradox [T]Spel
+[Q]Vad heter skriftsystemet som används för att skriva koreanska? [C]Hangul [W1]Kanji [W2]Katakana [T]Språk
+[Q]I japanskan används tre olika skriftsystem med olika användningsområden. Vilket av dessa är inte ett av skriftsystemen?  [C]Pinyin [W1]Hiragana [W2]Kanji [T]Språk
+[Q]Vilka är de officiella språken i Afghanistan?  [C]Pashto och Dari [W1]Urdu, Pashto och Tajik [W2]Urdu, Tadzjikiska, Uzbekiska och Pashto [T]Språk
+[Q]Till vilken språkgrupp tillhör engelska?  [C]Germanska [W1]Romanska  [W2]Keltiska  [T]Språk
+[Q]Hur många delstater består USA av?  [C]50 [W1]51 [W2]52 [T]Geografi
+[Q]Vilken är den senaste delstaten som anslöt sig till USA? [C]Hawaii [W1]Alaska [W2]Puerto Rico [T]Geografi, Historia
+[Q]Vilken världsdel har flest länder?  [C]Afrika [W1]Asien [W2]Europa [T]Geografi
+[Q]Iran-Contras-affären var en politisk skandal under Ronald Reagans presidentskap som kretsade kring att USA sålde vapen till Iran, som var under ett vapenembargo. Det gjordes för att finansiera antikommunistiska gerillarörelser i vilket centralamerikanskt land? [C]Nicaragua [W1]El Salvador [W2]Kuba [T]Geografi, Historia, Politik
+[Q]Vad hette Japans kejsare under andra världskriget? [C]Hirohito [W1]Miyamoto [W2]Hideyoshi  [T]Geografi, Historia, Militär
+[Q]Det finns många som har vunnit Melodifestivalen två gånger, men bara en person som har vunnit Melodifestivalen tre gånger som soloartist. Vem då? [C]Carola [W1]Charlotte Perrelli [W2]Ann-Louise Hanson [T]Musik
+[Q]Vad heter James Blunts debutalbum från 2004? [C]Back to Bedlam [W1]American Idiot [W2]X&Y [T]Musik
+[Q]Adele vann en Oscar för ledmotivet till vilken James Bond-film? [C]Skyfall [W1]Casino Royale [W2]Spectre [T]Musik, Film
+[Q]Vilken tangentbordslayout använder vanligtvis svenska tangentbord? [C]QWERTY [W1]Dvorak [W2]ECMA-23 [T]Teknik
+[Q]1987 släpptes låten 'Never Gonna Give You Up' och toppade listor runt om i världen. Under 2000-talet blev låten en del av ett internetfenomen. Vem är sångaren? [C]Rick Astley [W1]Boy George [W2]George Michael [T]Musik, Teknik
+[Q]Mario och Luigi är troligen de kändaste syskonen från videospelsvärlden. Vad heter Mario och Luigi i efternamn? [C]Mario [W1]Lamborghini [W2]Ferrari [T]Spel
