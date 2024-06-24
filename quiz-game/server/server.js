@@ -169,7 +169,8 @@ io.on('connection', (socket) => {
   socket.on('initialContact', () => {
     const questionCategories = categories.map(category => [category.categoryName, category.questions.length]);
     socket.emit('questionCategories', questionCategories);
-    console.log(questionCategories);
+    const newQuestion = getNewQuestion(clientQueues[socket.id]);
+    socket.emit('newQuestion', newQuestion);
   });
 
   socket.on('disconnect', () => {

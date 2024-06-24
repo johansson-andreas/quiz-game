@@ -106,7 +106,7 @@
 [Q]Vem var den första personen som blev tilldelad Nobelpriset två gånger? [C]Marie Curie [W1]Linus Pauling [W2]John Bardeen [T]Vetenskap, Historia
 [Q]Hur många personer har blivit tilldelade Nobelpriset två eller fler gånger? [C]4 [W1]1 [W2]7 [T]Vetenskap
 [Q]Vilken av dessa kategorier är inte en av de fem Nobelpriskategorier som Alfred Nobel fastställde i sitt testamente? [C]Ekonomi [W1]Fred [W2]Litteratur [T]Vetenskap, Historia
-[Q]Jorden har haft många olika namn genom historien. Vad är ett av de namn som användes på Latin? [C]Terra [W1]Luna [W2]Mundo [T]Språk
+[Q]Jorden har haft många olika namn genom historien. Vilket av dem här är ett av de namn som användes på Latin? [C]Terra [W1]Luna [W2]Mundo [T]Språk
 [Q]Vem var premiärminister i Storbritannien mellan 1997 och 2007? [C]Tony Blair [W1]David Cameron [W2]Margaret Thatcher [T]Politik, Historia
 [Q]Vilket yrke hade Florence Nightingale? [C]Sjuksköterska [W1]Operasångerska [W2]Nunna [T]Historia
 [Q]Vad heter mannen bakom dokumentärerna "Fahrenheit 9/11" och "Sicko"? [C]Michael Moore [W1]Louis Theroux [W2]Ken Burns [T]Film
