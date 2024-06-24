@@ -41,9 +41,16 @@ const Controller = () => {
     socket.on('connect_error', (error) => {
       setConnectionStatus(`Connection error: ${error.message}`);
     });
-    socket.on('questionCategories', (questionCategories) => {
-      setQuestionCategories(questionCategories);
+
+    socket.on('questionCategories', (questionSet) => {
+      const newCategories = questionSet.map(([categoryName, numberOfQuestions]) => ({
+        categoryName,
+        numberOfQuestions,
+        enabled: true,
+      }));
+      setQuestionCategories(newCategories);
     });
+
 
     // Handle custom events from server
     socket.on('newQuestion', (questionData) => {
@@ -121,6 +128,10 @@ const Controller = () => {
   const handleSave = () => {
     setSavedText(inputText);
   };
+  const handleEnableChange = () => {
+    //TODO: CHECKBOX LOGIC
+    setQuestionCategories(inputText);
+  };
 
   const submitButtonStyle = {
     display: activeQuestion ? 'block' : 'none'
@@ -150,11 +161,11 @@ const Controller = () => {
           <button onClick={nextQuestion} style={nextButtonStyle}>Next question</button>    
       <p>Correct answers: {correctAnswers} / Total questions: {totalQuestions} </p>
 
-      {questionCategories.map((categoryName) => (
-            <div>{categoryName[0]} {categoryName[1]} </div>
-          
-        ))
-    }
+      {questionCategories.map((category, index) => (
+        <div key={index}>
+          <input type="checkbox" checked={category.enabled} onChange={handleEnableChange(category)}/> {category.categoryName} ({category.numberOfQuestions})
+        </div>
+      ))}
   </div>
   );
 };
