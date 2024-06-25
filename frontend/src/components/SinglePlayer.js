@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
+import socket from './Socket';
 import './style.css';
 import { useLocation } from 'react-router-dom';
-
-const socket = io('localhost:4000', {
-  transports: ['websocket'], 
-  withCredentials: true
-}); 
 
 const Controller = () => {
   const [question, setQuestion] = useState(null);
@@ -24,6 +19,7 @@ const Controller = () => {
   const location = useLocation();
   const [questionCategories, setQuestionCategories] = useState([]);
   const [activeCategories, setActiveCategories] = useState([]);
+  const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState([]);
 
 
   useEffect(() => {
@@ -45,11 +41,13 @@ const Controller = () => {
     });
 
     socket.on('questionCategories', (questionSet) => {
-      const newCategories = questionSet.map(([categoryName, numberOfQuestions]) => ({
-        categoryName,
-        numberOfQuestions,
+      questionSet.map(category => console.log(`${category._id} ${category.count}`));
+      const newCategories = questionSet.map(category => ({
+        name: category._id,
+        count: category.count,
         enabled: true,
       }));
+      setPreviouslyUsedCategories(questionSet.map(category => [...category._id]));
       setQuestionCategories(newCategories);
     });
 
@@ -117,10 +115,10 @@ const Controller = () => {
   };
 
   const nextQuestion = () => {
-    console.log("Next question")
+    console.log("Next question");
     setActive(true);
     socket.emit('nextQuestion');
-
+    setPreviouslyUsedCategories(activeCategories);
   };
 
   const submitButtonStyle = {
@@ -134,7 +132,7 @@ const Controller = () => {
 const handleCheckboxChange = (category) => {
   setQuestionCategories(prevCategories =>
     prevCategories.map(cat =>
-      cat.categoryName === category.categoryName
+      cat.name === category.name
         ? { ...cat, enabled: !cat.enabled }
         : cat
     )
@@ -144,17 +142,17 @@ const handleCheckboxChange = (category) => {
 useEffect(() => {
   let newActiveCategories = questionCategories.map(category => {
     if (category.enabled) {
-      return category.categoryName;
+      return category.name;
     }
     return null; // Handle disabled categories or return undefined if needed
-  }).filter(categoryName => categoryName !== null);
+  }).filter(name => name !== null);
   setActiveCategories(newActiveCategories);
 }, [questionCategories]);
 
 
 useEffect(() => {
   if(activeCategories.length > 0){
-    socket.emit('requestQuestions', activeCategories)
+    socket.emit('fetchQuestionsByTags', activeCategories)
     console.log(activeCategories);
   }
 }, [activeCategories]); 
@@ -186,7 +184,7 @@ useEffect(() => {
             type="checkbox" 
             defaultChecked={category.enabled} 
             onChange={() => handleCheckboxChange(category)}/> 
-            {category.categoryName} ({category.numberOfQuestions})
+            {category.name} ({category.count})
             </label>
         </div>
       ))}

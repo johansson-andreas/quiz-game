@@ -8,15 +8,12 @@ const os = require('os');
 const { networkInterfaces } = os;
 const { connectDB } = require('./db'); // Adjust the path as needed
 require('dotenv').config();
-const Question = require('./Question'); // Replace with your actual path to Question model
-
-
+const Question = require('./models/Question'); // Replace with your actual path to Question model
 const app = express(); // Create an instance of the Express application
 
 connectDB();
 
 'use strict';
-
 
 const nets = networkInterfaces();
 let localIp = '';
@@ -59,64 +56,6 @@ const PORT = process.env.PORT || 4000;
 
 let categories = [];
 
-const addCategory = (newTitle) => {
-  if (!categories.some(category => category.categoryName === newTitle)) {
-    categories.push({
-      categoryName: newTitle,
-      questions: []
-    });
-  }
-};
-
-const addQuestionToCategory = (question) => {
-  const questionString = JSON.stringify(question);
-
-  categories.forEach(category => {
-    if (question.tags.includes(category.categoryName)) {
-      if (!category.questions.some(q => JSON.stringify(q) === questionString)) {
-        category.questions.push(JSON.parse(questionString));
-      }
-    }
-  });
-};
-
-const processFile = (filePath) => {
-  const fileStream = fs.createReadStream(filePath);
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
-  });
-
-  const regex = /\[Q\](.+?) \[C\](.+?) \[W1\](.+?) \[W2\](.+?) \[T\](.+)/;
-
-  rl.on('line', (line) => {
-    const match = line.match(regex);
-
-    if (match) {
-      const tags = match[5].split(',').map(tag => tag.trim());
-      const question = {
-        text: match[1],
-        correctAnswer: match[2],
-        incorrectAnswers: [match[3].trim(), match[4].trim()],
-        tags: tags
-      };
-
-      tags.forEach(tag => addCategory(tag));
-      addQuestionToCategory(question);
-    } else {
-      console.warn('Line does not match expected format:', line);
-    }
-  });
-
-  rl.on('close', () => {
-    console.log('File processing complete.');
-  });
-};
-
-// Usage example: Read questions from a file and log them
-const filePath = 'questions.txt';
-processFile(filePath);
-
 // Function to shuffle an array
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -126,22 +65,11 @@ function shuffleArray(array) {
   return array;
 }
 
-// Store a queue for each connected client
-const clientQueues = {};
-
-function getQuestionArray(enabledCategories) {
-  let unusedQuestions = enabledCategories.flatMap(tag => getQuestionsByCategory(tag));
-  return shuffleArray(unusedQuestions);
-}
-
 function getNewQuestion(client) {
   console.log(`${client} is requesting new question. Current amount of unused questions ${client.unusedQuestions.length}`)
-  if (client.unusedQuestions.length === 0) {
-    client.unusedQuestions = getQuestionArray(client.enabledCategories);
-    console.log(`Created new question queue for ${client}. Length: ${client.unusedQuestions.length}`);
-  }
   return client.unusedQuestions.pop();
 }
+
 
 // Function to get questions from a specific category
 const getQuestionsByCategory = (categoryTitle) => {
@@ -149,19 +77,35 @@ const getQuestionsByCategory = (categoryTitle) => {
   return category ? category.questions : [];
 };
 
+
+const clientQueues = {};
+
 // Handle Socket.IO connections
 io.on('connection', (socket) => {
   console.log('A user connected to socket.IO:', socket.id);
 
   clientQueues[socket.id] = {
-    enabledCategories: [],
-    unusedQuestions: []
+    unusedQuestions: [],
+    enabledCategories: []
   };
-  
-  clientQueues[socket.id].enabledCategories = [...categories.map(category => category.categoryName)];
-  clientQueues[socket.id].unusedQuestions = getQuestionArray(clientQueues[socket.id].enabledCategories);
-  console.log(`Created default q queue for ${socket.id} Amount of questions: ${clientQueues[socket.id].unusedQuestions.length}`)
-  
+
+  const fetchQuestionsByTags = async (tags) => {
+    try {
+      const matchingQuestions = await Question.find({ tags: { $in: tags } });
+      clientQueues[socket.id].unusedQuestions = shuffleArray(matchingQuestions);
+      console.log(`Finding questions matching tags for ${clientQueues[socket.id]} Length: ${clientQueues[socket.id].unusedQuestions.length}`)
+
+    } catch (err) {
+      console.error('Failed to fetch questions by tags:', err);
+      // Handle error as needed (e.g., emit an error event)
+    }
+  };
+
+  socket.on('fetchQuestionsByTags', (data) => {
+    clientQueues[socket.id].enabledCategories = data;
+    console.log(data);
+    fetchQuestionsByTags(data);
+  });
   
   // Handle answer submission from controller client
   socket.on('sendAnswer', (answer) => {
@@ -171,27 +115,22 @@ io.on('connection', (socket) => {
     // For simplicity, let's just log the answer for now
   });
   socket.on('nextQuestion', () => {
-    const newQuestion = getNewQuestion(clientQueues[socket.id]);
+    let newQuestion = [];
+    if (clientQueues[socket.id].unusedQuestions.length === 0) {
+      clientQueues[socket.id].unusedQuestions = fetchQuestionsByTags(clientQueues[socket.id].enabledCategories);
+      console.log(`Created new question queue for ${clientQueues[socket.id]}. Length: ${clientQueues[socket.id].unusedQuestions.length}`);
+      newQuestion = getNewQuestion(clientQueues[socket.id]);
+    }
+    else {newQuestion = getNewQuestion(clientQueues[socket.id]);}
+
+    //TODO: FIX EMPTY QUESTION ARRAY
     socket.emit('newQuestion', newQuestion);
     console.log('Received newQuestion request', newQuestion);
     // Logic to process the answer (e.g., update score, check correctness)
     // For simplicity, let's just log the answer for now
   });
-  socket.on('initialContact', () => {
-    const questionCategories = categories.map(category => [category.categoryName, category.questions.length]);
-    socket.emit('questionCategories', questionCategories);
-    const newQuestion = getNewQuestion(clientQueues[socket.id]);
-    socket.emit('newQuestion', newQuestion);
-  });
-
-  socket.on('requestQuestions', (activeCategories) => {
-    console.log(`${socket.id} is updating activeCategories to ${activeCategories}`)
-    clientQueues[socket.id].enabledCategories = activeCategories;
-    clientQueues[socket.id].unusedQuestions = getQuestionArray(clientQueues[socket.id].enabledCategories);
-  });
 
   socket.on('addQuestion', (questionData) => {
-    // Create a new question document with data received
     const newQuestion = new Question({
       text: questionData.text,
       correctAnswer: questionData.correctAnswer,
@@ -199,22 +138,44 @@ io.on('connection', (socket) => {
       tags: questionData.tags.split(',').map(tag => tag.trim()) // Assuming comma-separated values
     });
 
-    // Save the question to MongoDB
     newQuestion.save()
       .then(() => {
         console.log('Question saved to database');
-        // Optionally emit an event back to the client to confirm success
       })
       .catch(err => {
         console.error('Error saving question:', err);
-        // Handle error and optionally emit an error event to the client
       });
   });
 
+  // Clean up on disconnect
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    delete clientQueues[socket.id];
+    console.log(`Client ${socket.id} disconnected and queue cleaned up`);
   });
 
+  // Initialize default question queue on connection
+  (async () => {
+    try {
+      clientQueues[socket.id].unusedQuestions = shuffleArray(await Question.find());
+      const tagsWithCounts = await Question.aggregate([
+        { $unwind: '$tags' },
+        { $group: { _id: '$tags', count: { $sum: 1 } } },
+        { $sort: { count: -1 } }  // Sort by count in descending order
+      ]);
+
+      console.log(`Created default question queue for ${socket.id}. Amount of questions: ${clientQueues[socket.id].unusedQuestions.length}`);
+      
+      socket.emit('newQuestion', getNewQuestion(clientQueues[socket.id]));
+      socket.emit('questionCategories', tagsWithCounts);
+      console.log(tagsWithCounts);
+      console.log(`Sent new question and question categories to ${socket.id}`);
+
+      clientQueues[socket.id].enabledCategories = tagsWithCounts.map(tag => [...tag._id])
+
+    } catch (err) {
+      console.error(`Failed to populate default question queue for ${socket.id}:`, err);
+    }
+  })();
 
 }, []);
 

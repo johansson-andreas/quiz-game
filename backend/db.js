@@ -11,8 +11,8 @@ const readline = require('readline');
 const connectDB = async () => {
   try {
     await client.connect();
-    console.log('Connected to MongoDB');
     mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    console.log('Connected to MongoDB & Mongoose');
 
   } catch (err) {
     console.error('Failed to connect to MongoDB', err);

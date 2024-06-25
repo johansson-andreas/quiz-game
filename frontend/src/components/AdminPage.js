@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
+import socket from './Socket';
 import './style.css';
-
-const socket = io('localhost:4000', {
-  transports: ['websocket'], 
-  withCredentials: true
-}); 
 
 const AdminPage = () => {
     const [questionData, setQuestionData] = useState({
