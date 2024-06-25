@@ -1,6 +1,6 @@
 [Q]Vad jobbar Homer Simpson med? [C]Säkerhetsinspektör på ett Springsfields kärnkraftverk [W1]Kontrollant på Duffs ölbryggeri [W2]Kassör på Kwik-E-Mart [T]TV
 [Q]Vilket varumärke ligger bakom parfymen No.5? [C]Chanel [W1]Dior [W2]Yves Saint Laurent [T]Mode
-[Q]Joe DiMaggio var gift med Marilyn Monroe och en legendar inom sin sport. Vilken var sporten? [C]Baseball [W1]Ishockey [W2]Golf [T]Sport
+[Q]Joe DiMaggio var gift med Marilyn Monroe och en legendar inom sin sport. Vilken var sporten? [C]Baseball [W1]Amerikansk fotboll [W2]Golf [T]Sport
 [Q]Vad kallas en invånare i Monaco? [C]Monegask [W1]Monecan [W2]Monack [T]Geografi
 [Q]Hennes pappa är före detta norsk landslagsmålvakt i fotboll och hon har varit gift med Hans Fahlen. Vad heter hon? [C]Kristin Kaspersen [W1]Mia Skäringer [W2]Nina Persson [T]Kultur
 [Q]Vad heter de tennisspelande systrarna Williams i förnamn? [C]Serena & Venus [W1]Tellus & Venus [W2]Serena & Tellus [T]Sport
