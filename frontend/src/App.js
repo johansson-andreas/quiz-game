@@ -10,7 +10,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<SP />} />
         <Route path="/sp" element={<SP />} />
         <Route path="/mp" element={<MP />} />
         <Route path="/MultiplayerLobby" element={<MPLanding />} />
