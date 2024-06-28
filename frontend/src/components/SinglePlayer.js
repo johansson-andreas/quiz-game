@@ -14,8 +14,6 @@ const Controller = () => {
   const [activeQuestion, setActive] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState('Connecting...'); // State to hold connection status
   const [inputText, setInputText] = useState('');
-  const [savedText, setSavedText] = useState('');
-  const [data, setData] = useState(null);
   const location = useLocation();
   const [questionCategories, setQuestionCategories] = useState([]);
   const [activeCategories, setActiveCategories] = useState([]);
@@ -159,11 +157,25 @@ useEffect(() => {
 
 
   return (
-    <div>
-      <p>{question}</p>
+    <div id='mainBody'>
+      <div id='categoriesDiv'>
+      {questionCategories.map((category, index) => (
+        <div key={index}>
+          <label className='checkboxLabels'><input 
+            type="checkbox" 
+            defaultChecked={category.enabled} 
+            onChange={() => handleCheckboxChange(category)}/> 
+            {category.name} ({category.count})
+            </label>
+        </div>
+      ))}
+      </div>
+      <div id='questionBody'>
+      <p id='questionText'>{question}</p>
+        <div id='radioButtonsDiv'>
           {options.map((option, index) => (
             <div key={index} className={getDivClassName(option)}>
-              <label>
+              <label className='radioButtonLabels'>
                 <input
                   type="radio"
                   value={option}
@@ -174,20 +186,11 @@ useEffect(() => {
               </label>
             </div>
           ))}
-          <button onClick={submitAnswer} style={submitButtonStyle}>Submit Answer</button>
-          <button onClick={nextQuestion} style={nextButtonStyle}>Next question</button>    
-      <p>Correct answers: {correctAnswers} / Total questions: {totalQuestions} </p>
-
-      {questionCategories.map((category, index) => (
-        <div key={index}>
-          <label><input 
-            type="checkbox" 
-            defaultChecked={category.enabled} 
-            onChange={() => handleCheckboxChange(category)}/> 
-            {category.name} ({category.count})
-            </label>
         </div>
-      ))}
+          <button onClick={submitAnswer} style={submitButtonStyle} className={"submitNextButton"}>Submit Answer</button>
+          <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Next question</button>    
+      <p id='answerTally'>Correct answers: {correctAnswers} / Total questions: {totalQuestions} </p>
+      </div>
   </div>
   );
 };

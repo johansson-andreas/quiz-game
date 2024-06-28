@@ -1,11 +1,76 @@
 .correct {
     background-color: lightgreen;
+    border-radius: 15px;
+    width: 100%;
   }
   
-  .incorrect {
-    background-color: red;
-  }
+.incorrect {
+  background-color: red;
+  border-radius: 15px;
+  width: 100%;
+}
   
-  .neutral {
-    background-color: white;
-  }
+.neutral {
+  background-color: white;
+  border-radius: 15px;
+  width: 100%;
+}
+.submitNextButton {
+  width: 400px;
+  height: 50px;
+  background-color: #d8c1c1e5;
+  border-radius: 50px;
+  border: 1px solid black; /* Combined border style */
+}
+#questionBody {
+  display: flex;
+  flex-direction: column; /* Ensures vertical stacking */
+  margin-left: 1%;
+  margin-top: 5vh;
+  height: 100vh; 
+}
+#questionBody > * {
+  margin-bottom: 10px; /* Adjust the spacing as per your design */
+}
+#radioButtonsDiv {
+  align-items: flex-start;
+  font-size: 18px;
+  max-width: 400px;
+  width: 400px;
+}
+#radioButtonsDiv > * {
+  margin-bottom: 5px;
+}
+#categoriesDiv
+{
+  margin-top: 5vh;
+  align-items:flex-start;
+  margin-left: 3vw;
+}
+#questionText
+{
+  max-width: 75%;
+}
+#mainBody
+{
+  display: flex;
+  flex-direction:row; /* Ensures vertical stacking */
+  height: 100vh;
+  width: 1000vw;
+}
+.radioButtonLabels
+{
+  display: block;
+  max-width: 100%;
+  border: 1px solid black;
+  border-radius: 15px;
+  padding: 5px;
+}
+.checkboxLabels
+{
+  display: block;
+  max-width: 100%;
+  border: 1px solid black;
+  padding: 3px;
+  margin: 2px;
+}
