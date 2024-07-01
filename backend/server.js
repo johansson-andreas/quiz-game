@@ -2,86 +2,83 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
-const fs = require('fs');
-const readline = require('readline');
 const os = require('os');
 const { networkInterfaces } = os;
 const { connectDB } = require('./db'); // Adjust the path as needed
 require('dotenv').config();
 const Question = require('./models/Question'); // Replace with your actual path to Question model
+const CategoryIcon = require('./models/CategoryIcon');
 const app = express(); // Create an instance of the Express application
 
 connectDB();
 
-'use strict';
+async function initializeServer() {
+  await connectDB(); // Ensure the database connection is established
 
-const nets = networkInterfaces();
-let localIp = '';
+  'use strict';
 
-// Find IPv4 LAN address dynamically
-Object.keys(nets).forEach(name => {
-  nets[name].forEach(net => {
-    // 'IPv4' is in Node <= 17, from Node 18 onwards, it's a number (4 or 6)
-    const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4;
-    if (net.family === familyV4Value && !net.internal) {
-      localIp = net.address;
-    }
+  const nets = networkInterfaces();
+  let localIp = '';
+
+  // Find IPv4 LAN address dynamically
+  Object.keys(nets).forEach(name => {
+    nets[name].forEach(net => {
+      // 'IPv4' is in Node <= 17, from Node 18 onwards, it's a number (4 or 6)
+      const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4;
+      if (net.family === familyV4Value && !net.internal) {
+        localIp = net.address;
+      }
+    });
   });
-});
 
-const corsOptions = {
-  origin: localIp + `:3000`, // Use LAN IP dynamically
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['my-custom-header'],
-  credentials: true
-};
-
-console.log('CORS Options:', corsOptions); // Optional: Log CORS options for debugging
-
-// Use `corsOptions` with Express CORS middleware
-app.use(cors(corsOptions));
-
-const server = http.createServer(app); // Create an HTTP server and pass the Express app to it
-
-const io = socketIo(server, {
-  cors: {
-    origin: localIp + ':3000',
+  const corsOptions = {
+    origin: localIp + `:3000`, // Use LAN IP dynamically
     methods: ['GET', 'POST'],
     allowedHeaders: ['my-custom-header'],
     credentials: true
-  }
-});
+  };
 
-const PORT = process.env.PORT || 4000;
+  console.log('CORS Options:', corsOptions); // Optional: Log CORS options for debugging
 
-let categories = [];
+  // Use `corsOptions` with Express CORS middleware
+  app.use(cors(corsOptions));
 
-// Function to shuffle an array
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
+  const server = http.createServer(app); // Create an HTTP server and pass the Express app to it
+
+  const io = socketIo(server, {
+    cors: {
+      origin: localIp + ':3000',
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['my-custom-header'],
+      credentials: true
+    }});
+
+  const PORT = process.env.PORT || 4000;
+
+  // Function to shuffle an array
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   }
-  return array;
-}
 
-function getNewQuestion(client) {
-  console.log(`${client} is requesting new question. Current amount of unused questions ${client.unusedQuestions.length}`)
-  return client.unusedQuestions.pop();
-}
+  function getNewQuestion(client) {
+    console.log(`${client} is requesting new question. Current amount of unused questions ${client.unusedQuestions.length}`)
+    
+    return client.unusedQuestions.pop();
+  }
 
+  const defaultQuestions = await Question.find();
+  console.log("DQLENGHT: " + defaultQuestions.length);
 
-// Function to get questions from a specific category
-const getQuestionsByCategory = (categoryTitle) => {
-  const category = categories.find(cat => cat.categoryName === categoryTitle);
-  return category ? category.questions : [];
-};
-
-
-const defaultQuestions = Question.find();
-console.log("DQLENGHT: " + defaultQuestions.length)
-
-const clientQueues = {};
+  const clientQueues = {};
+  const catIconDB = await CategoryIcon.find();
+  const categoryIcons = catIconDB.map(category => ({
+    catName: category.catName,
+    iconName: category.iconName
+  }));
 
 // Handle Socket.IO connections
 io.on('connection', (socket) => {
@@ -164,6 +161,13 @@ io.on('connection', (socket) => {
           { $group: { _id: '$tags', count: { $sum: 1 } } },
           { $sort: { count: -1 } }  // Sort by count in descending order
         ]);
+
+        tagsWithCounts.forEach(tag => {
+          const categoryIcon = categoryIcons.find(category => category.catName === tag._id);
+            if (categoryIcon) {
+              tag.icon = categoryIcon.iconName;
+            }
+        });    
   
         console.log(`Created default question queue for ${socket.id}. Amount of questions: ${clientQueues[socket.id].unusedQuestions.length}`);
   
@@ -185,12 +189,12 @@ io.on('connection', (socket) => {
     delete clientQueues[socket.id];
     console.log(`Client ${socket.id} disconnected and queue cleaned up`);
   });
-
-  // Initialize default question queue on connection
-
-
 }, []);
-
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  // Initialize default question queue on connection
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+initializeServer().catch(error => {
+  console.error("Failed to initialize server:", error);
 });
