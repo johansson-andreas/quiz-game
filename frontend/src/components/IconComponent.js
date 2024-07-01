@@ -4,6 +4,16 @@ import geographyIcon from '../icons/geographyIcon.png';
 import historyIcon from '../icons/historyIcon.png';
 import itIcon from '../icons/itIcon.png';
 import languageIcon from '../icons/languageIcon.png';
+import musicIcon from '../icons/musicIcon.png';
+import movieIcon from '../icons/movieIcon.png';
+import litteratureIcon from '../icons/litteratureIcon.png';
+import politicsIcon from '../icons/politicsIcon.png';
+import scienceIcon from '../icons/scienceIcon.png';
+import sportIcon from '../icons/sportIcon.png';
+import wheelIcon from '../icons/wheelIcon.png';
+import religionIcon from '../icons/religionIcon.png';
+
+
 
 
 
@@ -14,14 +24,25 @@ iconList["geographyIcon"] = geographyIcon;
 iconList["historyIcon"] = historyIcon;
 iconList["itIcon"] = itIcon;
 iconList["languageIcon"] = languageIcon;
-iconList["itIcon"] = itIcon;
-iconList["itIcon"] = itIcon;
-iconList["itIcon"] = itIcon;
+iconList["musicIcon"] = musicIcon;
+iconList["movieIcon"] = movieIcon;
+iconList["litteratureIcon"] = litteratureIcon;
+iconList["politicsIcon"] = politicsIcon;
+iconList["sportIcon"] = sportIcon;
+iconList["scienceIcon"] = scienceIcon;
+iconList["sportIcon"] = sportIcon;
+iconList["scienceIcon"] = scienceIcon;
+iconList["wheelIcon"] = wheelIcon;
+iconList["religionIcon"] = religionIcon;
+
 
 
 const IconComponent = ({ imageName }) => {
+  
   return (
-    <img src={iconList[imageName]} alt="" width="30" height="30" />
+    <div className="icon-container">
+      <img src={iconList[imageName]} alt="" className="icon-image"/>
+    </div>
   );
 };
 
