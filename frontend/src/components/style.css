@@ -11,23 +11,31 @@
 }
   
 .neutral {
-  background-color: white;
+  background-color: rgb(91, 200, 243);
   border-radius: 15px;
   width: 100%;
 }
 .submitNextButton {
   width: 400px;
   height: 50px;
-  background-color: #d8c1c1e5;
+  background-color: #d3f06de5;
   border-radius: 50px;
   border: 1px solid black; /* Combined border style */
+  font-size: 20px;
 }
 #questionBody {
   display: flex;
   flex-direction: column; /* Ensures vertical stacking */
   margin-left: 1%;
-  margin-top: 5vh;
-  height: 100vh; 
+  margin-top: 0.3%;
+  height: 70%; 
+  font-size: 18px;
+  border: 1px solid black;
+  padding: 20px;
+  border-radius: 20px;
+  align-items: center;
+  background-color: rgb(136, 228, 245);
+  width: 7%;
 }
 #questionBody > * {
   margin-bottom: 10px; /* Adjust the spacing as per your design */
@@ -35,8 +43,8 @@
 #radioButtonsDiv {
   align-items: flex-start;
   font-size: 18px;
-  max-width: 400px;
-  width: 400px;
+  max-width: 75%;
+  width: 75%;
 }
 #radioButtonsDiv > * {
   margin-bottom: 5px;
@@ -50,6 +58,10 @@
 #questionText
 {
   max-width: 75%;
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #63b4ebe5;
 }
 #mainBody
 {
@@ -72,5 +84,6 @@
   max-width: 100%;
   border: 1px solid black;
   padding: 3px;
-  margin: 2px;
+  margin: 4px;
+  border-radius: 5px;
 }
