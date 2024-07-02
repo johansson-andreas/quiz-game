@@ -7,6 +7,7 @@ import IconComponent from './IconComponent';
 const Controller = () => {
   const [question, setQuestion] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
+  const [questionIcons, setQuestionIcons] = useState([]);
   const [options, setOptions] = useState([]);
   const [answer, setAnswer] = useState('');
   const [submittedAnswer, setSubmittedAnswer] = useState('');
@@ -26,7 +27,8 @@ const Controller = () => {
   useEffect(() => {
     
     socket.emit('initialContact');
-    console.log("Initial contact")
+    console.log("Initial contact");
+    setAnswer('default');
 
     socket.on('connect', () => {
       console.log('Socket.IO connect to server');
@@ -58,9 +60,24 @@ const Controller = () => {
       setSubmittedAnswer('');
 
       console.log('Received new question:', questionData);
-      // Example: Update UI to display the new question
       setQuestion(questionData.text);
       setCorrectAnswer(questionData.correctAnswer);
+
+     // Process questionData tags only after questionCategories state is updated
+      setQuestionCategories(prevCategories => {
+        let questionIcons = [];
+        questionData.tags.forEach(tag => {
+          const categoryIcon = prevCategories.find(category => category.name === tag);
+          if (categoryIcon) {
+            console.log("Found category");
+            questionIcons.push(categoryIcon.icon);
+          }
+        });
+        setQuestionIcons(questionIcons);
+        return prevCategories;
+      });
+    
+
       const allOptions = [
         ...questionData.incorrectAnswers,
       ];
@@ -171,8 +188,17 @@ const Controller = () => {
         </div>
       ))}
       </div>
-      <div id='questionBody'>
-      <p id='questionText'>{question}</p>
+      <div id='questionBody'> 
+        <div id='questionText'>
+          {question} 
+          <div id='tagIcons'>
+            {questionIcons.map((index) => (
+              <div key={index} className="tagIcon">
+                <IconComponent imageName={index}/>    
+              </div>
+            ))}
+          </div>
+        </div>
         <div id='radioButtonsDiv'>
           {options.map((option, index) => (
             <div key={index} className={getDivClassName(option)}>
@@ -188,9 +214,9 @@ const Controller = () => {
             </div>
           ))}
         </div>
-          <button onClick={submitAnswer} style={submitButtonStyle} className={"submitNextButton"}>Submit Answer</button>
-          <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Next question</button>    
-      <p id='answerTally'>Correct answers: {correctAnswers} / Total questions: {totalQuestions} </p>
+        <button onClick={submitAnswer} style={submitButtonStyle} className={"submitNextButton"}>Submit Answer</button>
+        <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Next question</button>    
+        <p id='answerTally'>Correct answers: {correctAnswers} / Total questions: {totalQuestions} </p>
       </div>
   </div>
   );
