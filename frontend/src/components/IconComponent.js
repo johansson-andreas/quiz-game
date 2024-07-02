@@ -41,7 +41,7 @@ const IconComponent = ({ imageName }) => {
   
   return (
     <div className="icon-container">
-      <img src={iconList[imageName]} alt="" className="icon-image"/>
+      <img src={iconList[imageName]} alt={imageName} className="icon-image"/>
     </div>
   );
 };
