@@ -3,6 +3,7 @@ import socket from './Socket';
 import './style.css';
 import { useLocation } from 'react-router-dom';
 import IconComponent from './IconComponent';
+import ScorePanel from './ScorePanel';
 
 const Controller = () => {
   const [questionText, setQuestionText] = useState(null);
@@ -12,15 +13,13 @@ const Controller = () => {
   const [options, setOptions] = useState([]);
   const [answer, setAnswer] = useState('');
   const [submittedAnswer, setSubmittedAnswer] = useState('');
-  const [correctAnswers, addCorrectAnswer] = useState(0);
-  const [totalQuestions, addTotalQuestion] = useState(0);
+  const [totalQuestionsScore, setTotalQuestionsScore] = useState([0,0]);
   const [activeQuestion, setActive] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState('Connecting...'); // State to hold connection status
   const location = useLocation();
   const [questionCategories, setQuestionCategories] = useState([]);
   const [activeCategories, setActiveCategories] = useState([]);
   const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState([]);
-  const [inputText, setInputText] = useState('');
   const [scoreArray, setScoreArray] = useState({});
 
   
@@ -40,7 +39,6 @@ const Controller = () => {
       console.log('Disconnected from server');
     });
 
-    // Event listener for connection error
     socket.on('connect_error', (error) => {
       setConnectionStatus(`Connection error: ${error.message}`);
     });
@@ -57,7 +55,6 @@ const Controller = () => {
     });
 
 
-    // Handle custom events from server
     socket.on('newQuestion', (questionData) => {
       setSubmittedAnswer('');
 
@@ -66,7 +63,6 @@ const Controller = () => {
       setQuestionText(questionData.text);
       setCorrectAnswer(questionData.correctAnswer);
 
-     // Process questionData tags only after questionCategories state is updated
       setQuestionCategories(prevCategories => {
         let questionIcons = [];
         questionData.tags.forEach(tag => {
@@ -74,7 +70,8 @@ const Controller = () => {
           if (categoryIcon) {
             console.log("Found category");
             questionIcons.push(categoryIcon.icon);
-          }
+            console.log(questionIcons.length)
+          };
         });
         setQuestionIcons(questionIcons);
         return prevCategories;
@@ -95,7 +92,6 @@ const Controller = () => {
 
     socket.on('answerReceived', (answer) => {
       console.log('Answer received:', answer);
-      // Example: Process received answer
     });
 
     return () => {
@@ -103,37 +99,26 @@ const Controller = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (location.state && location.state.choice) {
-      setInputText(location.state.choice);
-    }
-  }, []);
 
   const submitAnswer = (e) => {
     e.preventDefault();
     setSubmittedAnswer(answer);
-    console.log('Submitted answer:', answer);
-    // Here you would emit the answer to the server, or handle it as needed
-    if(answer === correctAnswer) addCorrectAnswer(prevCount => prevCount + 1);
-    addTotalQuestion(prevCount => prevCount + 1);
+    console.log('Submitted answer:', submittedAnswer);
+
+    setTotalQuestionsScore(prevCount => {
+      const newCountArray = {...prevCount};
+
+      if(submittedAnswer === correctAnswer)newCountArray[0] = newCountArray[0] + 1;
+      newCountArray[1] = newCountArray[1] + 1;
+
+      return newCountArray
+    });
+
+
     console.log('correctAnswer:', correctAnswer);
     socket.emit('sendAnswer', answer);
     setActive(false);
 
-    question.tags.forEach(tag => {
-      setScoreArray(prevScoreArray => {
-        // Create a shallow copy of the previous state
-        const newScoreArray = { ...prevScoreArray };
-    
-        // Increment the score for the current tag
-        newScoreArray[tag] = (newScoreArray[tag] || 0) + 1;
-    
-        // Return the updated state
-        return newScoreArray;
-      });
-    });
-
-    console.log(scoreArray);
   };
   const handleOptionChange = (e) => {
     setAnswer(e.target.value);
@@ -175,27 +160,36 @@ const Controller = () => {
     );
   };
 
+  useEffect(() => {
+    setScoreArray(prevScoreArray => {
 
-  const scoreArrayEntries = useMemo(() => Object.entries(scoreArray), [scoreArray]);
+      if (!question || !Array.isArray(question.tags)) {
+        console.error("question or question.tags is not defined correctly");
+        return prevScoreArray; 
+      }
 
-  // Function to chunk the array into groups of three
-  const chunkArray = (array, chunkSize) => {
-    const chunks = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-      chunks.push(array.slice(i, i + chunkSize));
-    }
-    return chunks;
-  };
-
-  const groupedEntries = useMemo(() => chunkArray(scoreArrayEntries, 3), [scoreArrayEntries]);
-
+      const newScoreArray = { ...prevScoreArray };
+  
+      question.tags.forEach(tag => {
+        if (!newScoreArray[tag]) {
+          newScoreArray[tag] = [0, 0];
+        }
+        if (submittedAnswer === correctAnswer) {
+          newScoreArray[tag][0] = newScoreArray[tag][0] + 1;
+        }
+        newScoreArray[tag][1] = newScoreArray[tag][1] + 1;
+      });
+  
+      return newScoreArray;
+    });
+  }, [submittedAnswer]);
 
   useEffect(() => {
     let newActiveCategories = questionCategories.map(category => {
       if (category.enabled) {
         return category.name;
       }
-      return null; // Handle disabled categories or return undefined if needed
+      return null; 
     }).filter(name => name !== null);
     setActiveCategories(newActiveCategories);
   }, [questionCategories]);
@@ -207,6 +201,8 @@ const Controller = () => {
       console.log(activeCategories);
     }
   }, [activeCategories]); 
+
+
   return (
     <div id='mainBody'>
       <div id='categoriesDiv'>
@@ -225,8 +221,8 @@ const Controller = () => {
         </div>
       ))}
       </div>
-      <div id='questionBody'> 
-        <div id='questionText'>
+      <div className='questionBody'> 
+        <div className='questionText'>
           {questionText} 
           <div id='tagIcons'>
             {questionIcons.map((index) => (
@@ -253,24 +249,7 @@ const Controller = () => {
         </div>
         <button onClick={submitAnswer} style={submitButtonStyle} className={"submitNextButton"}>Submit Answer</button>
         <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Next question</button>    
-        <div id="scorePanel">
-          <p id='answerTally'>Correct answers: {correctAnswers} / Total questions: {totalQuestions} </p>
-          <div id="scoreCatPanel">
-              {groupedEntries.length > 0 ? (
-                groupedEntries.map((group, index) => (
-                  <div key={index}>
-                    {group.map(([cat, count]) => (
-                      <div key={cat}>
-                        {cat}: {count}
-                      </div>
-                    ))}
-                  </div>
-                ))
-              ) : (
-                <div>No scores available</div>
-              )}
-          </div>
-        </div>
+          <ScorePanel scoreArray={scoreArray} totalQuestionsScore={totalQuestionsScore}/>
       </div>
   </div>
   );
