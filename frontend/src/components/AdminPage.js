@@ -20,7 +20,7 @@ const AdminPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        socket.emit('addQuestion', questionData); // Emit 'addQuestion' event with questionData
+        socket.emit('addQuestion', questionData); 
         setQuestionData({
           text: '',
           correctAnswer: '',

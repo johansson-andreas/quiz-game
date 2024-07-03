@@ -4,16 +4,16 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const os = require('os');
 const { networkInterfaces } = os;
-const { connectDB } = require('./db'); // Adjust the path as needed
+const { connectDB } = require('./db');
 require('dotenv').config();
-const Question = require('./models/Question'); // Replace with your actual path to Question model
+const Question = require('./models/Question'); 
 const CategoryIcon = require('./models/CategoryIcon');
-const app = express(); // Create an instance of the Express application
+const app = express(); 
 
 connectDB();
 
 async function initializeServer() {
-  await connectDB(); // Ensure the database connection is established
+  await connectDB(); 
 
   'use strict';
 
@@ -23,7 +23,6 @@ async function initializeServer() {
   // Find IPv4 LAN address dynamically
   Object.keys(nets).forEach(name => {
     nets[name].forEach(net => {
-      // 'IPv4' is in Node <= 17, from Node 18 onwards, it's a number (4 or 6)
       const familyV4Value = typeof net.family === 'string' ? 'IPv4' : 4;
       if (net.family === familyV4Value && !net.internal) {
         localIp = net.address;
@@ -38,12 +37,11 @@ async function initializeServer() {
     credentials: true
   };
 
-  console.log('CORS Options:', corsOptions); // Optional: Log CORS options for debugging
+  console.log('CORS Options:', corsOptions); 
 
-  // Use `corsOptions` with Express CORS middleware
   app.use(cors(corsOptions));
 
-  const server = http.createServer(app); // Create an HTTP server and pass the Express app to it
+  const server = http.createServer(app); 
 
   const io = socketIo(server, {
     cors: {
@@ -80,7 +78,6 @@ async function initializeServer() {
     iconName: category.iconName
   }));
 
-// Handle Socket.IO connections
 io.on('connection', (socket) => {
   console.log('A user connected to socket.IO:', socket.id);
 
@@ -101,7 +98,6 @@ io.on('connection', (socket) => {
 
     } catch (err) {
       console.error('Failed to fetch questions by tags:', err);
-      // Handle error as needed (e.g., emit an error event)
     }
   };
 
@@ -111,12 +107,9 @@ io.on('connection', (socket) => {
     fetchQuestionsByTags(data);
   });
   
-  // Handle answer submission from controller client
   socket.on('sendAnswer', (answer) => {
     console.log(`Received answer "${answer}" from controller client ${socket.id}`);
 
-    // Logic to process the answer (e.g., update score, check correctness)
-    // For simplicity, let's just log the answer for now
   });
   socket.on('nextQuestion', () => {
     let newQuestion = [];
@@ -130,8 +123,7 @@ io.on('connection', (socket) => {
 
     socket.emit('newQuestion', newQuestion);
     console.log('Received newQuestion request', newQuestion);
-    // Logic to process the answer (e.g., update score, check correctness)
-    // For simplicity, let's just log the answer for now
+
   });
 
   socket.on('addQuestion', (questionData) => {
@@ -184,7 +176,6 @@ io.on('connection', (socket) => {
     })();
   });
 
-  // Clean up on disconnect
   socket.on('disconnect', () => {
     delete clientQueues[socket.id];
     console.log(`Client ${socket.id} disconnected and queue cleaned up`);

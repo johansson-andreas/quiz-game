@@ -23,7 +23,7 @@
   border: 1px solid black; /* Combined border style */
   font-size: 20px;
 }
-#questionBody {
+.questionBody {
   display: flex;
   flex-direction: column; /* Ensures vertical stacking */
   margin-left: 5%;
@@ -37,7 +37,7 @@
   background-color: rgb(136, 228, 245);
   width: 70%;
 }
-#questionBody > * {
+.questionBody > * {
   margin-bottom: 10px; /* Adjust the spacing as per your design */
 }
 #radioButtonsDiv {
@@ -55,7 +55,7 @@
   align-items:flex-start;
   margin-left: 3vw;
 }
-#questionText
+.questionText
 {
   max-width: 75%;
   border: 1px solid black;
