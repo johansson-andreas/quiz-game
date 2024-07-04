@@ -79,22 +79,25 @@ async function initializeServer() {
   }));
 
 io.on('connection', (socket) => {
-  console.log('A user connected to socket.IO:', socket.id);
+
+  const clientId = socket.handshake.query.clientId;
+  
+  console.log('A user connected to socket.IO:', clientId);
 
   let tagsWithCounts = [];
 
-  clientQueues[socket.id] = {
+  if(!clientQueues[clientId]) clientQueues[clientId] = {
     unusedQuestions: [],
-    enabledCategories: [],
+    enabledCategories: {},
     cachedQuestions: [],
   };
 
   const fetchQuestionsByTags = async (tags) => {
     try {
       const matchingQuestions = await Question.find({ tags: { $in: tags } });
-      clientQueues[socket.id].cachedQuestions = shuffleArray(matchingQuestions);
-      clientQueues[socket.id].unusedQuestions = [...clientQueues[socket.id].cachedQuestions];
-      console.log(`Finding questions matching tags for ${clientQueues[socket.id]} Length: ${clientQueues[socket.id].cachedQuestions.length}`)
+      clientQueues[clientId].cachedQuestions = shuffleArray(matchingQuestions);
+      clientQueues[clientId].unusedQuestions = [...clientQueues[clientId].cachedQuestions];
+      console.log(`Finding questions matching tags for ${clientQueues[clientId]} Length: ${clientQueues[clientId].cachedQuestions.length}`)
 
     } catch (err) {
       console.error('Failed to fetch questions by tags:', err);
@@ -102,27 +105,27 @@ io.on('connection', (socket) => {
   };
 
   socket.on('fetchQuestionsByTags', (data) => {
-    clientQueues[socket.id].enabledCategories = data;
+    clientQueues[clientId].enabledCategories = data;
     console.log(data);
     fetchQuestionsByTags(data);
   });
   
   socket.on('sendAnswer', (answer) => {
-    console.log(`Received answer "${answer}" from controller client ${socket.id}`);
+    console.log(`Received answer "${answer}" from controller client ${clientId}`);
 
   });
   socket.on('nextQuestion', () => {
     let newQuestion = [];
-    if (clientQueues[socket.id].unusedQuestions.length == 0) {
-      console.log(`Cached questions length: ${clientQueues[socket.id].cachedQuestions.length}`);
-      clientQueues[socket.id].unusedQuestions = [...clientQueues[socket.id].cachedQuestions];
-      console.log(`Created new question queue for ${clientQueues[socket.id]}. Length: ${clientQueues[socket.id].unusedQuestions.length}`);
-      newQuestion = getNewQuestion(clientQueues[socket.id]);
+    if (clientQueues[clientId].unusedQuestions.length == 0) {
+      console.log(`Cached questions length: ${clientQueues[clientId].cachedQuestions.length}`);
+      clientQueues[clientId].unusedQuestions = [...clientQueues[clientId].cachedQuestions];
+      console.log(`Created new question queue for ${clientQueues[clientId]}. Length: ${clientQueues[clientId].unusedQuestions.length}`);
+      newQuestion = getNewQuestion(clientQueues[clientId]);
     }
-    else {newQuestion = getNewQuestion(clientQueues[socket.id]);}
+    else {newQuestion = getNewQuestion(clientQueues[clientId]);}
 
     socket.emit('newQuestion', newQuestion);
-    console.log('Received newQuestion request', newQuestion);
+    console.log('Received newQuestion request from: ', {clientId});
 
   });
 
@@ -147,38 +150,55 @@ io.on('connection', (socket) => {
   {
     (async () => {
       try {
-        clientQueues[socket.id].unusedQuestions = shuffleArray(await Question.find());
-        tagsWithCounts = await Question.aggregate([
-          { $unwind: '$tags' },
-          { $group: { _id: '$tags', count: { $sum: 1 } } },
-          { $sort: { count: -1 } }  // Sort by count in descending order
-        ]);
+        if(clientQueues[clientId].unusedQuestions.length === 0) 
+        {
+            clientQueues[clientId].unusedQuestions = shuffleArray(await Question.find());
+            console.log(`Created default question queue for ${clientId}. Amount of questions: ${clientQueues[clientId].unusedQuestions.length}`);
+        }
 
-        tagsWithCounts.forEach(tag => {
-          const categoryIcon = categoryIcons.find(category => category.catName === tag._id);
+
+        if (Object.keys(clientQueues[clientId].enabledCategories).length === 0) {
+          
+          tagsWithCounts = await Question.aggregate([
+            { $unwind: '$tags' },
+            { $group: { _id: '$tags', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }  // Sort by count in descending order
+          ]);
+
+          tagsWithCounts.forEach(tag => {
+            const categoryIcon = categoryIcons.find(category => category.catName === tag._id);
             if (categoryIcon) {
               tag.icon = categoryIcon.iconName;
             }
-        });    
-  
-        console.log(`Created default question queue for ${socket.id}. Amount of questions: ${clientQueues[socket.id].unusedQuestions.length}`);
-  
-        clientQueues[socket.id].enabledCategories = tagsWithCounts.map(tag => [...tag._id])
+            tag.enabled = true;
+          });    
+          
 
-        socket.emit('newQuestion', getNewQuestion(clientQueues[socket.id]));
+          tagsWithCounts.map(tag => {
+            const tempTag = {...tag};
+            const categoryIcon = categoryIcons.find(category => category.catName === tempTag._id);
+            if (categoryIcon) {
+              tempTag.icon = categoryIcon.iconName;
+            }
+            tempTag.enabled = true;
+            return tempTag
+          });    
+
+          clientQueues[clientId].enabledCategories = tagsWithCounts;
+
+        }
+        socket.emit('newQuestion', getNewQuestion(clientQueues[clientId]));
         socket.emit('questionCategories', tagsWithCounts);
-        console.log(tagsWithCounts);
-        console.log(`Sent new question and question categories to ${socket.id}`);
+        console.log(`Sent new question and question categories to ${clientId}`);
   
       } catch (err) {
-        console.error(`Failed to populate default question queue for ${socket.id}:`, err);
+        console.error(`Failed to populate default question queue for ${clientId}:`, err);
       }
     })();
   });
 
   socket.on('disconnect', () => {
-    delete clientQueues[socket.id];
-    console.log(`Client ${socket.id} disconnected and queue cleaned up`);
+    console.log(`Client ${clientId} disconnected and queue cleaned up`);
   });
 }, []);
   // Initialize default question queue on connection
