@@ -84,11 +84,9 @@ io.on('connection', (socket) => {
   
   console.log('A user connected to socket.IO:', clientId);
 
-  let tagsWithCounts = [];
-
   if(!clientQueues[clientId]) clientQueues[clientId] = {
     unusedQuestions: [],
-    enabledCategories: {},
+    categories: {},
     cachedQuestions: [],
   };
 
@@ -105,9 +103,13 @@ io.on('connection', (socket) => {
   };
 
   socket.on('fetchQuestionsByTags', (data) => {
-    clientQueues[clientId].enabledCategories = data;
-    console.log(data);
-    fetchQuestionsByTags(data);
+    clientQueues[clientId].categories = data;
+    const enabledTags = clientQueues[clientId].categories
+    .filter(category => category.enabled)
+    .map(category => category.name);
+
+    console.log(enabledTags);
+    fetchQuestionsByTags(enabledTags);
   });
   
   socket.on('sendAnswer', (answer) => {
@@ -156,40 +158,30 @@ io.on('connection', (socket) => {
             console.log(`Created default question queue for ${clientId}. Amount of questions: ${clientQueues[clientId].unusedQuestions.length}`);
         }
 
-
-        if (Object.keys(clientQueues[clientId].enabledCategories).length === 0) {
+        if (Object.keys(clientQueues[clientId].categories).length === 0) {
           
-          tagsWithCounts = await Question.aggregate([
+          const tagsWithCounts = await Question.aggregate([
             { $unwind: '$tags' },
             { $group: { _id: '$tags', count: { $sum: 1 } } },
             { $sort: { count: -1 } }  // Sort by count in descending order
           ]);
 
-          tagsWithCounts.forEach(tag => {
-            const categoryIcon = categoryIcons.find(category => category.catName === tag._id);
-            if (categoryIcon) {
-              tag.icon = categoryIcon.iconName;
-            }
-            tag.enabled = true;
-          });    
-          
-
-          tagsWithCounts.map(tag => {
-            const tempTag = {...tag};
+          const updatedTagsWithCounts = tagsWithCounts.map(tag => {
+            const tempTag = { ...tag };
             const categoryIcon = categoryIcons.find(category => category.catName === tempTag._id);
             if (categoryIcon) {
               tempTag.icon = categoryIcon.iconName;
             }
             tempTag.enabled = true;
-            return tempTag
-          });    
-
-          clientQueues[clientId].enabledCategories = tagsWithCounts;
-
+            return tempTag;
+          }); 
+          clientQueues[clientId].categories = updatedTagsWithCounts;
+          console.log('Enabling all categories for: ', clientId);
         }
+
         socket.emit('newQuestion', getNewQuestion(clientQueues[clientId]));
-        socket.emit('questionCategories', tagsWithCounts);
-        console.log(`Sent new question and question categories to ${clientId}`);
+        socket.emit('questionCategories', clientQueues[clientId].categories);
+        console.log(`Sent new question and question categories to ${clientId} `, clientQueues[clientId].categories);
   
       } catch (err) {
         console.error(`Failed to populate default question queue for ${clientId}:`, err);
