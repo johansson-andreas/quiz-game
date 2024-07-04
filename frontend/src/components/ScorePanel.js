@@ -1,6 +1,7 @@
 import React, { useMemo} from 'react';
+import IconComponent from './IconComponent';
 
-const ScorePanel = ({scoreArray, totalQuestionsScore}) => {
+const ScorePanel = ({scoreArray, totalQuestionsScore, questionCategories}) => {
 
     const chunkArray = (array, chunkSize) => {
         const chunks = [];
@@ -15,6 +16,13 @@ const ScorePanel = ({scoreArray, totalQuestionsScore}) => {
     const scoreArrayEntries = useMemo(() => Object.entries(scoreArray), [scoreArray]);
     const groupedEntries = useMemo(() => chunkArray(scoreArrayEntries, 3), [scoreArrayEntries]);
 
+    const findIcon = (imageName) => 
+        {
+            let iconName = "";
+            questionCategories.filter(qCat => {if(qCat.name === imageName) iconName = qCat.icon; return qCat});
+            return iconName;
+        }
+
 
     return (
         <div id="scorePanel">
@@ -24,9 +32,12 @@ const ScorePanel = ({scoreArray, totalQuestionsScore}) => {
                 groupedEntries.map((group, index) => (
                     <div key={index}>
                     {group.map(([cat, count]) => (
-                        <div>
-                        {cat}: {count[0]}/{count[1]}
+                        <div key={cat} className="iconScoreDiv">
+                            <div className="iconCompDiv"> <IconComponent imageName={findIcon(cat)} /> </div>
+                            <div className="catCount">{count[0]}/{count[1]}
+                            </div>
                         </div>
+                        
                     ))}
                     </div>
                 ))

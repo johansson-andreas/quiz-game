@@ -70,7 +70,7 @@
 {
   display: flex;
   flex-direction:row; /* Ensures vertical stacking */
-  height: 100vh;
+  height: 100%;
   width: 100vw;
 }
 .radioButtonLabels
@@ -95,10 +95,12 @@
 .icon-container {
   display: inline-flex; /* Keeps the container fitting tightly around the image */
   margin: 5px;
+  align-items: center;
+  flex-direction: column;
 }
 
 .icon-image {
-  max-width: 30px;
+  min-height: 30px;
   max-height: 30px;
   width: auto;
   height: auto;
@@ -126,4 +128,18 @@
 {
   display: flex;
   flex-direction: row;
+}
+.iconScoreDiv
+{
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.iconCompDiv
+{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+
 }

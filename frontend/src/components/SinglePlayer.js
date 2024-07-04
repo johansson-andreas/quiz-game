@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo} from 'react';
+import React, { useState, useEffect} from 'react';
 import socket from './Socket';
 import './style.css';
-import { useLocation } from 'react-router-dom';
 import IconComponent from './IconComponent';
 import ScorePanel from './ScorePanel';
 
@@ -15,16 +14,15 @@ const Controller = () => {
   const [submittedAnswer, setSubmittedAnswer] = useState('');
   const [totalQuestionsScore, setTotalQuestionsScore] = useState([0,0]);
   const [activeQuestion, setActive] = useState(true);
-  const [connectionStatus, setConnectionStatus] = useState('Connecting...'); // State to hold connection status
-  const location = useLocation();
   const [questionCategories, setQuestionCategories] = useState([]);
   const [activeCategories, setActiveCategories] = useState([]);
-  const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState([]);
+  const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState({});
   const [scoreArray, setScoreArray] = useState({});
+  const [questionTags, setQuestionTags] = useState([]);
 
   
 
-
+  //Socket.IO receive block
   useEffect(() => {
     
     socket.emit('initialContact');
@@ -39,38 +37,31 @@ const Controller = () => {
       console.log('Disconnected from server');
     });
 
-    socket.on('connect_error', (error) => {
-      setConnectionStatus(`Connection error: ${error.message}`);
-    });
-
     socket.on('questionCategories', (questionSet) => {
       const newCategories = questionSet.map(category => ({
         name: category._id,
         count: category.count,
         icon: category.icon,
-        enabled: true,
+        enabled: false,
       }));
-      setPreviouslyUsedCategories(questionSet.map(category => [...category._id]));
       setQuestionCategories(newCategories);
     });
 
 
     socket.on('newQuestion', (questionData) => {
-      setSubmittedAnswer('');
-
       console.log('Received new question:', questionData);
+
       setQuestion(questionData);
       setQuestionText(questionData.text);
       setCorrectAnswer(questionData.correctAnswer);
+      setQuestionTags(questionData.tags);
 
       setQuestionCategories(prevCategories => {
         let questionIcons = [];
         questionData.tags.forEach(tag => {
           const categoryIcon = prevCategories.find(category => category.name === tag);
           if (categoryIcon) {
-            console.log("Found category");
             questionIcons.push(categoryIcon.icon);
-            console.log(questionIcons.length)
           };
         });
         setQuestionIcons(questionIcons);
@@ -88,6 +79,8 @@ const Controller = () => {
         [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
       }
       setOptions(allOptions);
+      
+
     });
 
     socket.on('answerReceived', (answer) => {
@@ -99,25 +92,44 @@ const Controller = () => {
     };
   }, []);
 
-
+  //submitAnswer to backend block
   const submitAnswer = (e) => {
     e.preventDefault();
     setSubmittedAnswer(answer);
     console.log('Submitted answer:', submittedAnswer);
 
-    setTotalQuestionsScore(prevCount => {
-      const newCountArray = {...prevCount};
-
-      if(submittedAnswer === correctAnswer)newCountArray[0] = newCountArray[0] + 1;
-      newCountArray[1] = newCountArray[1] + 1;
-
-      return newCountArray
-    });
-
-
     console.log('correctAnswer:', correctAnswer);
     socket.emit('sendAnswer', answer);
+
+    setScoreArray(prevScoreArray => {
+      const newScoreArray = { ...prevScoreArray };
+  
+      questionTags.forEach(tag => {
+        if (!newScoreArray[tag]) {
+          console.log("No score found for ", tag, ". Creating new key for it")
+          newScoreArray[tag] = [0, 0];
+        }
+        if (submittedAnswer === correctAnswer) {
+          newScoreArray[tag][0] += 1;
+        }
+        newScoreArray[tag][1] += 1;
+      });
+  
+      return newScoreArray;
+    });
+  
+    setTotalQuestionsScore(prevCount => {
+      const newCountArray = { ...prevCount };
+  
+      if (submittedAnswer === correctAnswer) newCountArray[0] = newCountArray[0] + 1;
+      newCountArray[1] = newCountArray[1] + 1;
+  
+      return newCountArray;
+    });
+
     setActive(false);
+    setSubmittedAnswer('');
+
 
   };
   const handleOptionChange = (e) => {
@@ -135,6 +147,7 @@ const Controller = () => {
     }
   };
 
+    //Request new question from backend block
   const nextQuestion = () => {
     console.log("Next question");
     setActive(true);
@@ -160,29 +173,7 @@ const Controller = () => {
     );
   };
 
-  useEffect(() => {
-    setScoreArray(prevScoreArray => {
 
-      if (!question || !Array.isArray(question.tags)) {
-        console.error("question or question.tags is not defined correctly");
-        return prevScoreArray; 
-      }
-
-      const newScoreArray = { ...prevScoreArray };
-  
-      question.tags.forEach(tag => {
-        if (!newScoreArray[tag]) {
-          newScoreArray[tag] = [0, 0];
-        }
-        if (submittedAnswer === correctAnswer) {
-          newScoreArray[tag][0] = newScoreArray[tag][0] + 1;
-        }
-        newScoreArray[tag][1] = newScoreArray[tag][1] + 1;
-      });
-  
-      return newScoreArray;
-    });
-  }, [submittedAnswer]);
 
   useEffect(() => {
     let newActiveCategories = questionCategories.map(category => {
@@ -196,10 +187,11 @@ const Controller = () => {
 
 
   useEffect(() => {
-    if(activeCategories.length > 0){
+    if(previouslyUsedCategories.length > 0 && activeCategories.length > 0){
       socket.emit('fetchQuestionsByTags', activeCategories)
       console.log(activeCategories);
     }
+    setPreviouslyUsedCategories(activeCategories)
   }, [activeCategories]); 
 
 
@@ -249,7 +241,7 @@ const Controller = () => {
         </div>
         <button onClick={submitAnswer} style={submitButtonStyle} className={"submitNextButton"}>Submit Answer</button>
         <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Next question</button>    
-          <ScorePanel scoreArray={scoreArray} totalQuestionsScore={totalQuestionsScore}/>
+          <ScorePanel scoreArray={scoreArray} totalQuestionsScore={totalQuestionsScore} questionCategories={questionCategories}/>
       </div>
   </div>
   );
