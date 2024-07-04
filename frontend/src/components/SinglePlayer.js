@@ -42,8 +42,9 @@ const Controller = () => {
         name: category._id,
         count: category.count,
         icon: category.icon,
-        enabled: false,
+        enabled: category.enabled,
       }));
+      console.log('Received categories: ', newCategories)
       setQuestionCategories(newCategories);
     });
 
@@ -56,18 +57,12 @@ const Controller = () => {
       setCorrectAnswer(questionData.correctAnswer);
       setQuestionTags(questionData.tags);
 
-      setQuestionCategories(prevCategories => {
-        let questionIcons = [];
-        questionData.tags.forEach(tag => {
-          const categoryIcon = prevCategories.find(category => category.name === tag);
-          if (categoryIcon) {
-            questionIcons.push(categoryIcon.icon);
-          };
-        });
-        setQuestionIcons(questionIcons);
-        return prevCategories;
-      });
-    
+      const questionIcons = questionData.tags.map(tag => {
+        const categoryIcon = questionCategories.find(category => category.name === tag);
+        return categoryIcon ? categoryIcon.icon : null;
+      }).filter(icon => icon !== null);
+      
+      setQuestionIcons(questionIcons);
 
       const allOptions = [
         ...questionData.incorrectAnswers,
@@ -152,7 +147,7 @@ const Controller = () => {
     console.log("Next question");
     setActive(true);
     socket.emit('nextQuestion');
-    setPreviouslyUsedCategories(activeCategories);
+    setPreviouslyUsedCategories(questionCategories);
   };
 
   const submitButtonStyle = {
@@ -173,8 +168,7 @@ const Controller = () => {
     );
   };
 
-
-
+  /*
   useEffect(() => {
     let newActiveCategories = questionCategories.map(category => {
       if (category.enabled) {
@@ -185,15 +179,16 @@ const Controller = () => {
     setActiveCategories(newActiveCategories);
   }, [questionCategories]);
 
+ */
+
 
   useEffect(() => {
-    if(previouslyUsedCategories.length > 0 && activeCategories.length > 0){
-      socket.emit('fetchQuestionsByTags', activeCategories)
-      console.log(activeCategories);
+    if(previouslyUsedCategories.length > 0 && questionCategories.length > 0){
+      socket.emit('fetchQuestionsByTags', questionCategories)
+      console.log(questionCategories);
     }
-    setPreviouslyUsedCategories(activeCategories)
-  }, [activeCategories]); 
-
+    setPreviouslyUsedCategories(questionCategories)
+  }, [questionCategories]); 
 
   return (
     <div id='mainBody'>
