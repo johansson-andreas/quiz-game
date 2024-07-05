@@ -1,8 +1,8 @@
 import React, { useState, useEffect} from 'react';
-import socket from './Socket';
+import socket from '../components/Socket';
 import './style.css';
-import IconComponent from './IconComponent';
-import ScorePanel from './ScorePanel';
+import IconComponent from '../components/IconComponent';
+import ScorePanel from '../components/ScorePanel';
 
 const Controller = () => {
   const [questionText, setQuestionText] = useState(null);
@@ -39,7 +39,7 @@ const Controller = () => {
 
     socket.on('questionCategories', (questionSet) => {
       const newCategories = questionSet.map(category => ({
-        name: category._id,
+        _id: category._id,
         count: category.count,
         icon: category.icon,
         enabled: category.enabled,
@@ -56,13 +56,6 @@ const Controller = () => {
       setQuestionText(questionData.text);
       setCorrectAnswer(questionData.correctAnswer);
       setQuestionTags(questionData.tags);
-
-      const questionIcons = questionData.tags.map(tag => {
-        const categoryIcon = questionCategories.find(category => category.name === tag);
-        return categoryIcon ? categoryIcon.icon : null;
-      }).filter(icon => icon !== null);
-      
-      setQuestionIcons(questionIcons);
 
       const allOptions = [
         ...questionData.incorrectAnswers,
@@ -91,40 +84,7 @@ const Controller = () => {
   const submitAnswer = (e) => {
     e.preventDefault();
     setSubmittedAnswer(answer);
-    console.log('Submitted answer:', submittedAnswer);
-
-    console.log('correctAnswer:', correctAnswer);
-    socket.emit('sendAnswer', answer);
-
-    setScoreArray(prevScoreArray => {
-      const newScoreArray = { ...prevScoreArray };
-  
-      questionTags.forEach(tag => {
-        if (!newScoreArray[tag]) {
-          console.log("No score found for ", tag, ". Creating new key for it")
-          newScoreArray[tag] = [0, 0];
-        }
-        if (submittedAnswer === correctAnswer) {
-          newScoreArray[tag][0] += 1;
-        }
-        newScoreArray[tag][1] += 1;
-      });
-  
-      return newScoreArray;
-    });
-  
-    setTotalQuestionsScore(prevCount => {
-      const newCountArray = { ...prevCount };
-  
-      if (submittedAnswer === correctAnswer) newCountArray[0] = newCountArray[0] + 1;
-      newCountArray[1] = newCountArray[1] + 1;
-  
-      return newCountArray;
-    });
-
     setActive(false);
-    setSubmittedAnswer('');
-
 
   };
   const handleOptionChange = (e) => {
@@ -145,7 +105,8 @@ const Controller = () => {
     //Request new question from backend block
   const nextQuestion = () => {
     console.log("Next question");
-    setActive(true);
+    setActive(true);    
+    setSubmittedAnswer('');
     socket.emit('nextQuestion');
     setPreviouslyUsedCategories(questionCategories);
   };
@@ -161,7 +122,7 @@ const Controller = () => {
   const handleCheckboxChange = (category) => {
     setQuestionCategories(prevCategories =>
       prevCategories.map(cat =>
-        cat.name === category.name
+        cat._id === category._id
           ? { ...cat, enabled: !cat.enabled }
           : cat
       )
@@ -180,6 +141,50 @@ const Controller = () => {
   }, [questionCategories]);
 
  */
+  useEffect(() => {
+    console.log('Submitted answer:', submittedAnswer);
+    console.log('correctAnswer:', correctAnswer);
+    socket.emit('sendAnswer', answer);
+    if(submittedAnswer != '')
+      {
+        setScoreArray(prevScoreArray => {
+          const newScoreArray = { ...prevScoreArray };
+      
+          questionTags.forEach(tag => {
+            if (!newScoreArray[tag]) {
+              console.log("No score found for ", tag, ". Creating new key for it")
+              newScoreArray[tag] = [0, 0];
+            }
+            if (submittedAnswer === correctAnswer) {
+              newScoreArray[tag][0] += 1;
+            }
+            newScoreArray[tag][1] += 1;
+          });
+      
+          return newScoreArray;
+        });
+      
+        setTotalQuestionsScore(prevCount => {
+          const newCountArray = { ...prevCount };
+      
+          if (submittedAnswer === correctAnswer) newCountArray[0] = newCountArray[0] + 1;
+          newCountArray[1] = newCountArray[1] + 1;
+      
+          return newCountArray;
+        });
+      }
+  }, [submittedAnswer]);
+
+  useEffect(() => {
+    const tempQuestionIcons = questionTags.map(tag => {
+      const categoryIcon = questionCategories.find(category => category._id === tag);
+      return categoryIcon ? categoryIcon.icon : null;
+    }).filter(icon => icon !== null);
+    
+    setQuestionIcons(tempQuestionIcons);
+
+  }, [questionCategories, questionTags]); 
+
 
 
   useEffect(() => {
@@ -188,6 +193,7 @@ const Controller = () => {
       console.log(questionCategories);
     }
     setPreviouslyUsedCategories(questionCategories)
+
   }, [questionCategories]); 
 
   return (
@@ -201,7 +207,7 @@ const Controller = () => {
             type="checkbox" 
             defaultChecked={category.enabled} 
             onChange={() => handleCheckboxChange(category)}/> 
-            {category.name} <IconComponent imageName={category.icon}/>
+            {category._id} <IconComponent imageName={category.icon}/>
             </div>
             <div className='catCountDiv'>({category.count})</div>
             </label>

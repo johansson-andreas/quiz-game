@@ -9,13 +9,13 @@ function LandingPage() {
   };
 
   const mpChoice = (e) => {
-    navigate('/MultiplayerLobby');
+    navigate('/daily');
   };
 
   return (
     <div>
-      <button onClick={spChoice}>SP</button>
-      <button onClick={mpChoice}>MP</button>
+      <button onClick={spChoice}>Spela själv</button>
+      <button onClick={mpChoice}>Dagens frågor</button>
     </div>
   );
 }
