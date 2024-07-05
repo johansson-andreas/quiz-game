@@ -8,6 +8,8 @@ const { connectDB } = require('./db');
 require('dotenv').config();
 const Question = require('./models/Question'); 
 const CategoryIcon = require('./models/CategoryIcon');
+const DailyChallengeQuestion = require('./models/DailyChallengeQuestion');
+
 const app = express(); 
 
 connectDB();
@@ -88,6 +90,7 @@ io.on('connection', (socket) => {
     unusedQuestions: [],
     categories: {},
     cachedQuestions: [],
+    username: '',
   };
 
   const fetchQuestionsByTags = async (tags) => {
@@ -106,7 +109,7 @@ io.on('connection', (socket) => {
     clientQueues[clientId].categories = data;
     const enabledTags = clientQueues[clientId].categories
     .filter(category => category.enabled)
-    .map(category => category.name);
+    .map(category => category._id);
 
     console.log(enabledTags);
     fetchQuestionsByTags(enabledTags);
@@ -129,6 +132,17 @@ io.on('connection', (socket) => {
     socket.emit('newQuestion', newQuestion);
     console.log('Received newQuestion request from: ', {clientId});
 
+  });
+  socket.on('requestDailyChallengeQuestions', () => 
+  {
+    console.log('test');
+    (async () => {
+      const dailyQuestionsArray = await DailyChallengeQuestion.find();
+
+      console.log(dailyQuestionsArray);
+      socket.emit('sendingDailyChallengeArray', dailyQuestionsArray);
+      }
+    )
   });
 
   socket.on('addQuestion', (questionData) => {

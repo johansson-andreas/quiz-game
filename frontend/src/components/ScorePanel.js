@@ -19,7 +19,7 @@ const ScorePanel = ({scoreArray, totalQuestionsScore, questionCategories}) => {
     const findIcon = (imageName) => 
         {
             let iconName = "";
-            questionCategories.filter(qCat => {if(qCat.name === imageName) iconName = qCat.icon; return qCat});
+            questionCategories.filter(qCat => {if(qCat._id === imageName) iconName = qCat.icon; return qCat});
             return iconName;
         }
 

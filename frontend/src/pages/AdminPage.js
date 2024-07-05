@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import socket from './Socket';
+import socket from '../components/Socket';
 import './style.css';
 
 const AdminPage = () => {
