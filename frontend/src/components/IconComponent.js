@@ -13,6 +13,8 @@ import sportIcon from '../icons/sportIcon.png';
 import wheelIcon from '../icons/wheelIcon.png';
 import religionIcon from '../icons/religionIcon.png';
 import artIcon from '../icons/artIcon.png';
+import cultureIcon from '../icons/cultureIcon.png';
+
 
 
 
@@ -36,6 +38,8 @@ iconList["scienceIcon"] = scienceIcon;
 iconList["wheelIcon"] = wheelIcon;
 iconList["religionIcon"] = religionIcon;
 iconList["artIcon"] = artIcon;
+iconList["cultureIcon"] = cultureIcon;
+
 
 
 
