@@ -150,7 +150,7 @@ io.on('connection', (socket) => {
       text: questionData.text,
       correctAnswer: questionData.correctAnswer,
       incorrectAnswers: questionData.incorrectAnswers.split(',').map(option => option.trim()),
-      tags: questionData.tags.split(',').map(tag => tag.trim()) // Assuming comma-separated values
+      tags: questionData.tags.split(',').map(tag => tag.trim()) 
     });
 
     newQuestion.save()
