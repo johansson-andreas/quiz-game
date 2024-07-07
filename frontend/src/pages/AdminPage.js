@@ -6,7 +6,8 @@ const AdminPage = () => {
     const [questionData, setQuestionData] = useState({
       text: '',
       correctAnswer: '',
-      incorrectAnswers: '',
+      incorrectAnswerOne: '',
+      incorrectAnswerTwo: '',
       tags: ''
     });
   
@@ -24,7 +25,8 @@ const AdminPage = () => {
         setQuestionData({
           text: '',
           correctAnswer: '',
-          incorrectAnswers: '',
+          incorrectAnswerOne: '',
+          incorrectAnswerTwo: '',
           tags: ''
         });
       };
@@ -61,8 +63,19 @@ const AdminPage = () => {
             Incorrect Answers (comma-separated):
             <input
               type="text"
-              name="incorrectAnswers"
-              value={questionData.incorrectAnswers}
+              name="incorrectAnswerOne"
+              value={questionData.incorrectAnswerOne}
+              onChange={handleChange}
+              required
+              style={{ width: '600px' }}
+            />
+          </label>
+          <label>
+            Incorrect Answers (comma-separated):
+            <input
+              type="text"
+              name="incorrectAnswerTwo"
+              value={questionData.incorrectAnswerTwo}
               onChange={handleChange}
               required
               style={{ width: '600px' }}
