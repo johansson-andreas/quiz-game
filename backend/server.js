@@ -149,7 +149,7 @@ io.on('connection', (socket) => {
     const newQuestion = new Question({
       text: questionData.text,
       correctAnswer: questionData.correctAnswer,
-      incorrectAnswers: questionData.incorrectAnswers.split(',').map(option => option.trim()),
+      incorrectAnswers: [questionData.incorrectAnswerOne, questionData.incorrectAnswerTwo],
       tags: questionData.tags.split(',').map(tag => tag.trim()) 
     });
 
