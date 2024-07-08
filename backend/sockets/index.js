@@ -17,7 +17,6 @@ module.exports = function(io) {
       };
       session.save();
     }
-    console.log(session)
     
     socket.on('sendAnswer', (answer) => {
       console.log(`Received answer "${answer}" from controller client ${session.clientData}`);
