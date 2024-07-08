@@ -34,8 +34,8 @@ async function initializeServer() {
   });
 
   const corsOptions = {
-    origin: `http://${localIp}:3000`, // Use LAN IP dynamically
-    methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
+    origin: `http://localhost:3000`, // Use LAN IP dynamically
+    methods: ['GET', 'POST'],
     allowedHeaders: ['my-custom-header'],
     credentials: true
   };
@@ -47,8 +47,8 @@ async function initializeServer() {
 
   const io = socketIo(server, {
     cors: {
-      origin: `http://${localIp}:3000`,
-      methods: ['GET', 'POST'],
+      origin: `http://localhost:3000`,
+      methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
       allowedHeaders: ['my-custom-header'],
       credentials: true
     }
@@ -64,21 +64,27 @@ async function initializeServer() {
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
-      collection: "userSessions"
+      collection: "sessions"
     }),
     cookie: {
-      sameSite: false,
-      secure: false,
-      maxAge: 1000,
-      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      secure: false, // Change to true if using HTTPS in production
+      httpOnly: true, // Ensure the cookie is accessible only via HTTP(S), not JavaScript
+      path: '/', // Cookie available for all paths on the domain
     },
-});
-
+  });
 
   app.use(sessionMiddleware);
 
   const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
   io.use(wrap(sessionMiddleware));
+
+  io.use((socket, next) => {
+    const session = socket.request.session;
+    console.log('Session ID:', session.id);
+    console.log('Session Data:', session);
+    next();
+  });
 
   require('./sockets')(io);
 
