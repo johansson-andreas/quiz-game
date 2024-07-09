@@ -1,4 +1,4 @@
-const { shuffleArray, getNewQuestion } = require('./socketUtils');
+const { getNewQuestion, getNewQuestionQueue, shuffleArray } = require('./socketUtils');
 const Question = require('../models/Question'); 
 const CategoryIcon = require('../models/CategoryIcon');
 
@@ -7,9 +7,6 @@ module.exports = function(socket, session) {
   let client = session.clientData;
   socket.on('initialContact', async () => {
     try {
-      if (client.unusedQuestions.length === 0) {
-        client.unusedQuestions = shuffleArray(await Question.find());
-      }
 
       if (Object.keys(client.categories).length === 0) {
         const tagsWithCounts = await Question.aggregate([
@@ -39,7 +36,11 @@ module.exports = function(socket, session) {
       }
       session.save();
 
-      socket.emit('newQuestion', getNewQuestion(client));
+      if(client.cachedQuestions.length === 0) client.cachedQuestions = await getNewQuestionQueue();
+
+      let newQuestion = await getNewQuestion(client)
+
+      socket.emit('newQuestion', newQuestion);
       socket.emit('questionCategories', client.categories);
 
     } catch (err) {

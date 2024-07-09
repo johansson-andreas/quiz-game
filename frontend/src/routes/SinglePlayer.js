@@ -92,14 +92,18 @@ const Controller = () => {
   };
 
   const getDivClassName = (option) => {
-    if (submittedAnswer === option) {
-      return option === correctAnswer ? 'correct' : 'incorrect';
-    }
-    else if (submittedAnswer !== '' && correctAnswer === option) {
-      return 'correct';
-    } else {
-      return 'neutral';
-    }
+    if(!activeQuestion)
+      {
+        if (submittedAnswer === option) {
+          return option === correctAnswer ? 'correct' : 'incorrect';
+        }
+        else if (correctAnswer === option) {
+          return 'correct';
+        } else {
+          return 'neutral';
+        }
+      }
+      else return 'neutral';
   };
 
     //Request new question from backend block
@@ -144,9 +148,9 @@ const Controller = () => {
   useEffect(() => {
     console.log('Submitted answer:', submittedAnswer);
     console.log('correctAnswer:', correctAnswer);
-    socket.emit('sendAnswer', answer);
     if(submittedAnswer != '')
       {
+        socket.emit('sendAnswer', answer);
         setScoreArray(prevScoreArray => {
           const newScoreArray = { ...prevScoreArray };
       
