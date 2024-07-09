@@ -15,8 +15,8 @@ const getNewQuestion = async function(client) {
   }
   console.log(client.clientId, 'is requesting new question: Current length:', client.unusedQuestions.length)
   let newQuestionId = client.unusedQuestions.pop();
-  const newQuestion = await Question.findById(newQuestionId);
-
+  const newQuestion = await Question.findById(newQuestionId).lean();
+  client.currentQuestion = newQuestion;
   return newQuestion;
 };
 
@@ -28,7 +28,7 @@ const getNewQuestionQueue = async function() {
 const fetchQuestionsByTags = async function(session, tags) {
   let client = session.clientData;
   try {
-    client.cachedQuestions = await Question.distinct('_id', {tags: { $in: tags } });
+    client.cachedQuestions = await Question.distinct('_id', {tags: { $in: tags } }).lean();
     client.unusedQuestions = shuffleArray([...client.cachedQuestions]);
   } catch (err) {
     console.error('Failed to fetch questions by tags:', err);

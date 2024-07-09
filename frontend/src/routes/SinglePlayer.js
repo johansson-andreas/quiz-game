@@ -57,16 +57,13 @@ const Controller = () => {
       setCorrectAnswer(questionData.correctAnswer);
       setQuestionTags(questionData.tags);
 
-      const allOptions = [
-        ...questionData.incorrectAnswers,
-      ];
-      allOptions.push(questionData.correctAnswer);
+      let choices = questionData.choices;
 
-      for (let i = allOptions.length - 1; i > 0; i--) {
+      for (let i = choices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+        [choices[i], choices[j]] = [choices[j], choices[i]];
       }
-      setOptions(allOptions);
+      setOptions(choices);
       
 
     });
