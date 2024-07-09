@@ -2,6 +2,8 @@ const requestQuestion = require('./requestQuestion');
 const fetchQuestionsByTags = require('./fetchQuestionsByTag')
 const initialContact = require('./initialContact');
 const addQuestionToDB = require('./addQuestionToDB');
+const receivedAnswer = require('./receivedAnswer');
+
 
 module.exports = function(io) {
 
@@ -15,13 +17,12 @@ module.exports = function(io) {
         username: '',
         clientId: session.id,
         currentScores: {},
+        currentQuestion: {}
       };
       session.save();
     }
     console.log('Client', session.clientData.clientId, 'connected to the server');
-    socket.on('sendAnswer', (answer) => {
-      console.log(`Received answer "${answer}" from controller client ${session.clientData}`);
-    });
+
 
     fetchQuestionsByTags(socket, session);
 
@@ -30,6 +31,8 @@ module.exports = function(io) {
     initialContact(socket, session);
 
     addQuestionToDB(socket);
+    
+    receivedAnswer(socket, session);
 
     socket.on('requestDailyChallengeQuestions', async () => {
       console.log('test');

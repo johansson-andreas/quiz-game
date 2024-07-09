@@ -39,8 +39,13 @@ module.exports = function(socket, session) {
       if(client.cachedQuestions.length === 0) client.cachedQuestions = await getNewQuestionQueue();
 
       let newQuestion = await getNewQuestion(client)
+      const obsOptionsQuestion = {
+        text: newQuestion.text,
+        tags: newQuestion.tags,
+        choices: [...newQuestion.incorrectAnswers, newQuestion.correctAnswer],
+      }
 
-      socket.emit('newQuestion', newQuestion);
+      socket.emit('newQuestion', obsOptionsQuestion);
       socket.emit('questionCategories', client.categories);
 
     } catch (err) {
