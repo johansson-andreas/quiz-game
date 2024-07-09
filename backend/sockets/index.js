@@ -7,17 +7,18 @@ module.exports = function(io) {
 
   io.on('connection', (socket) => {
     const session = socket.request.session;
-
     if (!session.clientData) {
       session.clientData = {
         unusedQuestions: [],
         categories: {},
         cachedQuestions: [],
         username: '',
+        clientId: session.id,
+        currentScores: {},
       };
       session.save();
     }
-    
+    console.log('Client', session.clientData.clientId, 'connected to the server');
     socket.on('sendAnswer', (answer) => {
       console.log(`Received answer "${answer}" from controller client ${session.clientData}`);
     });
@@ -41,7 +42,7 @@ module.exports = function(io) {
       }
     });
     socket.on('disconnect', () => {
-      console.log(`Client ${session} disconnected and queue cleaned up`);
+      console.log('Client', session.clientData.clientId, 'disconnected from the server');
     });
   });
 };
