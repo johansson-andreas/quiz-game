@@ -1,8 +1,6 @@
-const requestQuestion = require('./requestQuestion');
-const fetchQuestionsByTags = require('./fetchQuestionsByTag')
 const initialContact = require('./initialContact');
 const addQuestionToDB = require('./addQuestionToDB');
-const receivedAnswer = require('./receivedAnswer');
+const { submittedAnswer, getQueueByTags, getNewQuestionRequest } = require('./questionEvents');
 
 
 module.exports = function(io) {
@@ -23,16 +21,14 @@ module.exports = function(io) {
     }
     console.log('Client', session.clientData.clientId, 'connected to the server');
 
-
-    fetchQuestionsByTags(socket, session);
-
-    requestQuestion(socket, session);
+    submittedAnswer(socket, session);
+    getQueueByTags(socket, session);
+    getNewQuestionRequest(socket, session);
 
     initialContact(socket, session);
 
     addQuestionToDB(socket);
     
-    receivedAnswer(socket, session);
 
     socket.on('requestDailyChallengeQuestions', async () => {
       console.log('test');
