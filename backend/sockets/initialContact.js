@@ -1,4 +1,4 @@
-const { getNewQuestion, getNewQuestionQueue, shuffleArray } = require('./socketUtils');
+const { getNewQuestion, getNewQuestionQueue, sendScoreArray, sendNewQuestion } = require('./socketUtils');
 const Question = require('../models/Question'); 
 const CategoryIcon = require('../models/CategoryIcon');
 
@@ -39,14 +39,11 @@ module.exports = function(socket, session) {
       if(client.cachedQuestions.length === 0) client.cachedQuestions = await getNewQuestionQueue();
 
       let newQuestion = await getNewQuestion(client)
-      const obsOptionsQuestion = {
-        text: newQuestion.text,
-        tags: newQuestion.tags,
-        choices: [...newQuestion.incorrectAnswers, newQuestion.correctAnswer],
-      }
 
-      socket.emit('newQuestion', obsOptionsQuestion);
       socket.emit('questionCategories', client.categories);
+
+      sendNewQuestion(newQuestion, socket);
+      sendScoreArray(session, socket);      
 
     } catch (err) {
       console.error(`Failed to populate default question queue for ${client}:`, err);
