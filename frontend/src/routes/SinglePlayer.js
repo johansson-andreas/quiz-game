@@ -48,13 +48,23 @@ const Controller = () => {
       setQuestionCategories(newCategories);
     });
 
+    socket.on('question:correctAnswerProvided', (correctAnswer) => {
+      console.log('Received correct answer: ', correctAnswer)
+      setCorrectAnswer(correctAnswer);
+      setActive(false);
 
-    socket.on('newQuestion', (questionData) => {
+    });
+
+    socket.on('scoreArray:scoreArrayProvided', (scoreArray) => {
+      setScoreArray(scoreArray);
+      console.log(scoreArray)
+    });
+
+    socket.on('question:newQuestionProvided', (questionData) => {
       console.log('Received new question:', questionData);
 
       setQuestion(questionData);
       setQuestionText(questionData.text);
-      setCorrectAnswer(questionData.correctAnswer);
       setQuestionTags(questionData.tags);
 
       let choices = questionData.choices;
@@ -68,10 +78,6 @@ const Controller = () => {
 
     });
 
-    socket.on('answerReceived', (answer) => {
-      console.log('Answer received:', answer);
-    });
-
     return () => {
       socket.off('newQuestion');
     };
@@ -81,8 +87,6 @@ const Controller = () => {
   const submitAnswer = (e) => {
     e.preventDefault();
     setSubmittedAnswer(answer);
-    setActive(false);
-
   };
   const handleOptionChange = (e) => {
     setAnswer(e.target.value);
@@ -107,8 +111,7 @@ const Controller = () => {
   const nextQuestion = () => {
     console.log("Next question");
     setActive(true);    
-    setSubmittedAnswer('');
-    socket.emit('nextQuestion');
+    socket.emit('question:newQuestionRequest');
     setPreviouslyUsedCategories(questionCategories);
   };
 
@@ -129,50 +132,11 @@ const Controller = () => {
       )
     );
   };
-
-  /*
-  useEffect(() => {
-    let newActiveCategories = questionCategories.map(category => {
-      if (category.enabled) {
-        return category.name;
-      }
-      return null; 
-    }).filter(name => name !== null);
-    setActiveCategories(newActiveCategories);
-  }, [questionCategories]);
-
- */
   useEffect(() => {
     console.log('Submitted answer:', submittedAnswer);
-    console.log('correctAnswer:', correctAnswer);
     if(submittedAnswer != '')
       {
-        socket.emit('sendAnswer', answer);
-        setScoreArray(prevScoreArray => {
-          const newScoreArray = { ...prevScoreArray };
-      
-          questionTags.forEach(tag => {
-            if (!newScoreArray[tag]) {
-              console.log("No score found for ", tag, ". Creating new key for it")
-              newScoreArray[tag] = [0, 0];
-            }
-            if (submittedAnswer === correctAnswer) {
-              newScoreArray[tag][0] += 1;
-            }
-            newScoreArray[tag][1] += 1;
-          });
-      
-          return newScoreArray;
-        });
-      
-        setTotalQuestionsScore(prevCount => {
-          const newCountArray = { ...prevCount };
-      
-          if (submittedAnswer === correctAnswer) newCountArray[0] = newCountArray[0] + 1;
-          newCountArray[1] = newCountArray[1] + 1;
-      
-          return newCountArray;
-        });
+        socket.emit('question:submittedAnswer', answer);
       }
   }, [submittedAnswer]);
 
@@ -190,7 +154,7 @@ const Controller = () => {
 
   useEffect(() => {
     if(previouslyUsedCategories.length > 0 && questionCategories.length > 0){
-      socket.emit('fetchQuestionsByTags', questionCategories)
+      socket.emit('questionQueue:getQueueByTags', questionCategories)
       console.log(questionCategories);
     }
     setPreviouslyUsedCategories(questionCategories)
