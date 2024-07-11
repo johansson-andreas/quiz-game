@@ -47,12 +47,25 @@ const sendScoreArray = function(session)
 {
     
 }
+const updateScoreArray = function(clientData, answer) {
+  let scoreArray = {...clientData.currentScores}
+  clientData.currentQuestion.tags.forEach(element => {
+      if(!scoreArray[element]) scoreArray[element] = [0,0];
+      if(answer === clientData.currentQuestion.correctAnswer) {
+          scoreArray[element][0] += 1;
+      }
+      scoreArray[element][1] += 1;
+  });
+  clientData.currentScores = {...scoreArray};
+  console.log(clientData.currentScores);
+};
 module.exports = {
   shuffleArray,
   getNewQuestion,
   getNewQuestionQueue,
   getNewQuestionQueueByTags,
   obfQuestion,
-  sendScoreArray
+  sendScoreArray,
+  updateScoreArray
 };
   

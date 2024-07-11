@@ -21,47 +21,20 @@ const Controller = () => {
   const [scoreArray, setScoreArray] = useState({});
   const [questionTags, setQuestionTags] = useState([]);
 
-  
-/*
-  //Socket.IO receive block
-  useEffect(() => {
 
-    socket.on('questionCategories', (questionSet) => {
-      const newCategories = questionSet.map(category => ({
+  useEffect(() => {
+    axios.get('/api/initialContact')
+    .then(response => {
+      console.log('Received initial data:', response.data);
+      const {question, categories} = response.data;
+      assignQuestion(question);
+      const newCategories = categories.map(category => ({
         _id: category._id,
         count: category.count,
         icon: category.icon,
         enabled: category.enabled,
       }));
-      console.log('Received categories: ', newCategories)
       setQuestionCategories(newCategories);
-    });
-
-    socket.on('question:correctAnswerProvided', (correctAnswer) => {
-      console.log('Received correct answer: ', correctAnswer)
-      setCorrectAnswer(correctAnswer);
-      setActive(false);
-
-    });
-
-    socket.on('scoreArray:scoreArrayProvided', (scoreArray) => {
-      setScoreArray(scoreArray);
-      console.log(scoreArray)
-    });
-
-    return () => {
-      socket.off('newQuestion');
-    };
-  }, []);
-
-  */
-
-  useEffect(() => {
-    // Make a GET request
-    axios.get('/api/initialContact')
-    .then(response => {
-      console.log('Received new question:', response.data);
-      assignQuestion(response.data);
     })
     .catch(error => {
       console.error('Error fetching data:', error);
@@ -139,7 +112,15 @@ const Controller = () => {
     setActive(false);
     if(submittedAnswer != '')
       {
-        socket.emit('question:submittedAnswer', answer);
+        axios.post('/api/questionRoutes/submitAnswer', {submittedAnswer})
+        .then(response => {
+          console.log('ScoreArray:',response.data.scoreArray,'Correct answer:',response.data.correctAnswer)
+          setScoreArray(response.data.scoreArray);
+          setCorrectAnswer(response.data.correctAnswer);
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
       }
   }, [submittedAnswer]);
 

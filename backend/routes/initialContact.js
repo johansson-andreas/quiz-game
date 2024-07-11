@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
 
   let newQuestion = await getNewQuestion(clientData)
 
-  res.send(obfQuestion(newQuestion));
+  res.send({question: obfQuestion(newQuestion), categories: clientData.categories});
 });
 
 // Export router
