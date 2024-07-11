@@ -3,6 +3,7 @@ import socket from '../components/Socket';
 import './style.css';
 import IconComponent from '../components/IconComponent';
 import ScorePanel from '../components/ScorePanel';
+import axios from 'axios';
 
 const Controller = () => {
   const [questionText, setQuestionText] = useState(null);
@@ -21,21 +22,9 @@ const Controller = () => {
   const [questionTags, setQuestionTags] = useState([]);
 
   
-
+/*
   //Socket.IO receive block
   useEffect(() => {
-    
-    socket.emit('initialContact');
-    console.log("Initial contact");
-    setAnswer('default');
-
-    socket.on('connect', () => {
-      console.log('Socket.IO connect to server');
-    });
-
-    socket.on('disconnect', () => {
-      console.log('Disconnected from server');
-    });
 
     socket.on('questionCategories', (questionSet) => {
       const newCategories = questionSet.map(category => ({
@@ -60,27 +49,23 @@ const Controller = () => {
       console.log(scoreArray)
     });
 
-    socket.on('question:newQuestionProvided', (questionData) => {
-      console.log('Received new question:', questionData);
-
-      setQuestion(questionData);
-      setQuestionText(questionData.text);
-      setQuestionTags(questionData.tags);
-
-      let choices = questionData.choices;
-
-      for (let i = choices.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [choices[i], choices[j]] = [choices[j], choices[i]];
-      }
-      setOptions(choices);
-      
-
-    });
-
     return () => {
       socket.off('newQuestion');
     };
+  }, []);
+
+  */
+
+  useEffect(() => {
+    // Make a GET request
+    axios.get('/api/initialContact')
+    .then(response => {
+      console.log('Received new question:', response.data);
+      assignQuestion(response.data);
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
   }, []);
 
   //submitAnswer to backend block
@@ -106,13 +91,30 @@ const Controller = () => {
       }
       else return 'neutral';
   };
+  const assignQuestion = (questionData) => {
+    setQuestion(questionData);
+    setQuestionText(questionData.text);
+    setQuestionTags(questionData.tags);
 
+    let choices = questionData.choices;
+
+    setOptions(choices);
+
+  }
     //Request new question from backend block
   const nextQuestion = () => {
     console.log("Next question");
     setActive(true);    
-    socket.emit('question:newQuestionRequest');
     setPreviouslyUsedCategories(questionCategories);
+
+    axios.get('/api/questionRoutes/requestQuestion')
+    .then(response => {
+      console.log('GET request successful:', response.data);
+      assignQuestion(response.data);
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
   };
 
   const submitButtonStyle = {
@@ -134,6 +136,7 @@ const Controller = () => {
   };
   useEffect(() => {
     console.log('Submitted answer:', submittedAnswer);
+    setActive(false);
     if(submittedAnswer != '')
       {
         socket.emit('question:submittedAnswer', answer);

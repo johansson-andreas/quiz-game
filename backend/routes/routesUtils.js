@@ -16,8 +16,12 @@ const getNewQuestion = async function(client) {
     client.unusedQuestions = [...client.cachedQuestions];
   }
   console.log(client.clientId, 'is requesting new question: Current length:', client.unusedQuestions.length)
-  let newQuestionId = client.unusedQuestions.pop();
+
+  const randomIndex = Math.floor(Math.random() * client.unusedQuestions.length);
+  const newQuestionId = client.unusedQuestions.splice(randomIndex, 1)[0];
+
   const newQuestion = await Question.findById(newQuestionId).lean();
+
   client.currentQuestion = newQuestion;
   return newQuestion;
 };
@@ -29,25 +33,26 @@ const getNewQuestionQueue = async function() {
 const getNewQuestionQueueByTags = async function(tags) {
   return await Question.distinct('_id', {tags: { $in: tags } }).lean();
 };
-const sendNewQuestion = function(question, socket)
+const obfQuestion = function(question)
 {
-  const obsOptionsQuestion = {
+  console.log(question);
+  const obfQuestion = {
     text: question.text,
     tags: question.tags,
-    choices: [...question.incorrectAnswers, question.correctAnswer],
+    choices: shuffleArray([...question.incorrectAnswers, question.correctAnswer]),
   }
-  socket.emit('question:newQuestionProvided', obsOptionsQuestion);
+  return obfQuestion;
 }
-const sendScoreArray = function(session, socket)
+const sendScoreArray = function(session)
 {
-  if(Object.keys(session.clientData.currentScores).length > 0) socket.emit('scoreArray:scoreArrayProvided', session.clientData.currentScores);
+    
 }
 module.exports = {
   shuffleArray,
   getNewQuestion,
   getNewQuestionQueue,
   getNewQuestionQueueByTags,
-  sendNewQuestion,
+  obfQuestion,
   sendScoreArray
 };
   
