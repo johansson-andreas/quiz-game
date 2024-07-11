@@ -21,24 +21,31 @@ const getNewQuestion = async function(client) {
 };
 
 const getNewQuestionQueue = async function() {
-  const ids = await Question.distinct('_id').lean().exec();
-  return ids;
+  return await Question.distinct('_id').lean().exec();
 };
 
-const fetchQuestionsByTags = async function(session, tags) {
-  let client = session.clientData;
-  try {
-    client.cachedQuestions = await Question.distinct('_id', {tags: { $in: tags } }).lean();
-    client.unusedQuestions = shuffleArray([...client.cachedQuestions]);
-  } catch (err) {
-    console.error('Failed to fetch questions by tags:', err);
+const getNewQuestionQueueByTags = async function(tags) {
+  return await Question.distinct('_id', {tags: { $in: tags } }).lean();
+};
+const sendNewQuestion = function(question, socket)
+{
+  const obsOptionsQuestion = {
+    text: question.text,
+    tags: question.tags,
+    choices: [...question.incorrectAnswers, question.correctAnswer],
   }
-};
-
+  socket.emit('question:newQuestionProvided', obsOptionsQuestion);
+}
+const sendScoreArray = function(session, socket)
+{
+  if(Object.keys(session.clientData.currentScores).length > 0) socket.emit('scoreArray:scoreArrayProvided', session.clientData.currentScores);
+}
 module.exports = {
   shuffleArray,
   getNewQuestion,
   getNewQuestionQueue,
-  fetchQuestionsByTags
+  getNewQuestionQueueByTags,
+  sendNewQuestion,
+  sendScoreArray
 };
   
