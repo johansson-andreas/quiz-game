@@ -7,6 +7,7 @@ const { createServer } = require("node:http");
 const { join } = require("node:path");
 const { Server } = require("socket.io");
 const session = require("express-session");
+const routes = require('./routes')
 
 const app = express();
 const httpServer = createServer(app);
@@ -48,11 +49,12 @@ async function initializeServer() {
   });
 
   app.use(sessionMiddleware);
+  app.use(express.json());
+
+  app.use('/api', routes);
 
   const io = new Server(httpServer);
-
-  io.engine.use(sessionMiddleware);
-
+  io.engine.use(sessionMiddleware); // SocketIO wrapper
   require('./sockets')(io);
 
   httpServer.listen(PORT, () => {
