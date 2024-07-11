@@ -1,7 +1,7 @@
 // routes/initialContact.js
 const express = require('express');
 const router = express.Router();
-const {getNewQuestion, obfQuestion, getNewQuestionQueue} = require('./routesUtils');
+const {getNewQuestion, obfQuestion, updateScoreArray} = require('./routesUtils');
 const Question = require('../models/Question'); 
 const CategoryIcon = require('../models/CategoryIcon');
 
@@ -10,19 +10,17 @@ router.get('/', async (req, res) => {
     
 });
 
-router.get('/requestQuestion', async (req,res) => {
+router.get('/requestQuestion', async (req,res) => { 
     const clientData = req.session.clientData; 
     res.send(obfQuestion(await getNewQuestion(clientData)));
 });
-router.get('/submitAnswer', async (req,res) => {
+router.post('/submitAnswer', async (req,res) => {
     const clientData = req.session.clientData;
-    const answer = response.data;
-
-    console.log(`Received answer "${answer}" from controller client ${session.clientData.clientId}`);
-    updateScoreArray(session, answer);
-    socket.emit('question:correctAnswerProvided', session.clientData.currentQuestion.correctAnswer);
-    sendScoreArray(session, socket)
-
+    const answer = req.body.submittedAnswer;
+    console.log('Received answer',answer,'from controller client',clientData.clientId);
+    updateScoreArray(clientData, answer);
+    console.log({scoreArray: clientData.currentScores, correctAnswer: clientData.currentQuestion.correctAnswer});
+    res.send({scoreArray: clientData.currentScores, correctAnswer: clientData.currentQuestion.correctAnswer});
 });
 
 // Export router
