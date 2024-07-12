@@ -1,0 +1,7 @@
+.loginDiv {
+
+}
+.loginPanel {
+    display: flex;
+    justify-content: space-between;
+}

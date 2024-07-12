@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import './style.css';
+import './styles/singlePlayerStyle.css';
 import IconComponent from '../components/IconComponent';
 import ScorePanel from '../components/ScorePanel';
 import axios from 'axios';

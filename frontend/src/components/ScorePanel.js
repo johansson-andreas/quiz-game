@@ -1,4 +1,4 @@
-import React, { useMemo} from 'react';
+import { useMemo} from 'react';
 import IconComponent from './IconComponent';
 
 const ScorePanel = ({scoreArray, totalQuestionsScore, questionCategories}) => {

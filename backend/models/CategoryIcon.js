@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+
 const Schema = mongoose.Schema;
 
 const categoryIconSchema = new Schema({
@@ -6,6 +7,4 @@ const categoryIconSchema = new Schema({
   iconName: String,    
 });
 
-const CategoryIcon = mongoose.model('CategoryIcon', categoryIconSchema);
-
-module.exports = CategoryIcon;
+export const CategoryIcon = mongoose.model('CategoryIcon', categoryIconSchema);

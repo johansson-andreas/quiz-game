@@ -1,12 +1,11 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import mongoose from ('mongoose');
+import Schema from mongoose.Schema;
 
 const dailyChallengeQuestion = new Schema({
   date: String,              // Question text
   questionIDs: [String]
 });
 
-const DailyChalleneQuestion = mongoose.model('DailyChalleneQuestion', dailyChallengeQuestion);
+export const DailyChalleneQuestion = mongoose.model('DailyChalleneQuestion', dailyChallengeQuestion);
 
 
-module.exports = DailyChalleneQuestion;
