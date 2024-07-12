@@ -1,5 +1,4 @@
 import React, { useState, useEffect} from 'react';
-import socket from '../components/Socket';
 import './style.css';
 import IconComponent from '../components/IconComponent';
 import ScorePanel from '../components/ScorePanel';
@@ -26,7 +25,7 @@ const Controller = () => {
     axios.get('/api/initialContact')
     .then(response => {
       console.log('Received initial data:', response.data);
-      const {question, categories} = response.data;
+      const {question, categories, scoreArray} = response.data;
       assignQuestion(question);
       const newCategories = categories.map(category => ({
         _id: category._id,
@@ -35,15 +34,14 @@ const Controller = () => {
         enabled: category.enabled,
       }));
       setQuestionCategories(newCategories);
+      if(scoreArray) setScoreArray(scoreArray);
     })
     .catch(error => {
       console.error('Error fetching data:', error);
     });
   }, []);
 
-  //submitAnswer to backend block
   const submitAnswer = (e) => {
-    e.preventDefault();
     setSubmittedAnswer(answer);
   };
   const handleOptionChange = (e) => {
@@ -77,11 +75,12 @@ const Controller = () => {
     //Request new question from backend block
   const nextQuestion = () => {
     console.log("Next question");
-    setActive(true);    
     setPreviouslyUsedCategories(questionCategories);
 
     axios.get('/api/questionRoutes/requestQuestion')
     .then(response => {
+      setActive(true);    
+
       console.log('GET request successful:', response.data);
       assignQuestion(response.data);
     })
@@ -109,21 +108,27 @@ const Controller = () => {
   };
   useEffect(() => {
     console.log('Submitted answer:', submittedAnswer);
-    setActive(false);
     if(submittedAnswer != '')
       {
         axios.post('/api/questionRoutes/submitAnswer', {submittedAnswer})
         .then(response => {
+          setActive(false);
           console.log('ScoreArray:',response.data.scoreArray,'Correct answer:',response.data.correctAnswer)
           setScoreArray(response.data.scoreArray);
           setCorrectAnswer(response.data.correctAnswer);
+          setTotalQuestionsScore(prevCount => {
+      
+            if(response.data.correctAnswer === submittedAnswer) prevCount[0] += 1;
+            prevCount[1] += 1;
+            return prevCount;
+          });
         })
         .catch(error => {
           console.error('Error fetching data:', error);
         });
       }
   }, [submittedAnswer]);
-
+ 
   useEffect(() => {
     const tempQuestionIcons = questionTags.map(tag => {
       const categoryIcon = questionCategories.find(category => category._id === tag);
@@ -134,11 +139,13 @@ const Controller = () => {
 
   }, [questionCategories, questionTags]); 
 
-
+  useEffect(() => {
+    
+  }, [correctAnswer]);
 
   useEffect(() => {
     if(previouslyUsedCategories.length > 0 && questionCategories.length > 0){
-      socket.emit('questionQueue:getQueueByTags', questionCategories)
+      axios.post('/api/questionRoutes/getNewQuestionQueueByTags', {questionCategories})
       console.log(questionCategories);
     }
     setPreviouslyUsedCategories(questionCategories)

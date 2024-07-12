@@ -26,7 +26,7 @@ module.exports = function(io) {
     getNewQuestionRequest(socket, session);
 
     initialContact(socket, session);
-
+ 
     addQuestionToDB(socket);
     
 

@@ -6,7 +6,8 @@ import MP from './routes/MultiPlayer.js';
 import MPLanding from './routes/MultiPlayerLandingPage.js';
 import Admin from './routes/AdminPage.js';
 import DailyChallengeLanding from './routes/DailyChallengeLanding.js'; 
-import socket from './components/Socket';
+
+
 
 function App() {
   
