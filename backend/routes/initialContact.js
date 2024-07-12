@@ -57,7 +57,11 @@ router.get('/', async (req, res) => {
 
   let newQuestion = await getNewQuestion(clientData)
 
-  res.send({question: obfQuestion(newQuestion), categories: clientData.categories});
+  if(Object.keys(session.clientData.currentScores).length > 0) scoreArray = clientData.currentScores;
+  else scoreArray = null;
+
+
+  res.send({question: obfQuestion(newQuestion), categories: clientData.categories, scoreArray: scoreArray});
 });
 
 // Export router

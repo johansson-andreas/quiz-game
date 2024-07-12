@@ -6,8 +6,15 @@ const express = require("express");
 const { createServer } = require("node:http");
 const { join } = require("node:path");
 const { Server } = require("socket.io");
+const path = require('path');
 const session = require("express-session");
 const routes = require('./routes')
+const mongoose = require('mongoose');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
 const app = express();
 const httpServer = createServer(app);
@@ -23,6 +30,8 @@ async function initializeServer() {
     allowedHeaders: ['my-custom-header'],
     credentials: true
   };
+
+  // view engine setup
 
   console.log('CORS Options:', corsOptions);
 
@@ -50,8 +59,20 @@ async function initializeServer() {
 
   app.use(sessionMiddleware);
   app.use(express.json());
+  app.use(passport.initialize());
+  app.use(passport.session());
+  app.use(logger('dev'));
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(cookieParser());
+
 
   app.use('/api', routes);
+
+  const Account = require('./models/Account');
+  passport.use(new LocalStrategy(Account.authenticate()));
+  passport.serializeUser(Account.serializeUser());
+  passport.deserializeUser(Account.deserializeUser());
 
   const io = new Server(httpServer);
   io.engine.use(sessionMiddleware); // SocketIO wrapper
