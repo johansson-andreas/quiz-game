@@ -1,7 +1,7 @@
-const LocalStrategy = require('passport-local').Strategy;
-const User = require('../models/User');
+import LocalStrategy from ('passport-local').Strategy;
+import {User} from ('../models/User');
 
-module.exports = function(passport) {
+export const passport = (passport) => {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
@@ -17,7 +17,7 @@ module.exports = function(passport) {
 
         return done(null, user);
       } catch (err) {
-        return done(err);
+        return done(err); 
       }
     })
   );

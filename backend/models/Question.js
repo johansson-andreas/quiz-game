@@ -1,5 +1,6 @@
-const { ObjectId } = require('mongodb');
-const mongoose = require('mongoose');
+import { ObjectId } from 'mongodb';
+import mongoose from 'mongoose';
+
 const Schema = mongoose.Schema;
 
 const questionSchema = new Schema({
@@ -10,7 +11,6 @@ const questionSchema = new Schema({
   tags: [String]             // Array of tags
 });
 
-const Question = mongoose.model('Question', questionSchema);
+export const Question = mongoose.model('Question', questionSchema);
 
 
-module.exports = Question;

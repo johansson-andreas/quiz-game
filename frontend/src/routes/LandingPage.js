@@ -1,26 +1,10 @@
-import React, { useState} from 'react';
-import { useNavigate } from 'react-router-dom';
-import LoginPanel from '../components/loginComponent';
+import GameModePanel from '../components/GameModePanel.js';
 
-function LandingPage() {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState(['']);
-
-  const spChoice = (event) => {
-    navigate('/sp');
-  };
-
-  const mpChoice = (e) => {
-    navigate('/daily');
-  };
+const LandingPage = () => {
 
   return (
     <div>
-      <button onClick={spChoice}>Spela själv</button>
-      <button onClick={mpChoice}>Dagens frågor</button>
-
-      <div>{username} </div>
-      <LoginPanel />
+      <GameModePanel />
     </div>
   );
 }

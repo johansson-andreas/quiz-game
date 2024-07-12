@@ -1,16 +1,14 @@
-// routes/initialContact.js
-const express = require('express');
+import express from 'express';
+import { getNewQuestion, obfQuestion, getNewQuestionQueue } from './routesUtils.js';
+import {Question} from '../models/Question.js';
+import {CategoryIcon} from '../models/CategoryIcon.js';
+
 const router = express.Router();
-const {getNewQuestion, obfQuestion, getNewQuestionQueue} = require('./routesUtils');
-const Question = require('../models/Question'); 
-const CategoryIcon = require('../models/CategoryIcon');
 
-
-// Define routes
 router.get('/', async (req, res) => {
   // Access session data 
-
   const session = req.session;
+
   if (!session.clientData) {
     session.clientData = {
       unusedQuestions: [],
@@ -23,7 +21,8 @@ router.get('/', async (req, res) => {
     };
     session.save();
   }
-  const clientData = session.clientData; 
+
+  const clientData = session.clientData;
 
   if (Object.keys(clientData.categories).length === 0) {
     const tagsWithCounts = await Question.aggregate([
@@ -38,7 +37,6 @@ router.get('/', async (req, res) => {
       iconName: category.iconName
     }));
 
-
     const updatedTagsWithCounts = tagsWithCounts.map(tag => {
       const tempTag = { ...tag };
       const categoryIcon = categoryIcons.find(category => category.catName === tempTag._id);
@@ -51,18 +49,21 @@ router.get('/', async (req, res) => {
 
     clientData.categories = updatedTagsWithCounts;
   }
+
   session.save();
 
-  if(clientData.cachedQuestions.length === 0) clientData.cachedQuestions = await getNewQuestionQueue();
+  if (clientData.cachedQuestions.length === 0) {
+    clientData.cachedQuestions = await getNewQuestionQueue();
+  }
 
-  let newQuestion = await getNewQuestion(clientData)
+  const newQuestion = await getNewQuestion(clientData);
 
-  if(Object.keys(session.clientData.currentScores).length > 0) scoreArray = clientData.currentScores;
-  else scoreArray = null;
+  let scoreArray = null;
+  if (Object.keys(session.clientData.currentScores).length > 0) {
+    scoreArray = clientData.currentScores;
+  }
 
-
-  res.send({question: obfQuestion(newQuestion), categories: clientData.categories, scoreArray: scoreArray});
+  res.send({ question: obfQuestion(newQuestion), categories: clientData.categories, scoreArray: scoreArray });
 });
 
-// Export router
-module.exports = router;
+export default router;

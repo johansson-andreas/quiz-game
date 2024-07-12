@@ -6,20 +6,22 @@ import MP from './routes/MultiPlayer.js';
 import MPLanding from './routes/MultiPlayerLandingPage.js';
 import Admin from './routes/AdminPage.js';
 import DailyChallengeLanding from './routes/DailyChallengeLanding.js'; 
+import Layout from './layouts/Layout.js';
 
 
-
-function App() {
+const App = () => {
   
   return (
     <Router>
       <Routes>
+      <Route element={<Layout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/sp" element={<SP />} />
         <Route path="/mp" element={<MP />} />
         <Route path="/MultiplayerLobby" element={<MPLanding />} />
         <Route path="/Admin" element={<Admin />} />
         <Route path="/daily" element={<DailyChallengeLanding />} />
+        </Route>
       </Routes>
     </Router>
   );

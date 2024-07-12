@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import socket from '../components/Socket';
-import './style.css';
 
 const AdminPage = () => {
     const [questionData, setQuestionData] = useState({
