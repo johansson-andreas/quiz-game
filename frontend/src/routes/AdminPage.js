@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import socket from '../components/Socket';
 
 const AdminPage = () => {
     const [questionData, setQuestionData] = useState({
@@ -20,7 +19,6 @@ const AdminPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        socket.emit('addQuestion', questionData); 
         setQuestionData({
           text: '',
           correctAnswer: '',

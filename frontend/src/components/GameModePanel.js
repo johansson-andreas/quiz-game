@@ -11,8 +11,6 @@ const GameModePanel = () => {
     const mpChoice = (e) => {
       navigate('/daily');
     };
-  
-
 
       return (
         <div>

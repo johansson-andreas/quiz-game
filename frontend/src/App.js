@@ -7,11 +7,13 @@ import MPLanding from './routes/MultiPlayerLandingPage.js';
 import Admin from './routes/AdminPage.js';
 import DailyChallengeLanding from './routes/DailyChallengeLanding.js'; 
 import Layout from './layouts/Layout.js';
+import { UserProvider } from './contexts/UserContext.js';
 
 
 const App = () => {
   
   return (
+    <UserProvider>
     <Router>
       <Routes>
       <Route element={<Layout />}>
@@ -24,6 +26,8 @@ const App = () => {
         </Route>
       </Routes>
     </Router>
+    </UserProvider>
+
   );
 }
 
