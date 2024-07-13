@@ -1,7 +1,24 @@
-.loginDiv {
-
-}
 .loginPanel {
+    padding: 1px;
+}
+.loginPanel > * {
+    margin: 0px 1px 0px 0px;
+}
+.headerPanel {
     display: flex;
     justify-content: space-between;
+    background-color: #e3e3f5;
+}
+.headerPanel > * {
+    padding: 2px 8px 2px 8px;
+}
+.loginContainer {
+
+}
+.loginElement {
+    position: absolute; /* This allows the children to be positioned relative to the parent */
+    top: 500;
+    left: 100;
+    width: 100%; /* Ensure the child spans the full width of the parent */
+    height: 100%; /* Ensure the child spans the full height of the parent */
 }

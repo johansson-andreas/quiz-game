@@ -1,0 +1,19 @@
+.middlePanel {
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 100px rgba(0, 0, 0, 0.1);
+  }
+  .backgroundDiv {
+    position: fixed;
+    transform: translate(-0%, -30px);
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 100px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(189, 184, 184, 0.5);
+  }
