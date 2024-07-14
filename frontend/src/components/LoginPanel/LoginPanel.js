@@ -12,6 +12,7 @@ const LoginPanel = ({ togglePanelVisibility }) => {
 
   const { setUser } = useContext(UserContext);
 
+
   const registerAccount = async () => {
     try {
       const response = await axios.post('/api/loginRoutes/register', { username: chosenAccountname, password: chosenPassword });
