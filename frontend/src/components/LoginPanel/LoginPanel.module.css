@@ -1,19 +1,45 @@
 .middlePanel {
-    position: fixed;
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 0 100px rgba(0, 0, 0, 0.1);
-  }
-  .backgroundDiv {
-    position: fixed;
-    transform: translate(-0%, -30px);
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 0 100px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    height: 100%;
-    background-color: rgba(189, 184, 184, 0.5);
-  }
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 0 100px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  border: 1px solid black;
+}
+.backgroundDiv {
+  position: fixed;
+  transform: translate(-0%, -30px);
+  background-color: #fff;
+  box-shadow: 0 0 100px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(189, 184, 184, 0.5);
+}
+.loginContainer{
+  display: flex;
+
+}
+.loginContainer > * > * {
+  margin: 1px;
+}
+.loginTextfields {
+  justify-content: space-around;
+  display: flex;
+  flex-direction: column;
+}
+
+.loginButtons {
+  justify-content: space-around;
+  display: flex;
+  flex-direction: column;
+}
+.loginButtons > * {
+  margin:1px;
+}
+.loginMessage{
+  color: red;
+  font-style: oblique;
+}
