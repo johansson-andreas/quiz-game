@@ -3,11 +3,11 @@
     left: 50%;
     position: fixed;
     transform: translate(-50%,-50%);
-    background-color: rebeccapurple;
-    width: 14%;
+    width: 17%;
     aspect-ratio: 1;
     display: flex;
     flex-wrap: wrap;
+    z-index: -1;
 }
 .gameModeButton {
     background-color: rgb(111, 179, 238);
@@ -16,9 +16,11 @@
     min-width: 50%;
     min-height: 50%;
     text-wrap: auto;
+    border: 1px solid black;
+    font-size: larger;
 }
 .gameModeButton:hover {
-    background-color: red;
+    background-color: rgb(131, 54, 233);
 
 }
 

@@ -11,16 +11,21 @@ const LoginPanel = ({ togglePanelVisibility }) => {
   const [chosenPassword, setChosenPassword] = useState(['']);
 
   const { setUser } = useContext(UserContext);
+  const [loginMessage, setLoginMessage] = useState('');
 
 
   const registerAccount = async () => {
     try {
       const response = await axios.post('/api/loginRoutes/register', { username: chosenAccountname, password: chosenPassword });
       console.log('Registration successful:', response.data);
+      setUser(response.data.username);
+      togglePanelVisibility();
     } catch (error) {
       if (error.response) {
         // Server responded with a status other than 2xx
         console.error('Error response:', error.response.data);
+        setLoginMessage(error.response.data.message);
+
       } else if (error.request) {
         // Request was made but no response was received
         console.error('Error request:', error.request);
@@ -41,6 +46,8 @@ const LoginPanel = ({ togglePanelVisibility }) => {
       if (error.response) {
         // Server responded with a status other than 2xx
         console.error('Error response:', error.response.data);
+        setLoginMessage(error.response.data.message);
+
       } else if (error.request) {
         // Request was made but no response was received
         console.error('Error request:', error.request);
@@ -59,23 +66,27 @@ const LoginPanel = ({ togglePanelVisibility }) => {
     <div className={styles.backgroundDiv} onClick={togglePanelVisibility}>
       <div className={styles.middlePanel} onClick={handleMiddlePanelClick}>
         <div className={styles.loginContainer}>
-          <div className={styles.loginPanel}>
-            <div className={styles.loginElement}>
-              <input type='text' placeholder="Användarnamn"
-                value={chosenAccountname}
-                onChange={e => setChosenAccountname(e.target.value)}
-                className='accountnameField' />
-            </div>
-            <div>
-              <input type='password' placeholder="Lösenord"
-                value={chosenPassword}
-                onChange={e => setChosenPassword(e.target.value)}
-                className='passwordField' />
-              <button onClick={login}>Logga in</button>
-              <button onClick={registerAccount}>Registrera</button>
-            </div>
+        <div className={styles.loginTextfields}>
+          <div className={styles.usernameDiv}>
+            <input type='text' placeholder="Användarnamn"
+              value={chosenAccountname}
+              onChange={e => setChosenAccountname(e.target.value)}
+              className='accountnameField' />
+          </div>
+          <div className={styles.passwordDiv}>
+            <input type='password' placeholder="Lösenord"
+              value={chosenPassword}
+              onChange={e => setChosenPassword(e.target.value)}
+              className='passwordField' />
           </div>
         </div>
+
+        <div className={styles.loginButtons}>
+          <button onClick={login}>Logga in</button>
+          <button onClick={registerAccount}>Registrera</button>
+        </div>
+        </div>
+        <div className={styles.loginMessage}>{loginMessage}</div>
       </div>
     </div>
   )

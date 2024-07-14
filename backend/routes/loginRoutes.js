@@ -7,15 +7,25 @@ const router = express.Router();
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
-      return next(err); 
+      return next(err); // Forward any error to the error handler
     }
     if (!user) {
+      // If !user, check info object for specific reasons
+      console.log(info.name);
+      if (info && info.name === 'IncorrectUsernameError') {
+        return res.status(401).json({ message: 'User not found' });
+      }
+      if (info && info.name === 'IncorrectPasswordError') {
+        return res.status(401).json({ message: 'Incorrect password' });
+      }
+      // If info.message is not recognized, return a generic message
       return res.status(401).json({ message: 'Authentication failed', info });
     }
 
+    // If user is authenticated successfully, log them in
     req.logIn(user, (err) => {
       if (err) {
-        return next(err); 
+        return next(err); // Forward any error to the error handler
       }
       
       return res.json({ message: 'Authentication succeeded', username: req.user.username });
@@ -29,7 +39,7 @@ router.post('/register', (req, res) => {
       return res.status(400).json({ message: err.message });
     }
     passport.authenticate('local')(req, res, () => {
-      res.json({ message: "Account created successfully" });
+      res.json({ message: "Account created successfully", username: req.user.username });
     });
   });
 });
