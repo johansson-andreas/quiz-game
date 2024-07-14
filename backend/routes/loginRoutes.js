@@ -17,7 +17,8 @@ router.post('/login', (req, res, next) => {
       if (err) {
         return next(err); 
       }
-      return res.json({ message: 'Authentication succeeded', user });
+      
+      return res.json({ message: 'Authentication succeeded', username: req.user.username });
     });
   })(req, res, next);
 });
@@ -38,7 +39,7 @@ router.get('/logout', (req, res) => {
     if (err) {
       return res.status(500).json({ message: "Failed to logout" });
     }
-    res.redirect('/');
+    res.json({ message: "Logout successfully" });
   });
 });
 
@@ -47,7 +48,8 @@ router.get('/ping', (req, res) => {
 });
 
 router.get('/getUsername', (req, res) => {
-  res.send({ username: req.user.username });
+  if(req.user) res.send({ username: req.user.username });
+  else res.json({ message: "Not logged in" })
 });
 
 export default router;
