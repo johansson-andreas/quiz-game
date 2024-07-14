@@ -1,4 +1,4 @@
-import GameModePanel from '../components/GameModePanel.js';
+import GameModePanel from '../components/GameModePanel/GameModePanel.js';
 
 const LandingPage = () => {
 
