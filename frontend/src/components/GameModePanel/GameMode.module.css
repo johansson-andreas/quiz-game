@@ -1,0 +1,36 @@
+.gameModeButtonsContainer {
+    top: 50%;
+    left: 50%;
+    position: fixed;
+    transform: translate(-50%,-50%);
+    background-color: rebeccapurple;
+    width: 14%;
+    aspect-ratio: 1;
+    display: flex;
+    flex-wrap: wrap;
+}
+.gameModeButton {
+    background-color: rgb(111, 179, 238);
+    height:50%;
+    width: 50%;
+    min-width: 50%;
+    min-height: 50%;
+    text-wrap: auto;
+}
+.gameModeButton:hover {
+    background-color: red;
+
+}
+
+.gmbTopLeft {
+    border-radius: 15px 0px 0px 0px;
+}
+.gmbTopRight {
+    border-radius: 0px 15px 0px 0px;
+}
+.gmbBottomRight {
+    border-radius: 0px 0px 15px 0px;
+}
+.gmbBottomLeft  {
+    border-radius: 0px 0px 0px 15px;
+}
