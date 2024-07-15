@@ -4,7 +4,9 @@ import passportLocalMongoose from 'passport-local-mongoose';
 const Schema = mongoose.Schema;
 const AccountSchema = new Schema({
     username: String,
-    password: String
+    password: String,
+    categoryStats: Object,
+    dailyScores: Object
 });
 
 AccountSchema.plugin(passportLocalMongoose);
