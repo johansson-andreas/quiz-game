@@ -39,11 +39,11 @@ const Layout = () => {
 
   return (
     <div className={styles.layout}>
-      <HeaderPanel togglePanelVisibility={togglePanelVisibility} />
+      <HeaderPanel id={styles.headerPanel} togglePanelVisibility={togglePanelVisibility} />
       <main>
         {/* Conditional rendering of the panel */}
         {isPanelVisible && (
-          <LoginPanel togglePanelVisibility={togglePanelVisibility} />
+          <LoginPanel id={styles.loginPanel} togglePanelVisibility={togglePanelVisibility} />
         )}
         <Outlet />
       </main>

@@ -7,7 +7,6 @@
     aspect-ratio: 1;
     display: flex;
     flex-wrap: wrap;
-    z-index: -1;
 }
 .gameModeButton {
     background-color: rgb(111, 179, 238);
