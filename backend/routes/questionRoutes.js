@@ -1,5 +1,6 @@
 import express from 'express';
-import { getNewQuestion, obfQuestion, updateScoreArray, getNewQuestionQueueByTags, shuffleArray, createClientData } from './routesUtils.js';
+import { getNewQuestion, obfQuestion, updateScoreArray, getNewQuestionQueueByTags, shuffleArray, updateScoresInDatabase } from './questionUtils.js';
+import {createClientData } from './loginUtils.js';
 
 const router = express.Router();
 
@@ -15,6 +16,7 @@ router.use(timeLog)
 
 router.get('/requestQuestion', async (req, res, next) => {
   const clientData = req.session.clientData;
+
   res.send(obfQuestion(await getNewQuestion(clientData)));
 });
 
@@ -22,8 +24,18 @@ router.post('/submitAnswer', async (req, res) => {
   const clientData = req.session.clientData;
   if(clientData) {
     const answer = req.body.submittedAnswer;
-    updateScoreArray(clientData, answer);
+    let correct = false;
+    if(answer === clientData.currentQuestion.correctAnswer) correct = true
+
+    clientData.currentScores = updateScoreArray(clientData, correct);
     res.send({ scoreArray: clientData.currentScores, correctAnswer: clientData.currentQuestion.correctAnswer });
+
+    //Update database if user in logged in
+    if (req.user && req.user._id) {
+      updateScoresInDatabase(req.user._id, clientData.currentScores).catch(error => {
+        console.error('Failed to update scores in database:', error);
+      });
+    }  
   }
 });
 
@@ -43,7 +55,6 @@ router.post('/getNewQuestionQueueByTags', async (req, res) => {
     console.error('Failed to fetch questions by tags:', err);
   }
 
-  req.session.save();
 });
 
 export default router;

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './styles/singlePlayerStyle.css';
 import IconComponent from '../components/IconComponent';
 import ScorePanel from '../components/ScorePanel';
+import { UserContext } from '../contexts/UserContext';
 import axios from 'axios';
 
 const Controller = () => {
@@ -19,6 +20,7 @@ const Controller = () => {
   const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState({});
   const [scoreArray, setScoreArray] = useState({});
   const [questionTags, setQuestionTags] = useState([]);
+  const { user, setUser } = useContext(UserContext);
 
 
   useEffect(() => {
@@ -46,6 +48,7 @@ const Controller = () => {
   }
 
   const submitAnswer = (e) => {
+    console.log(user)
     setSubmittedAnswer(answer);
   };
   const handleOptionChange = (e) => {

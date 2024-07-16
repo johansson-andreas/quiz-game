@@ -27,10 +27,11 @@ router.post('/login', (req, res, next) => {
       if (err) {
         return next(err); // Forward any error to the error handler
       }
-      
       return res.json({ message: 'Authentication succeeded', username: req.user.username });
     });
+    
   })(req, res, next);
+
 });
 
 router.post('/register', (req, res) => {

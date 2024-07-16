@@ -6,7 +6,13 @@ const AccountSchema = new Schema({
     username: String,
     password: String,
     categoryStats: Object,
-    dailyScores: Object
+    dailyChallengeScores:[
+        {
+          date: Date,
+          value: Number,
+          questionsRemaining: [String],
+        },
+    ]
 });
 
 AccountSchema.plugin(passportLocalMongoose);
