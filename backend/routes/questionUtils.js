@@ -1,5 +1,6 @@
 import {Question} from '../models/Question.js';
-import {CategoryIcon} from '../models/CategoryIcon.js';
+import { Account } from '../models/Account.js';
+
 
 
 /**
@@ -85,71 +86,26 @@ export const obfQuestion = (question) => {
 /**
  * Updates the client's score array based on their answer.
  * @param {Object} clientData - The client's data object.
- * @param {String} answer - The client's answer.
+ * @param {Boolean} correct - Whether the answer is correct.
+ * @returns {Object} Updated score array.
  */
-export const updateScoreArray = (clientData, answer) => {
+export const updateScoreArray = (clientData, correct) => {
   const scoreArray = { ...clientData.currentScores };
   clientData.currentQuestion.tags.forEach(tag => {
     if (!scoreArray[tag]) scoreArray[tag] = [0, 0];
-    if (answer === clientData.currentQuestion.correctAnswer) {
+    if (correct) {
       scoreArray[tag][0] += 1;
     }
     scoreArray[tag][1] += 1;
   });
-  clientData.currentScores = scoreArray;
+  return scoreArray;
 };
-export const createClientData = async (req) => {
-  const session = req.session;
-  if (!session.clientData) {
-    session.clientData = {
-      unusedQuestions: [],
-      categories: {},
-      cachedQuestions: [],
-      username: '',
-      clientId: session.id,
-      currentScores: {},
-      currentQuestion: {}
-    };
-    session.save();
+
+export const updateScoresInDatabase = async (userID, newScoreArray) => {
+  try {
+    await Account.updateOne({ _id: userID }, { categoryStats: newScoreArray });
+  } catch (error) {
+    console.error('Error updating scores in database:', error);
+    throw error; 
   }
-
-  const clientData = session.clientData;
-
-
-  if (Object.keys(clientData.categories).length === 0) {
-    const tagsWithCounts = await Question.aggregate([
-      { $unwind: '$tags' },
-      { $group: { _id: '$tags', count: { $sum: 1 } } },
-      { $sort: { count: -1 } } // Sort by count in descending order
-    ]);
-
-    const catIconDB = await CategoryIcon.find();
-    const categoryIcons = catIconDB.map(category => ({
-      catName: category.catName,
-      iconName: category.iconName
-    }));
-
-    const updatedTagsWithCounts = tagsWithCounts.map(tag => {
-      const tempTag = { ...tag };
-      const categoryIcon = categoryIcons.find(category => category.catName === tempTag._id);
-      if (categoryIcon) {
-        tempTag.icon = categoryIcon.iconName;
-      }
-      tempTag.enabled = true;
-      return tempTag;
-    });
-
-    clientData.categories = updatedTagsWithCounts;
-  }
-
-  session.save();
-
-  if (clientData.cachedQuestions.length === 0) {
-    clientData.cachedQuestions = await getNewQuestionQueue();
-  }
-
-  let scoreArray = null;
-  if (Object.keys(session.clientData.currentScores).length > 0) {
-    scoreArray = clientData.currentScores;
-  }
-}
+};

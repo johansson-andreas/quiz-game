@@ -13,7 +13,6 @@ const HeaderPanel = ({ togglePanelVisibility }) => {
   const { user, setUser } = useContext(UserContext);
   let loggedIn = false;
 
-
   useEffect(() => {
     (user) ? loggedIn = true : loggedIn = false;
     console.log(loggedIn)
