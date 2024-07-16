@@ -21,7 +21,7 @@ const HeaderPanel = ({ togglePanelVisibility }) => {
 
   const logoutUser = async () => {
     try {
-      const response = await axios.get('/api/loginRoutes/logout');
+      const response = await axios.get('/api/login-routes/logout');
       console.log('Logout successful:', response.data);
       setUser('');
     } catch (error) {

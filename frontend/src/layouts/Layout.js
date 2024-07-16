@@ -12,7 +12,7 @@ const Layout = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get('/api/loginroutes/getUsername'); 
+        const response = await axios.get('/api/login-routes/get-username'); 
         if (response.data.username) {
           setUser(response.data.username);
           console.log("Setting user to", response.data.username)

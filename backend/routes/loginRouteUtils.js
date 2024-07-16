@@ -1,5 +1,6 @@
 import {Question} from '../models/Question.js';
 import {CategoryIcon} from '../models/CategoryIcon.js';
+import { getNewQuestionQueue } from './questionRouteUtils.js';
 
 export const createClientData = async (req) => {
     const session = req.session;

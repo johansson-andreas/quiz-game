@@ -16,7 +16,7 @@ const LoginPanel = ({ togglePanelVisibility }) => {
 
   const registerAccount = async () => {
     try {
-      const response = await axios.post('/api/loginRoutes/register', { username: chosenAccountname, password: chosenPassword });
+      const response = await axios.post('/api/login-routes/register', { username: chosenAccountname, password: chosenPassword });
       console.log('Registration successful:', response.data);
       setUser(response.data.username);
       togglePanelVisibility();
@@ -38,7 +38,7 @@ const LoginPanel = ({ togglePanelVisibility }) => {
 
   const login = async () => {
     try {
-      const response = await axios.post('/api/loginRoutes/login', { username: chosenAccountname, password: chosenPassword });
+      const response = await axios.post('/api/login-routes/login', { username: chosenAccountname, password: chosenPassword });
       console.log('Login successful:', response.data);
       setUser(response.data.username);
       togglePanelVisibility();

@@ -1,6 +1,6 @@
 import express from 'express';
-import { getNewQuestion, obfQuestion, updateScoreArray, getNewQuestionQueueByTags, shuffleArray, updateScoresInDatabase } from './questionUtils.js';
-import {createClientData } from './loginUtils.js';
+import { getNewQuestion, obfQuestion, updateScoreArray, getNewQuestionQueueByTags, shuffleArray, updateScoresInDatabase } from './questionRouteUtils.js';
+import {createClientData } from './loginRouteUtils.js';
 
 const router = express.Router();
 
@@ -12,15 +12,24 @@ const timeLog = async (req, res, next) => {
   }
   else next();
 }
-router.use(timeLog)
+router.use(timeLog);
 
-router.get('/requestQuestion', async (req, res, next) => {
+router.get('/request-question', async (req, res, next) => {
   const clientData = req.session.clientData;
 
   res.send(obfQuestion(await getNewQuestion(clientData)));
 });
 
-router.post('/submitAnswer', async (req, res) => {
+router.get('/initial-contact', async (req, res) => {
+  // Access session data 
+  await createClientData(req);
+  const newQuestion = await getNewQuestion(req.session.clientData);
+  console.log(req.user);
+  res.send({ question: obfQuestion(newQuestion), categories: req.session.clientData.categories, scoreArray: req.session.clientData.currentScores });
+});
+
+
+router.post('/submit-answer', async (req, res) => {
   const clientData = req.session.clientData;
   if(clientData) {
     const answer = req.body.submittedAnswer;
@@ -39,7 +48,7 @@ router.post('/submitAnswer', async (req, res) => {
   }
 });
 
-router.post('/getNewQuestionQueueByTags', async (req, res) => {
+router.post('/get-new-question-queue-by-tags', async (req, res) => {
   const clientData = req.session.clientData;
 
   clientData.categories = req.body.questionCategories;

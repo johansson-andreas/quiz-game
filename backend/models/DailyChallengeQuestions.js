@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { uniqueIndexes } from '../routes/dailyChallengeUtils';
+import { uniqueIndexes } from '../routes/dailyChallengeRouteUtils.js';
 import { Question } from "../models/Question.js";
 
 

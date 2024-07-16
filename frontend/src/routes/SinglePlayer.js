@@ -28,7 +28,7 @@ const Controller = () => {
   }, []);
 
   const initialContact = (e) => {
-    axios.get('/api/initialContact')
+    axios.get('/api/question-routes/initial-contact')
       .then(response => {
         console.log('Received initial data:', response.data);
         const { question, categories, scoreArray } = response.data;
@@ -83,7 +83,7 @@ const Controller = () => {
     console.log("Next question");
     setPreviouslyUsedCategories(questionCategories);
 
-    axios.get('/api/questionRoutes/requestQuestion')
+    axios.get('/api/question-routes/request-question')
       .then(response => {
         setActive(true);
 
@@ -115,7 +115,7 @@ const Controller = () => {
   useEffect(() => {
     console.log('Submitted answer:', submittedAnswer);
     if (submittedAnswer != '') {
-      axios.post('/api/questionRoutes/submitAnswer', { submittedAnswer })
+      axios.post('/api/question-routes/submit-answer', { submittedAnswer })
         .then(response => {
           setActive(false);
           console.log('ScoreArray:', response.data.scoreArray, 'Correct answer:', response.data.correctAnswer)
@@ -150,7 +150,7 @@ const Controller = () => {
 
   useEffect(() => {
     if (previouslyUsedCategories.length > 0 && questionCategories.length > 0) {
-      axios.post('/api/questionRoutes/getNewQuestionQueueByTags', { questionCategories })
+      axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories })
       console.log(questionCategories);
     }
     setPreviouslyUsedCategories(questionCategories)

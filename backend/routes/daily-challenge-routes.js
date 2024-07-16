@@ -4,10 +4,10 @@ import { DailyChallengeQuestions, generateNewQuestions} from '../models/DailyCha
 const router = express.Router();
 
 
-router.get('/requestDailyQuestions', async (req, res, next) => {
+router.get('/request-daily-questions', async (req, res, next) => {
     try {
         // Check if there is no session data or if the date in session data is different from today
-        if (!req.session.dailyChallengeData || req.session.dailyChallengeData.date.toDateString() !== new Date().toDateString()) {
+        if (!req.session.dailyChallengeData || req.session.dailyChallengeData.date !== new Date().toDateString()) {
             let todaysQuestions = await DailyChallengeQuestions.findOne({ date: new Date() }, 'questionIDs').lean();
 
             if (!todaysQuestions) {
