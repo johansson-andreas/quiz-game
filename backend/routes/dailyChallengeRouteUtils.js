@@ -32,3 +32,38 @@ export const uniqueIndexes = (qty, max) =>{
   }
   return Array.from(retVal);
 }
+export const getNewQuestion = async (req) => {
+  if (req.session.dailyChallengeData.questionsRemaining.length === 0) {
+    console.log(`${client.clientId} is out of daily questions.`);
+    return null;
+  }
+  console.log(`${req.session} is requesting a new daily question: Current length: ${req.session.dailyChallengeData.questionsRemaining.length}`);
+  try { 
+    const newQuestion = await Question.findById(req.session.dailyChallengeData.questionsRemaining.pop()).lean();
+    return newQuestion;
+  } catch (error) {
+    throw error;
+  }
+}
+/**
+ * Obfuscates a question for the client.
+ * @param {Object} question - The question object.
+ * @return {Object} The obfuscated question object.
+ */
+export const obfQuestion = (question) => {
+  return {
+    text: question.text,
+    tags: question.tags,
+    choices: shuffleArray([...question.incorrectAnswers, question.correctAnswer]),
+  };
+};
+
+export const shuffleArray = (array) => {
+  for (var i = array.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+  return array;
+};

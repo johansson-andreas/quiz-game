@@ -9,7 +9,7 @@ const AccountSchema = new Schema({
     dailyChallengeScores:[
         {
           date: Date,
-          value: Number,
+          score: Number,
           questionsRemaining: [String],
         },
     ]
