@@ -145,10 +145,6 @@ const Controller = () => {
   }, [questionCategories, questionTags]);
 
   useEffect(() => {
-
-  }, [correctAnswer]);
-
-  useEffect(() => {
     if (previouslyUsedCategories.length > 0 && questionCategories.length > 0) {
       axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories })
       console.log(questionCategories);

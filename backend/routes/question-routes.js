@@ -6,6 +6,7 @@ const router = express.Router();
 
 const timeLog = async (req, res, next) => {
   if(!req.session.clientData) {
+    console.log('Found no data for', req.session.clientId, 'creating new data')
     await createClientData(req);
     await getNewQuestion(req.session.clientData);
     next();
@@ -24,7 +25,7 @@ router.get('/initial-contact', async (req, res) => {
   // Access session data 
   await createClientData(req);
   const newQuestion = await getNewQuestion(req.session.clientData);
-  console.log(req.user);
+  console.log(req.session.clientData.unusedQuestions.length);
   res.send({ question: obfQuestion(newQuestion), categories: req.session.clientData.categories, scoreArray: req.session.clientData.currentScores });
 });
 
@@ -50,6 +51,7 @@ router.post('/submit-answer', async (req, res) => {
 
 router.post('/get-new-question-queue-by-tags', async (req, res) => {
   const clientData = req.session.clientData;
+  console.log(clientData.clientId)
 
   clientData.categories = req.body.questionCategories;
 
@@ -59,7 +61,10 @@ router.post('/get-new-question-queue-by-tags', async (req, res) => {
   
   try {
     clientData.cachedQuestions = await getNewQuestionQueueByTags(enabledTags);
-    clientData.unusedQuestions = shuffleArray([...clientData.cachedQuestions]);
+    console.log('Number of cached questions', clientData.cachedQuestions.length)
+    clientData.unusedQuestions = ([...clientData.cachedQuestions]);
+    req.session.save();
+
   } catch (err) {
     console.error('Failed to fetch questions by tags:', err);
   }
