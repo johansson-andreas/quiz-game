@@ -12,12 +12,15 @@ const GameModePanel = () => {
     const mpChoice = (e) => {
       navigate('/daily');
     };
+    const testChoice = (e) => {
+      navigate('/test');
+    };
 
       return (
         <div className={styles.gameModeButtonsContainer}>
             <button className={`${styles.gameModeButton} ${styles.gmbTopLeft}`} onClick={spChoice}>Spela själv</button>
             <button className={`${styles.gameModeButton} ${styles.gmbTopRight}`} onClick={mpChoice}>Dagens frågor</button>
-            <button className={`${styles.gameModeButton} ${styles.gmbBottomLeft}`} onClick={spChoice}>Spela själv</button>
+            <button className={`${styles.gameModeButton} ${styles.gmbBottomLeft}`} onClick={testChoice}>Test</button>
             <button className={`${styles.gameModeButton} ${styles.gmbBottomRight}`} onClick={spChoice}>Spela själv</button>
         </div>
       )
