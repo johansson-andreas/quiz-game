@@ -40,6 +40,7 @@ export const getNewQuestion = async (req) => {
   console.log(`${req.session} is requesting a new daily question: Current length: ${req.session.dailyChallengeData.questionsRemaining.length}`);
   try {
     const newQuestion = await Question.findById(req.session.dailyChallengeData.questionsRemaining.pop()).lean();
+    req.session.dailyChallengeData.currentQuestion = newQuestion;
     return newQuestion;
   } catch (error) {
     throw error;

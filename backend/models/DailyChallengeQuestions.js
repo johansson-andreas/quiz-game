@@ -25,9 +25,14 @@ export const generateNewQuestions = async () => {
         randomIds.forEach((index) => {
             questionIds.push(possibleQuestions[index]._id.toString());
         });
+
+        // Create a new Date object for the start of the day
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of the day (00:00:00.000)
+
         // Create a new document for today's questions
         const newDailyChallengeQuestions = new DailyChallengeQuestions({
-            date: new Date(),
+            date: today,
             questionIDs: questionIds,
         });
 

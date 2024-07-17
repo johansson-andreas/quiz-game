@@ -1,4 +1,5 @@
 import {Question} from '../models/Question.js';
+import {CategoryIcon} from '../models/CategoryIcon.js';
 import { Account } from '../models/Account.js';
 
 
@@ -63,7 +64,8 @@ export const getNewQuestionQueue = async () => {
  */
 export const getNewQuestionQueueByTags = async (tags) => {
   try {
-    return await Question.distinct('_id', { tags: { $in: tags } }).lean();
+    const questionIds = await Question.distinct('_id', { tags: { $in: tags } }).lean();
+    return questionIds;
   } catch (error) {
     console.error('Failed to fetch question queue by tags:', error);
     throw error;
@@ -109,3 +111,29 @@ export const updateScoresInDatabase = async (userID, newScoreArray) => {
     throw error; 
   }
 };
+
+export const getQuestionCategories = async () => {
+
+  const tagsWithCounts = await Question.aggregate([
+    { $unwind: '$tags' },
+    { $group: { _id: '$tags', count: { $sum: 1 } } },
+    { $sort: { count: -1 } } // Sort by count in descending order
+  ]);
+  
+  const catIconDB = await CategoryIcon.find();
+  const categoryIcons = catIconDB.map(category => ({
+    catName: category.catName,
+    iconName: category.iconName
+  }));
+    
+  const tagsWithIcons = tagsWithCounts.map(tag => {
+    const tempTag = { ...tag };
+    const categoryIcon = categoryIcons.find(category => category.catName === tempTag._id);
+    if (categoryIcon) {
+      tempTag.icon = categoryIcon.iconName;
+    }
+    return tempTag;
+  });
+
+  return tagsWithIcons
+}

@@ -18,41 +18,50 @@ const DailyChallenge = () => {
     const [questionCategories, setQuestionCategories] = useState([]);
     const [activeCategories, setActiveCategories] = useState([]);
     const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState({});
-    const [scoreArray, setScoreArray] = useState({});
     const [questionTags, setQuestionTags] = useState([]);
     const { user, setUser } = useContext(UserContext);
-
+    const [currentScore, setCurrentScore] = useState(0);
+    const [questionsRemaining, setQuestionsRemaining] = useState(0);
+    const [currentUser, setCurrentUser] = useState('');
 
     const initialContact = async () => {
         const response = await axios.get('/api/daily-challenge-routes/initial-contact')
-        console.log(response);
-        const newQuestion = await axios.get('/api/daily-challenge-routes/request-question')
-        assignQuestion(newQuestion.data)
-    };
+        const dailyChallengeData = response.data.dcd;
+        setCurrentScore(dailyChallengeData.todaysScore)
+        setQuestionsRemaining(dailyChallengeData.questionsRemaining.length + 1)
+        setQuestionCategories(response.data.categories)
+        assignQuestion(dailyChallengeData.currentQuestion)
+    };  
     useEffect(() => {
-      initialContact();
+    initialContact();
     }, [user]);
 
     useEffect(() => {
-       // initialContact();
-    }, []);
+      const tempQuestionIcons = questionTags.map(tag => {
+        const categoryIcon = questionCategories.find(category => category._id === tag);
+        return categoryIcon ? categoryIcon.icon : null;
+      }).filter(icon => icon !== null);
+  
+      setQuestionIcons(tempQuestionIcons);
+  
+    }, [questionCategories, questionTags]);
 
     const assignQuestion = (questionData) => {
         console.log(questionData)
         setQuestion(questionData);
         setQuestionText(questionData.text);
         setQuestionTags(questionData.tags);
-    
-        let choices = questionData.choices;
-    
-        setOptions(choices);
+        setOptions(questionData.choices);
     }
 
-
-
     //Request new question from backend block
-    const nextQuestion = () => {
-
+    const nextQuestion = async () => {
+      axios.get('/api/daily-challenge-routes/request-question')
+      .then( response => {
+        assignQuestion(response.data);
+        setActive(true);
+        setQuestionsRemaining(prevCount => prevCount-=1)
+    })
     };
 
     const submitButtonStyle = {
@@ -63,27 +72,29 @@ const DailyChallenge = () => {
         display: activeQuestion ? 'none' : 'block'
     };
 
-    const handleCheckboxChange = (category) => {
-        setQuestionCategories(prevCategories =>
-            prevCategories.map(cat =>
-                cat._id === category._id
-                    ? { ...cat, enabled: !cat.enabled }
-                    : cat
-            )
-        );
-    };
-
-    useEffect(() => {
-
-    }, [correctAnswer]);
-
     const submitAnswer = (e) => {
-        console.log(user)
         setSubmittedAnswer(answer);
     };
     const handleOptionChange = (e) => {
         setAnswer(e.target.value);
     };
+
+    useEffect(() => {
+      console.log('Submitted answer:', submittedAnswer);
+      if (submittedAnswer != '') {
+        axios.post('/api/daily-challenge-routes/submit-answer', { submittedAnswer })
+          .then(response => {
+            setActive(false);
+            console.log('todaysscore:', response.data.todaysScore, 'Correct answer:', response.data.correctAnswer)
+            setCurrentScore(response.data.todaysScore);
+            setCorrectAnswer(response.data.correctAnswer);
+          })
+          .catch(error => {
+            console.error('Error fetching data:', error);
+          });
+      }
+    }, [submittedAnswer]);
+
 
     const getDivClassName = (option) => {
         if (!activeQuestion) {
@@ -102,6 +113,7 @@ const DailyChallenge = () => {
 
     return (
         <div className='questionBody'>
+          CS: {currentScore} QR: {questionsRemaining}
         <div className='questionText'>
           {questionText}
           <div id='tagIcons'>
