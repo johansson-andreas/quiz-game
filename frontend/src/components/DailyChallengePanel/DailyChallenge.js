@@ -29,9 +29,12 @@ const DailyChallenge = () => {
         const newQuestion = await axios.get('/api/daily-challenge-routes/request-question')
         assignQuestion(newQuestion.data)
     };
+    useEffect(() => {
+      initialContact();
+    }, [user]);
 
     useEffect(() => {
-        initialContact();
+       // initialContact();
     }, []);
 
     const assignQuestion = (questionData) => {
