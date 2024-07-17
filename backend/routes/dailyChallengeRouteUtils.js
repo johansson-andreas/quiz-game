@@ -2,21 +2,21 @@ import { DailyChallengeQuestions } from "../models/DailyChallengeQuestions.js";
 import { Question } from "../models/Question.js";
 
 export const generateNewQuestions = async () => {
-    const possibleQuestions = await Question.distinct('_id').lean().exec();
-    let questionIds = [...possibleQuestions];
-    
-    const randomIndex = Math.floor(Math.random() * possibleQuestions.length);
-    for(let i = 0; i < 10; i++){
-      questionIds.push(possibleQuestions.splice(randomIndex, 1)[0]); 
-    }
+  const possibleQuestions = await Question.distinct('_id').lean().exec();
+  let questionIds = [...possibleQuestions];
 
-    const newDailyChallengeQuestions = new DailyChallengeQuestions({
-        date: new Date(),
-        questionIds: questionIds
-      });
+  const randomIndex = Math.floor(Math.random() * possibleQuestions.length);
+  for (let i = 0; i < 10; i++) {
+    questionIds.push(possibleQuestions.splice(randomIndex, 1)[0]);
+  }
 
-      newDailyChallengeQuestions.save();
-      return questionIds;
+  const newDailyChallengeQuestions = new DailyChallengeQuestions({
+    date: new Date(),
+    questionIds: questionIds
+  });
+
+  newDailyChallengeQuestions.save();
+  return questionIds;
 }
 /**
  * Get set of unique numbers from the renge between 0 and {max}
@@ -24,7 +24,7 @@ export const generateNewQuestions = async () => {
  * @param {number} qty The amount of unique numbers from the renge Must be less or equal to {max}
  * @returns {Array<number>} List of unique random numbers from the range (0 <= random number < max)
  */
-export const uniqueIndexes = (qty, max) =>{ 
+export const uniqueIndexes = (qty, max) => {
   const retVal = new Set;
   while (retVal.size < qty) {
     console.log(Math.floor(Math.random() * max))
@@ -38,7 +38,7 @@ export const getNewQuestion = async (req) => {
     return null;
   }
   console.log(`${req.session} is requesting a new daily question: Current length: ${req.session.dailyChallengeData.questionsRemaining.length}`);
-  try { 
+  try {
     const newQuestion = await Question.findById(req.session.dailyChallengeData.questionsRemaining.pop()).lean();
     return newQuestion;
   } catch (error) {
