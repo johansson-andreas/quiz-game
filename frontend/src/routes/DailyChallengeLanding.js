@@ -1,4 +1,4 @@
-import DailyChallenge from './DailyChallenge';
+import DailyChallenge from '../components/DailyChallengePanel/DailyChallenge';
 
 const DailyChallengeLanding = () => 
     {
