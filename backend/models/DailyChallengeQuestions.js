@@ -40,3 +40,4 @@ export const generateNewQuestions = async () => {
         throw error;
     }
 };
+ 
