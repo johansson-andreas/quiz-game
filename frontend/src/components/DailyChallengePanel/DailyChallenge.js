@@ -56,12 +56,16 @@ const DailyChallenge = () => {
 
     //Request new question from backend block
     const nextQuestion = async () => {
-      axios.get('/api/daily-challenge-routes/request-question')
-      .then( response => {
+      try {
+        const response = await axios.get('/api/daily-challenge-routes/request-question');
+
+        
         assignQuestion(response.data);
         setActive(true);
-        setQuestionsRemaining(prevCount => prevCount-=1)
-    })
+        setQuestionsRemaining(prevCount => prevCount - 1); 
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     const submitButtonStyle = {
