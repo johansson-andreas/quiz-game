@@ -32,10 +32,11 @@ export const uniqueIndexes = (qty, max) => {
   }
   return Array.from(retVal);
 }
+
 export const getNewQuestion = async (req) => {
-  if (req.session.dailyChallengeData.questionsRemaining.length === 0) {
-    console.log(`${client.clientId} is out of daily questions.`);
-    return null;
+  if (req.session.dailyChallengeData.questionsRemaining.length == 0) {
+    console.log(`${req.user.username} is out of daily questions.`);
+    return `${req.user.username} is out of daily questions.`;
   }
   console.log(`${req.session} is requesting a new daily question: Current length: ${req.session.dailyChallengeData.questionsRemaining.length}`);
   try {

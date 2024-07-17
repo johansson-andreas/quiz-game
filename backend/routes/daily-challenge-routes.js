@@ -38,7 +38,7 @@ router.get('/initial-contact', async (req, res, next) => {
             currentQuestion: obfQuestion(req.session.dailyChallengeData.currentQuestion)
         }   
         const dailyChallengeData = ({dcd: initialDataToSend, categories: categories});
-        res.json(dailyChallengeData);
+        res.status(200).json(dailyChallengeData);
     } catch (error) {
         console.error('Error in requestDailyQuestions:', error);
         res.status(500).json({ error: 'Failed to fetch daily challenge questions' });
@@ -47,12 +47,12 @@ router.get('/initial-contact', async (req, res, next) => {
 router.get('/request-question', async (req, res, next) => {
     try {
         const newQuestion = await getNewQuestion(req)
-        console.log('rq newquestion', newQuestion)
-        res.json(obfQuestion(newQuestion));
+        if(newQuestion instanceof String) res.status(200).json({status:"out of questions"});
+        else res.status(200).json({question: obfQuestion(newQuestion), status:"ok"});
     }
     catch (error) {
         console.error('Error in requestDailyQuestions:', error);
-        res.status(500).json({ error: 'Failed to fetch new daily question' });
+        res.status(500).json({ error: error });
     }
 });
 
