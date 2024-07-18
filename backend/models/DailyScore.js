@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const dailyScoreSchema = new Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true },
-  date: { type: Date, required: true, index: true },
+  date: { type: String, required: true, index: true },
   score: { type: Number, required: true },
   questionsRemaining: { type: [String], required: true },
   currentQuestion: { type: Object, required: true },

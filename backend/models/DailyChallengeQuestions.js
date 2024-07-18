@@ -6,7 +6,7 @@ import { Question } from "../models/Question.js";
 const Schema = mongoose.Schema;
 
 const dailyChallengeQuestionsSchema = new Schema({
-    date: { type: Date, index: true },
+    date: { type: String, index: true },
     questionIDs: [String],
 });
 
@@ -27,12 +27,10 @@ export const generateNewQuestions = async () => {
         });
 
         // Create a new Date object for the start of the day
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set to start of the day (00:00:00.000)
 
         // Create a new document for today's questions
         const newDailyChallengeQuestions = new DailyChallengeQuestions({
-            date: today,
+            date: new Date().toISOString().split('T')[0],
             questionIDs: questionIds,
         });
 
