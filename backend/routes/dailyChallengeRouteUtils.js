@@ -1,5 +1,6 @@
-import { DailyChallengeQuestions } from "../models/DailyChallengeQuestions.js";
+import { Account } from "../models/Account.js";
 import { Question } from "../models/Question.js";
+import { DailyScore } from "../models/DailyScore.js";
 
 export const generateNewQuestions = async () => {
   const possibleQuestions = await Question.distinct('_id').lean().exec();
@@ -34,30 +35,49 @@ export const uniqueIndexes = (qty, max) => {
 }
 
 export const getNewQuestion = async (req) => {
-  if (req.session.dailyChallengeData.questionsRemaining.length == 0) {
+  if (req.session.dailyChallengeData.questionsRemaining.length === 0) {
     console.log(`${req.user.username} is out of daily questions.`);
-    return `${req.user.username} is out of daily questions.`;
+    return {
+      statusCode: 200,
+      data: { status: "out of questions", message: `${req.user.username} is out of daily questions.` }
+    };
   }
-  console.log(`${req.session} is requesting a new daily question: Current length: ${req.session.dailyChallengeData.questionsRemaining.length}`);
+  console.log(`${req.user.username} is requesting a new daily question: Current length: ${req.session.dailyChallengeData.questionsRemaining.length}`);
   try {
     const newQuestion = await Question.findById(req.session.dailyChallengeData.questionsRemaining.pop()).lean();
     req.session.dailyChallengeData.currentQuestion = newQuestion;
-    return newQuestion;
+    return {
+      statusCode: 200,
+      data: { status: "ok", question: obfQuestion(newQuestion) }
+    };
   } catch (error) {
-    throw error;
+    console.error('Error in getNewQuestion:', error);
+    return {
+      statusCode: 500,
+      data: { status: "error", message: error.message }
+    };
   }
-}
+};
 /**
  * Obfuscates a question for the client.
  * @param {Object} question - The question object.
  * @return {Object} The obfuscated question object.
  */
 export const obfQuestion = (question) => {
-  return {
-    text: question.text,
-    tags: question.tags,
-    choices: shuffleArray([...question.incorrectAnswers, question.correctAnswer]),
-  };
+  console.log('obf', question)
+  try {
+    const obfQuestion = {
+      text: question.text,
+      tags: question.tags,
+      choices: shuffleArray([...question.incorrectAnswers, question.correctAnswer]),
+    }
+    return obfQuestion
+  }
+  catch (TypeError) {
+    console.log('already obfuscated', TypeError)
+    return question;
+  }
+
 };
 
 export const shuffleArray = (array) => {
@@ -69,3 +89,26 @@ export const shuffleArray = (array) => {
   }
   return array;
 };
+
+export const updateDatabaseDailyChallengeScore = async (req) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize the date to midnight
+    
+    await DailyScore.updateOne(
+      { userId: req.user._id, date: today },
+      {
+        userId: req.user._id,
+        date: today,
+        score: req.session.dailyChallengeData.todaysScore,
+        questionsRemaining: req.session.dailyChallengeData.questionsRemaining,
+        currentQuestion: req.session.dailyChallengeData.currentQuestion
+      },
+      { upsert: true }
+    );
+  }
+  catch (error)
+  {
+    console.log(error);
+  }
+}

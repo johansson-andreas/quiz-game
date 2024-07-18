@@ -1,0 +1,145 @@
+.correct {
+    background-color: lightgreen;
+    border-radius: 15px;
+    width: 100%;
+  }
+  
+.incorrect {
+  background-color: red;
+  border-radius: 15px;
+  width: 100%;
+}
+  
+.neutral {
+  background-color: rgb(91, 200, 243);
+  border-radius: 15px;
+  width: 100%;
+}
+.submitNextButton {
+  width: 400px;
+  height: 50px;
+  background-color: #d3f06de5;
+  border-radius: 50px;
+  border: 1px solid black; /* Combined border style */
+  font-size: 20px;
+}
+.questionBody {
+  display: flex;
+  flex-direction: column; /* Ensures vertical stacking */
+  margin-left: 5%;
+  margin-top: 3%;
+  height: 70%; 
+  font-size: 18px;
+  border: 1px solid black;
+  padding: 20px;
+  border-radius: 20px;
+  align-items: center;
+  background-color: rgb(136, 228, 245);
+  width: 70%;
+}
+.questionBody > * {
+  margin-bottom: 10px; /* Adjust the spacing as per your design */
+}
+#radioButtonsDiv {
+  align-items: flex-start;
+  font-size: 18px;
+  max-width: 75%;
+  width: 75%;
+}
+.radioButtonsDiv > * {
+  margin-bottom: 5px;
+}
+.categoriesDiv
+{
+  margin-top: 5vh;
+  align-items:flex-start;
+  margin-left: 3vw;
+}
+.questionText
+{
+  max-width: 75%;
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #63b4ebe5;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mainBody
+{
+  display: flex;
+  flex-direction:row; /* Ensures vertical stacking */
+  height: 100%;
+  width: 100vw;
+}
+.radioButtonLabels
+{
+  display: block;
+  max-width: 100%;
+  border: 1px solid black;
+  border-radius: 15px;
+  padding: 5px;
+}
+.checkboxLabels
+{
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  border: 1px solid black;
+  padding: 3px;
+  margin: 4px;
+  border-radius: 5px;
+  align-items: center;
+}
+.icon-container {
+  display: inline-flex; /* Keeps the container fitting tightly around the image */
+  margin: 5px;
+  align-items: center;
+  flex-direction: column;
+}
+
+.icon-image {
+  min-height: 30px;
+  max-height: 30px;
+  width: auto;
+  height: auto;
+}
+.tagIcons {
+  display: inline-flex;
+  flex-direction: row;
+  align-items:center;
+}
+.tagIcon {
+  display:flex;
+  align-items: flex-end;
+}
+.topLineCheckbox
+{
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+}
+.catCountDiv
+{
+  font-size: 12px;
+}
+.scoreCatPanel
+{
+  display: flex;
+  flex-direction: row;
+}
+.iconScoreDiv
+{
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.iconCompDiv
+{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+
+}
