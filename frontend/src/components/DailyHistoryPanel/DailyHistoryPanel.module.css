@@ -1,0 +1,6 @@
+.mainbody{
+
+    background-color: red;
+    display: flex;
+  text-wrap: nowrap;
+}

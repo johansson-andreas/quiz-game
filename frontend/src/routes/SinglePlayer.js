@@ -120,10 +120,11 @@ const Controller = () => {
           setScoreArray(response.data.scoreArray);
           setCorrectAnswer(response.data.correctAnswer);
           setTotalQuestionsScore(prevCount => {
-            if (response.data.correctAnswer === submittedAnswer) prevCount[0] += 1;
-            prevCount[1] += 1;
-            return prevCount;
-          });
+            const newCount = [...prevCount];
+            if (response.data.correctAnswer === submittedAnswer) newCount[0] += 1;
+            newCount[1] += 1;
+            return newCount;
+        });
         })
         .catch(error => {
           console.error('Error fetching data:', error);

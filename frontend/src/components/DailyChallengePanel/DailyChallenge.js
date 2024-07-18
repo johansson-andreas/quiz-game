@@ -3,6 +3,8 @@ import IconComponent from '../IconComponent';
 import axios from 'axios';
 import { UserContext } from '../../contexts/UserContext';
 import styles from './DailyChallenge.module.css';
+import LoginPanel from '../LoginPanel/LoginPanel.js'
+import DailyHistoryPanel from '../DailyHistoryPanel/DailyHistoryPanel.js'
 
 
 const DailyChallenge = () => {
@@ -19,7 +21,7 @@ const DailyChallenge = () => {
   const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState({});
   const { user, setUser } = useContext(UserContext);
   const [currentScore, setCurrentScore] = useState(0);
-  const  [questionsRemaining, setQuestionsRemaining] = useState(0);
+  const [questionsRemaining, setQuestionsRemaining] = useState(0);
   const [currentUser, setCurrentUser] = useState('');
 
   const initialContact = async () => {
@@ -37,7 +39,7 @@ const DailyChallenge = () => {
   };
 
   useEffect(() => {
-    initialContact();
+    if (user) initialContact();
   }, [user]);
 
   const assignQuestion = (questionData) => {
@@ -130,46 +132,57 @@ const DailyChallenge = () => {
 
   return (
     <div className={styles.mainBody}>
-      {question.choices ? (
-        <div className={styles.questionBody}>
-          Frågor kvar: {questionsRemaining}
-          <div className={styles.questionText}>
-            {question.text}
-            <div className={styles.tagIcons}>
-              {memoizedQuestionIcons.length > 0 ? (
-                <div>
-                  {memoizedQuestionIcons.map((icon, index) => (
-                    <div key={index} className={styles.tagIcon}>
-                      <IconComponent imageName={icon} />
+      {user ? (
+        <div className={styles.loggedInPanel}>
+          <div className={styles.questionPanel}>
+            {question.choices ? (
+              <div className={styles.questionBody}>
+                <div className={styles.questionText}>
+                  {question.text}
+                  <div className={styles.tagIcons}>
+                    {memoizedQuestionIcons.length > 0 ? (
+                      <div>
+                        {memoizedQuestionIcons.map((icon, index) => (
+                          <div key={index} className={styles.tagIcon}>
+                            <IconComponent imageName={icon} />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p>Loading...</p>
+                    )}
+                  </div>
+                </div>
+                <div className={styles.radioButtonsDiv}>
+                  {question.choices.map((option, index) => (
+                    <div key={index} className={getDivClassName(option)}>
+                      <label className={styles.radioButtonLabels}>
+                        <input
+                          type="radio"
+                          value={option}
+                          checked={answer === option}
+                          onChange={handleOptionChange}
+                        />
+                        {option}
+                      </label>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p>Loading...</p>
-              )}
-            </div>
-          </div>
-          <div className={styles.radioButtonsDiv}>
-            {question.choices.map((option, index) => (
-              <div key={index} className={getDivClassName(option)}>
-                <label className={styles.radioButtonLabels}>
-                  <input
-                    type="radio"
-                    value={option}
-                    checked={answer === option}
-                    onChange={handleOptionChange}
-                  />
-                  {option}
-                </label>
+                <button onClick={submitAnswer} style={submitButtonStyle} className={styles.submitNextButton} >Submit Answer</button>
+                <button onClick={nextQuestion} style={nextButtonStyle} className={styles.submitNextButton}>Next question</button>
               </div>
-            ))}
+            ) : (
+              <p>Loading...</p>
+            )}
           </div>
-          <button onClick={submitAnswer} style={submitButtonStyle} className={styles.submitNextButton} >Submit Answer</button>
-          <button onClick={nextQuestion} style={nextButtonStyle} className={styles.submitNextButton}>Next question</button>
+          <DailyHistoryPanel />
         </div>
       ) : (
-        <p>Loading...</p>
-      )}
+        <div className={styles.loginPanel}>
+
+          <LoginPanel />
+
+        </div>)}
     </div>
   );
 }
