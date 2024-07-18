@@ -1,152 +1,177 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import IconComponent from '../IconComponent';
 import axios from 'axios';
 import { UserContext } from '../../contexts/UserContext';
+import styles from './DailyChallenge.module.css';
+
 
 const DailyChallenge = () => {
 
-    const [currentQuestion, setCurrentQuestion] = useState([]);
-    const [questionText, setQuestionText] = useState(null);
-    const [correctAnswer, setCorrectAnswer] = useState(null);
-    const [questionIcons, setQuestionIcons] = useState([]);
-    const [question, setQuestion] = useState([]);
-    const [options, setOptions] = useState([]);
-    const [answer, setAnswer] = useState('');
-    const [submittedAnswer, setSubmittedAnswer] = useState('');
-    const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
-    const [activeQuestion, setActive] = useState(true);
-    const [questionCategories, setQuestionCategories] = useState([]);
-    const [activeCategories, setActiveCategories] = useState([]);
-    const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState({});
-    const [questionTags, setQuestionTags] = useState([]);
-    const { user, setUser } = useContext(UserContext);
-    const [currentScore, setCurrentScore] = useState(0);
-    const [questionsRemaining, setQuestionsRemaining] = useState(0);
-    const [currentUser, setCurrentUser] = useState('');
+  const [currentQuestion, setCurrentQuestion] = useState([]);
+  const [correctAnswer, setCorrectAnswer] = useState(null);
+  const [question, setQuestion] = useState({ text: '', choices: [], icons: [], tags: [] });
+  const [answer, setAnswer] = useState('');
+  const [submittedAnswer, setSubmittedAnswer] = useState('');
+  const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
+  const [activeQuestion, setActive] = useState(true);
+  const [questionCategories, setQuestionCategories] = useState([]);
+  const [activeCategories, setActiveCategories] = useState([]);
+  const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState({});
+  const { user, setUser } = useContext(UserContext);
+  const [currentScore, setCurrentScore] = useState(0);
+  const  [questionsRemaining, setQuestionsRemaining] = useState(0);
+  const [currentUser, setCurrentUser] = useState('');
 
-    const initialContact = async () => {
-        const response = await axios.get('/api/daily-challenge-routes/initial-contact')
-        const dailyChallengeData = response.data.dcd;
-        setCurrentScore(dailyChallengeData.todaysScore)
-        setQuestionsRemaining(dailyChallengeData.questionsRemaining.length + 1)
-        setQuestionCategories(response.data.categories)
-        assignQuestion(dailyChallengeData.currentQuestion)
-    };  
-    useEffect(() => {
-    initialContact();
-    }, [user]);
-
-    useEffect(() => {
-      const tempQuestionIcons = questionTags.map(tag => {
-        const categoryIcon = questionCategories.find(category => category._id === tag);
-        return categoryIcon ? categoryIcon.icon : null;
-      }).filter(icon => icon !== null);
-  
-      setQuestionIcons(tempQuestionIcons);
-  
-    }, [questionCategories, questionTags]);
-
-    const assignQuestion = (questionData) => {
-        console.log(questionData)
-        setQuestion(questionData);
-        setQuestionText(questionData.text);
-        setQuestionTags(questionData.tags);
-        setOptions(questionData.choices);
+  const initialContact = async () => {
+    try {
+      const response = await axios.get('/api/daily-challenge-routes/initial-contact');
+      const { todaysScore, questionsRemaining, currentQuestion } = response.data.dcd;
+      console.log(response)
+      const categories = response.data.categories;
+      setQuestionCategories(categories);
+      setQuestion(currentQuestion);
+      setQuestionsRemaining(questionsRemaining.length + 1);
+    } catch (error) {
+      console.error('Error fetching initial data:', error);
     }
+  };
 
-    //Request new question from backend block
-    const nextQuestion = async () => {
-      try {
-        const response = await axios.get('/api/daily-challenge-routes/request-question');
+  useEffect(() => {
+    initialContact();
+  }, [user]);
 
-        
-        assignQuestion(response.data);
+  const assignQuestion = (questionData) => {
+    setQuestion(questionData);
+  }
+  useEffect(() => {
+    console.log('question', question)
+
+  }, [question]);
+
+  //Request new question from backend block
+  const nextQuestion = async () => {
+    try {
+      const response = await axios.get('/api/daily-challenge-routes/request-question');
+      console.log('response:', response)
+
+      if (response.data.status === "ok") {
+        assignQuestion(response.data.question);
         setActive(true);
-        setQuestionsRemaining(prevCount => prevCount - 1); 
-      } catch (error) {
-        console.error(error);
+        setQuestionsRemaining(prevCount => prevCount - 1);
       }
-    };
-
-    const submitButtonStyle = {
-        display: activeQuestion ? 'block' : 'none'
-    };
-
-    const nextButtonStyle = {
-        display: activeQuestion ? 'none' : 'block'
-    };
-
-    const submitAnswer = (e) => {
-        setSubmittedAnswer(answer);
-    };
-    const handleOptionChange = (e) => {
-        setAnswer(e.target.value);
-    };
-
-    useEffect(() => {
-      console.log('Submitted answer:', submittedAnswer);
-      if (submittedAnswer != '') {
-        axios.post('/api/daily-challenge-routes/submit-answer', { submittedAnswer })
-          .then(response => {
-            setActive(false);
-            console.log('todaysscore:', response.data.todaysScore, 'Correct answer:', response.data.correctAnswer)
-            setCurrentScore(response.data.todaysScore);
-            setCorrectAnswer(response.data.correctAnswer);
-          })
-          .catch(error => {
-            console.error('Error fetching data:', error);
-          });
+      else if (response.data.status === "out of questions") {
+        //TODO: ADD SOMETHING WHEN UUT OF QUESTIONS. MAYBE REMOVE QUESTION PANEL AND ADD RESULT PANEL?
       }
-    }, [submittedAnswer]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const submitButtonStyle = {
+    display: activeQuestion ? 'block' : 'none'
+  };
+
+  const nextButtonStyle = {
+    display: activeQuestion ? 'none' : 'block'
+  };
+
+  const submitAnswer = (e) => {
+    setSubmittedAnswer(answer);
+  };
+  const handleOptionChange = (e) => {
+    setAnswer(e.target.value);
+  };
+
+  useEffect(() => {
+    console.log('Submitted answer:', submittedAnswer);
+    if (submittedAnswer != '') {
+      axios.post('/api/daily-challenge-routes/submit-answer', { submittedAnswer })
+        .then(response => {
+          setActive(false);
+          console.log('todaysscore:', response.data.todaysScore, 'Correct answer:', response.data.correctAnswer)
+          setCurrentScore(response.data.todaysScore);
+          setCorrectAnswer(response.data.correctAnswer);
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+    }
+  }, [submittedAnswer]);
+
+  const getDivClassName = (option) => {
+    if (!activeQuestion) {
+      if (submittedAnswer === option) {
+        return option === correctAnswer ? (styles.correct) : (styles.incorrect);
+      }
+      else if (correctAnswer === option) {
+        return (styles.correct);
+      } else {
+        return (styles.neutral);
+      }
+    }
+    else return (styles.neutral);
+  };
+
+  useEffect(() => {
+    const tempQuestionIcons = question.tags.map(tag => {
+      const categoryIcon = questionCategories.find(category => category._id === tag);
+      return categoryIcon ? categoryIcon.icon : null;
+    }).filter(icon => icon !== null);
+    setQuestion(prevQuestion => ({ ...prevQuestion, icons: tempQuestionIcons }));
+  }, [questionCategories, question.tags]);
+
+  const memoizedQuestionIcons = useMemo(() => {
+    return question.tags.map(tag => {
+      const categoryIcon = questionCategories.find(category => category._id === tag);
+      return categoryIcon ? categoryIcon.icon : null;
+    }).filter(icon => icon !== null);
+  }, [question.tags, questionCategories]);
 
 
-    const getDivClassName = (option) => {
-        if (!activeQuestion) {
-            if (submittedAnswer === option) {
-                return option === correctAnswer ? 'correct' : 'incorrect';
-            }
-            else if (correctAnswer === option) {
-                return 'correct';
-            } else {
-                return 'neutral';
-            }
-        }
-        else return 'neutral';
-    };
-
-
-    return (
-        <div className='questionBody'>
-          CS: {currentScore} QR: {questionsRemaining}
-        <div className='questionText'>
-          {questionText}
-          <div id='tagIcons'>
-            {questionIcons.map((index) => (
-              <div key={index} className="tagIcon">
-                <IconComponent imageName={index} />
+  return (
+    <div className={styles.mainBody}>
+      {question.choices ? (
+        <div className={styles.questionBody}>
+          Frågor kvar: {questionsRemaining}
+          <div className={styles.questionText}>
+            {question.text}
+            <div className={styles.tagIcons}>
+              {memoizedQuestionIcons.length > 0 ? (
+                <div>
+                  {memoizedQuestionIcons.map((icon, index) => (
+                    <div key={index} className={styles.tagIcon}>
+                      <IconComponent imageName={icon} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>Loading...</p>
+              )}
+            </div>
+          </div>
+          <div className={styles.radioButtonsDiv}>
+            {question.choices.map((option, index) => (
+              <div key={index} className={getDivClassName(option)}>
+                <label className={styles.radioButtonLabels}>
+                  <input
+                    type="radio"
+                    value={option}
+                    checked={answer === option}
+                    onChange={handleOptionChange}
+                  />
+                  {option}
+                </label>
               </div>
             ))}
           </div>
+          <button onClick={submitAnswer} style={submitButtonStyle} className={styles.submitNextButton} >Submit Answer</button>
+          <button onClick={nextQuestion} style={nextButtonStyle} className={styles.submitNextButton}>Next question</button>
         </div>
-        <div id='radioButtonsDiv'>
-          {options.map((option, index) => (
-            <div key={index} className={getDivClassName(option)}>
-              <label className='radioButtonLabels'>
-                <input
-                  type="radio"
-                  value={option}
-                  checked={answer === option}
-                  onChange={handleOptionChange}
-                />
-                {option}
-              </label>
-            </div>
-          ))}
-        </div>
-        <button onClick={submitAnswer} style={submitButtonStyle} className={"submitNextButton"}>Submit Answer</button>
-        <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Next question</button>
-      </div>
-      );
+      ) : (
+        <p>Loading...</p>
+      )}
+    </div>
+  );
 }
 
 export default DailyChallenge;

@@ -35,7 +35,7 @@ router.post('/login', (req, res, next) => {
 });
 
 router.post('/register', (req, res) => {
-  Account.register(new Account({ username: req.body.username }), req.body.password, (err, account) => {
+  Account.register(new Account({ username: req.body.username,  dailyChallengeScores: new Map(), categoryStats: new Map()}), req.body.password,(err, account) => {
     if (err) {
       return res.status(400).json({ message: err.message });
     }

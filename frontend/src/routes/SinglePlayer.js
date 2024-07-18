@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import './styles/singlePlayerStyle.css';
 import IconComponent from '../components/IconComponent';
 import ScorePanel from '../components/ScorePanel';
@@ -16,18 +16,15 @@ const Controller = () => {
   const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
   const [activeQuestion, setActive] = useState(true);
   const [questionCategories, setQuestionCategories] = useState([]);
-  const [activeCategories, setActiveCategories] = useState([]);
-  const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState({});
   const [scoreArray, setScoreArray] = useState({});
   const [questionTags, setQuestionTags] = useState([]);
   const { user, setUser } = useContext(UserContext);
-
 
   useEffect(() => {
     initialContact();
   }, []);
 
-  const initialContact = (e) => {
+  const initialContact = () => {
     axios.get('/api/question-routes/initial-contact')
       .then(response => {
         console.log('Received initial data:', response.data);
@@ -51,6 +48,7 @@ const Controller = () => {
     console.log(user)
     setSubmittedAnswer(answer);
   };
+
   const handleOptionChange = (e) => {
     setAnswer(e.target.value);
   };
@@ -68,6 +66,7 @@ const Controller = () => {
     }
     else return 'neutral';
   };
+
   const assignQuestion = (questionData) => {
     setQuestion(questionData);
     setQuestionText(questionData.text);
@@ -76,12 +75,10 @@ const Controller = () => {
     let choices = questionData.choices;
 
     setOptions(choices);
+  };
 
-  }
-  //Request new question from backend block
   const nextQuestion = () => {
     console.log("Next question");
-    setPreviouslyUsedCategories(questionCategories);
 
     axios.get('/api/question-routes/request-question')
       .then(response => {
@@ -112,17 +109,17 @@ const Controller = () => {
       )
     );
   };
+
   useEffect(() => {
     console.log('Submitted answer:', submittedAnswer);
-    if (submittedAnswer != '') {
+    if (submittedAnswer !== '') {
       axios.post('/api/question-routes/submit-answer', { submittedAnswer })
         .then(response => {
           setActive(false);
-          console.log('ScoreArray:', response.data.scoreArray, 'Correct answer:', response.data.correctAnswer)
+          console.log('ScoreArray:', response.data.scoreArray, 'Correct answer:', response.data.correctAnswer);
           setScoreArray(response.data.scoreArray);
           setCorrectAnswer(response.data.correctAnswer);
           setTotalQuestionsScore(prevCount => {
-
             if (response.data.correctAnswer === submittedAnswer) prevCount[0] += 1;
             prevCount[1] += 1;
             return prevCount;
@@ -134,24 +131,17 @@ const Controller = () => {
     }
   }, [submittedAnswer]);
 
-  useEffect(() => {
-    const tempQuestionIcons = questionTags.map(tag => {
+  const memoizedQuestionIcons = useMemo(() => {
+    return questionTags.map(tag => {
       const categoryIcon = questionCategories.find(category => category._id === tag);
       return categoryIcon ? categoryIcon.icon : null;
     }).filter(icon => icon !== null);
-
-    setQuestionIcons(tempQuestionIcons);
-
   }, [questionCategories, questionTags]);
 
   useEffect(() => {
-    if (previouslyUsedCategories.length > 0 && questionCategories.length > 0) {
-      axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories })
-      console.log(questionCategories);
-    }
-    setPreviouslyUsedCategories(questionCategories)
-
-  }, [questionCategories]);
+    setQuestionIcons(memoizedQuestionIcons);
+    axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories });
+  }, [memoizedQuestionIcons]);
 
   return (
     <div id='mainBody'>

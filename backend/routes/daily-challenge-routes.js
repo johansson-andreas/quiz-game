@@ -1,6 +1,6 @@
 import express from 'express';
 import { DailyChallengeQuestions, generateNewQuestions} from '../models/DailyChallengeQuestions.js';
-import { getNewQuestion, obfQuestion} from './dailyChallengeRouteUtils.js';
+import { getNewQuestion, obfQuestion, updateDatabaseDailyChallengeScore} from './dailyChallengeRouteUtils.js';
 import {getQuestionCategories } from './questionRouteUtils.js'
   
 const router = express.Router();
@@ -8,6 +8,8 @@ const router = express.Router();
 
 router.get('/initial-contact', async (req, res, next) => {
     try {
+        //TODO: GRAB DAILY DATA FROM THE DB AND SET IT AS THE SESSION DATA. IF NO DAILY DATA CREATE NEW SESSION DATA
+        
         // Check if there is no session data or if the date in session data is different from today
         //TODO: CHANGE TO CHECKING DATABASE FOR ACCOUNT INSTEAD OF USING SESSION DATA
         if (!req.session.dailyChallengeData) {
@@ -27,9 +29,8 @@ router.get('/initial-contact', async (req, res, next) => {
                 date: new Date(),
                 questionsRemaining: todaysQuestions.questionIDs,
                 todaysScore: 0,
-                currentQuestion: {}
             };
-            req.session.dailyChallengeData.currentQuestion = await getNewQuestion(req)
+            await getNewQuestion(req);
         }
         let categories = await getQuestionCategories();
         const initialDataToSend = {
@@ -44,17 +45,16 @@ router.get('/initial-contact', async (req, res, next) => {
         res.status(500).json({ error: 'Failed to fetch daily challenge questions' });
     }
 });
-router.get('/request-question', async (req, res, next) => {
+router.get('/request-question', async (req, res) => {
     try {
-        const newQuestion = await getNewQuestion(req)
-        if(newQuestion instanceof String) res.status(200).json({status:"out of questions"});
-        else res.status(200).json({question: obfQuestion(newQuestion), status:"ok"});
+      const { statusCode, data } = await getNewQuestion(req);
+      res.status(statusCode).json(data);
+    } catch (error) {
+      console.error('Error in request-question:', error);
+      res.status(500).json({ status: "error", message: error.message });
     }
-    catch (error) {
-        console.error('Error in requestDailyQuestions:', error);
-        res.status(500).json({ error: error });
-    }
-});
+  });
+
 
 router.post('/submit-answer', async (req, res) => {
     const dailyChallengeData = req.session.dailyChallengeData;
@@ -63,6 +63,8 @@ router.post('/submit-answer', async (req, res) => {
       if(answer === dailyChallengeData.currentQuestion.correctAnswer) dailyChallengeData.todaysScore+=1;
   
       res.send({ todaysScore: dailyChallengeData.todaysScore, correctAnswer: dailyChallengeData.currentQuestion.correctAnswer });
+
+      updateDatabaseDailyChallengeScore(req);
 
     }
   });
