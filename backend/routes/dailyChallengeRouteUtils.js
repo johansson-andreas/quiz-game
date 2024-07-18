@@ -12,7 +12,7 @@ export const generateNewQuestions = async () => {
   }
 
   const newDailyChallengeQuestions = new DailyChallengeQuestions({
-    date: new Date(),
+    date: new Date().toISOString().split('T')[0],
     questionIds: questionIds
   });
 
@@ -92,14 +92,12 @@ export const shuffleArray = (array) => {
 
 export const updateDatabaseDailyChallengeScore = async (req) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize the date to midnight
-    
+
     await DailyScore.updateOne(
-      { userId: req.user._id, date: today },
+      { userId: req.user._id, date: new Date().toISOString().split('T')[0] },
       {
         userId: req.user._id,
-        date: today,
+        date: new Date().toISOString().split('T')[0],
         score: req.session.dailyChallengeData.todaysScore,
         questionsRemaining: req.session.dailyChallengeData.questionsRemaining,
         currentQuestion: req.session.dailyChallengeData.currentQuestion

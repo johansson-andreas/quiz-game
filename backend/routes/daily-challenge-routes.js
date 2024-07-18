@@ -14,8 +14,7 @@ router.get('/initial-contact', async (req, res, next) => {
     // Check if there is no session data or if the date in session data is different from today
     //TODO: CHANGE TO CHECKING DATABASE FOR ACCOUNT INSTEAD OF USING SESSION DATA
     if (!req.session.dailyChallengeData) {
-      const today = new Date(); //Setting todays time to 0s as MongoDB's Date field will always include a time (which we set to 0s when we created todays document)
-      today.setHours(0, 0, 0, 0);
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
       let todaysQuestions = await DailyChallengeQuestions.findOne({ date: today }, 'questionIDs').lean();
 
       if (!todaysQuestions) {
@@ -27,7 +26,7 @@ router.get('/initial-contact', async (req, res, next) => {
 
       // Update session data
       req.session.dailyChallengeData = {
-        date: new Date(),
+        date: new Date().toISOString().split('T')[0], // YYYY-MM-DD format,
         questionsRemaining: todaysQuestions.questionIDs,
         todaysScore: 0,
       };

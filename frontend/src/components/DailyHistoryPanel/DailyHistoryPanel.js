@@ -29,7 +29,7 @@ const DailyHistoryPanel = () => {
     useEffect(() => {   
         if (historyData && historyData.length > 0) {
             setUserHistory(historyData.map(historyEntry => ({
-                date: historyEntry.date.split("T")[0],
+                date: historyEntry.date,
                 score: historyEntry.score
             })));
         }
