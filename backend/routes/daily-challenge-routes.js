@@ -6,31 +6,42 @@ import { DailyScore } from '../models/DailyScore.js';
 
 const router = express.Router();
 
-
 router.get('/initial-contact', async (req, res, next) => {
   try {
-    //TODO: GRAB DAILY DATA FROM THE DB AND SET IT AS THE SESSION DATA. IF NO DAILY DATA CREATE NEW SESSION DATA
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
     // Check if there is no session data or if the date in session data is different from today
-    //TODO: CHANGE TO CHECKING DATABASE FOR ACCOUNT INSTEAD OF USING SESSION DATA
-    if (!req.session.dailyChallengeData) {
-      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-      let todaysQuestions = await DailyChallengeQuestions.findOne({ date: today }, 'questionIDs').lean();
+    if (!req.session.dailyChallengeData || req.session.dailyChallengeData.date ==! today) {
+      const todaysDailyScoreInfo = await DailyScore.findOne({date:today, userId:req.user._id}) //Try to get data from db, otherwise create new
+      if(todaysDailyScoreInfo) {
+        console.log('Found data in db for user', req.user.username)
 
-      if (!todaysQuestions) {
-        // If no questions found for today, generate new questions
-        console.log('No daily questions found, generating new questions')
-        const questionIds = await generateNewQuestions();
-        todaysQuestions = { questionIDs: questionIds };
+        //TODO: currentQuestion might be outdated if user requested a question they didnt answer to as the data is only saved on /submit-answer, not on /request-question
+        req.session.dailyChallengeData = {
+          date: todaysDailyScoreInfo.date,
+          todaysScore: todaysDailyScoreInfo.score,
+          questionsRemaining: todaysDailyScoreInfo.questionsRemaining,
+          currentQuestion: todaysDailyScoreInfo.currentQuestion
+        }
       }
+      else {
+        let todaysQuestions = await DailyChallengeQuestions.findOne({ date: today }, 'questionIDs').lean();
 
-      // Update session data
-      req.session.dailyChallengeData = {
-        date: new Date().toISOString().split('T')[0], // YYYY-MM-DD format,
-        questionsRemaining: todaysQuestions.questionIDs,
-        todaysScore: 0,
-      };
-      await getNewQuestion(req);
+        if (!todaysQuestions) {
+          // If no questions found for today, generate new questions
+          console.log('No daily questions found, generating new questions')
+          const questionIds = await generateNewQuestions();
+          todaysQuestions = { questionIDs: questionIds };
+        }
+  
+        // Update session data
+        req.session.dailyChallengeData = {
+          date: today,
+          questionsRemaining: todaysQuestions.questionIDs,
+          todaysScore: 0,
+        };
+        await getNewQuestion(req);
+      }
     }
     let categories = await getQuestionCategories();
     const initialDataToSend = {
@@ -55,10 +66,8 @@ router.get('/request-question', async (req, res) => {
   }
 });
 router.get('/get-user-history', async (req, res) => {
-  console.log(req.user._id)
   try {
     const userHistory = await DailyScore.find({ userId: req.user._id}).exec();
-    console.log(userHistory)
     res.send(userHistory)
 
   } catch (error) {

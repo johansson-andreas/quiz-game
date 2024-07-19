@@ -28,7 +28,6 @@ export const generateNewQuestions = async () => {
 export const uniqueIndexes = (qty, max) => {
   const retVal = new Set;
   while (retVal.size < qty) {
-    console.log(Math.floor(Math.random() * max))
     retVal.add(Math.floor(Math.random() * max));
   }
   return Array.from(retVal);
@@ -64,7 +63,6 @@ export const getNewQuestion = async (req) => {
  * @return {Object} The obfuscated question object.
  */
 export const obfQuestion = (question) => {
-  console.log('obf', question)
   try {
     const obfQuestion = {
       text: question.text,
