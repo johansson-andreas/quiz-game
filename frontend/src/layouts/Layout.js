@@ -40,7 +40,7 @@ const Layout = () => {
   return (
     <div className={styles.layout}>
       <HeaderPanel id={styles.headerPanel} togglePanelVisibility={togglePanelVisibility} />
-      <main>
+      <main className={styles.main}>
         {/* Conditional rendering of the panel */}
         {isPanelVisible && (
           <LoginPanel id={styles.loginPanel} togglePanelVisibility={togglePanelVisibility} />

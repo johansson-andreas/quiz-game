@@ -2,14 +2,21 @@
     display: flex;
     justify-content: space-between;
     background-color: #e3e3f5;
+    border-bottom: 1px solid black;
+    align-items: center;
 }
 .headerPanel > * {
     padding: 2px 8px 2px 8px;
 }
 .loggedIn > * {
     margin: 0px 0px 0px 4px;
+    align-items: center;
 }
 .usernameDiv {
     align-items: center;
     display:flex;
+}
+.toggleButton {
+    font-size: inherit;
+
 }

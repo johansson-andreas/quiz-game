@@ -37,9 +37,13 @@ const DailyHistoryPanel = () => {
 
     return (
         <div className={styles.mainbody}>
+            <div className={styles.topText}>
+                <p className={styles.yourHistoryTitle}>Din historik</p>
+                <div className={styles.dateScoreText}><div className={styles.entryDateDiv}>Datum</div><div  className={styles.entryScoreDiv}>Poäng</div></div>
+            </div>
             {userHistory.map((entry, index) => (
-                <div key={index}>
-                    {entry.date} : {entry.score}
+                <div className={styles.scoreEntry} key={index}>
+                    <div className={styles.entryDateDiv}>{entry.date} </div> <div className={styles.entryScoreDiv}>{entry.score}</div>
                 </div>
             ))}
         </div>
