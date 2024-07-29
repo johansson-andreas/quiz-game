@@ -45,7 +45,6 @@ const Controller = () => {
   }
 
   const submitAnswer = (e) => {
-    console.log(user)
     setSubmittedAnswer(answer);
   };
 

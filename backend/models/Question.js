@@ -1,10 +1,8 @@
-import { ObjectId } from 'mongodb';
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
 const questionSchema = new Schema({
-  _id: ObjectId,
   text: String,              // Question text
   correctAnswer: String,     // Correct answer
   incorrectAnswers: [String],// Array of incorrect answers

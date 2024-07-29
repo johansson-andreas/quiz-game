@@ -1,6 +1,7 @@
 import express from 'express';
 import { getNewQuestion, obfQuestion, updateScoreArray, getNewQuestionQueueByTags, shuffleArray, updateScoresInDatabase } from './questionRouteUtils.js';
 import {createClientData } from './loginRouteUtils.js';
+import { Question } from '../models/Question.js';
 
 const router = express.Router();
 
@@ -31,6 +32,7 @@ router.get('/initial-contact', async (req, res) => {
 
 
 router.post('/submit-answer', async (req, res) => {
+  console.log(req.body.submittedAnswer)
   const clientData = req.session.clientData;
   if(clientData) {
     const answer = req.body.submittedAnswer;
@@ -68,6 +70,22 @@ router.post('/get-new-question-queue-by-tags', async (req, res) => {
   } catch (err) {
     console.error('Failed to fetch questions by tags:', err);
   }
+
+});
+
+router.post('/add-question-to-db', async (req, res) => {
+
+    const questionToAdd = req.body.newQuestion;
+
+    const newQuestion = new Question({
+      text: questionToAdd.questions,              
+      correctAnswer: questionToAdd.correctAnswer,    
+      incorrectAnswers: questionToAdd.answers,
+      tags: questionToAdd.categories        
+  });
+
+  // Save the new document
+  newQuestion.save();
 
 });
 

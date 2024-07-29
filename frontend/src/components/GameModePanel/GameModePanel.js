@@ -13,14 +13,14 @@ const GameModePanel = () => {
       navigate('/daily');
     };
     const testChoice = (e) => {
-      navigate('/test');
+      navigate('/QuestionForm');
     };
 
       return (
         <div className={styles.gameModeButtonsContainer}>
             <button className={`${styles.gameModeButton} ${styles.gmbTopLeft}`} onClick={spChoice}>Spela själv</button>
             <button className={`${styles.gameModeButton} ${styles.gmbTopRight}`} onClick={mpChoice}>Dagens frågor</button>
-            <button className={`${styles.gameModeButton} ${styles.gmbBottomLeft}`} onClick={testChoice}>Test</button>
+            <button className={`${styles.gameModeButton} ${styles.gmbBottomLeft}`} onClick={testChoice}>QuestionForm</button>
             <button className={`${styles.gameModeButton} ${styles.gmbBottomRight}`} onClick={spChoice}>Spela själv</button>
         </div>
       )
