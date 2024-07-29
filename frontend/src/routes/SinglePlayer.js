@@ -140,7 +140,12 @@ const Controller = () => {
 
   useEffect(() => {
     setQuestionIcons(memoizedQuestionIcons);
-    axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories });
+    axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories }).then(response => {
+      console.log(response)
+
+    }).catch(error => {
+      console.log(error)
+    });
   }, [memoizedQuestionIcons]);
 
   return (
