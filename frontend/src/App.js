@@ -8,7 +8,7 @@ import Admin from './routes/AdminPage.js';
 import DailyChallengeLanding from './routes/DailyChallengeLanding.js'; 
 import Layout from './layouts/Layout.js';
 import { UserProvider } from './contexts/UserContext.js';
-import Test from './routes/Test.js';
+import QuestionForm from './routes/QuestionForm.js';
 
 const App = () => {
   
@@ -21,7 +21,7 @@ const App = () => {
         <Route path="/sp" element={<SP />} />
         <Route path="/mp" element={<MP />} />
         <Route path="/MultiplayerLobby" element={<MPLanding />} />
-        <Route path="/Test" element={<Test />} />
+        <Route path="/QuestionForm" element={<QuestionForm />} />
         <Route path="/Admin" element={<Admin />} />
         <Route path="/daily" element={<DailyChallengeLanding />} />
         </Route>
