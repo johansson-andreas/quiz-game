@@ -4,6 +4,8 @@ import IconComponent from '../components/IconComponent';
 import ScorePanel from '../components/ScorePanel';
 import { UserContext } from '../contexts/UserContext';
 import axios from 'axios';
+import Offcanvas from 'react-bootstrap/Offcanvas';
+import Button from 'react-bootstrap/Button'
 
 const Controller = () => {
   const [questionText, setQuestionText] = useState(null);
@@ -19,6 +21,11 @@ const Controller = () => {
   const [scoreArray, setScoreArray] = useState({});
   const [questionTags, setQuestionTags] = useState([]);
   const { user, setUser } = useContext(UserContext);
+  const [catCanvasShow, setCatCanvasShow] = useState(false);
+  const [triggeredOption, setTriggeredOption] = useState(null);
+
+
+
 
   useEffect(() => {
     initialContact();
@@ -53,17 +60,31 @@ const Controller = () => {
   };
 
   const getDivClassName = (option) => {
+    let baseClass = 'neutral';
     if (!activeQuestion) {
       if (submittedAnswer === option) {
-        return option === correctAnswer ? 'correct' : 'incorrect';
-      }
-      else if (correctAnswer === option) {
-        return 'correct';
-      } else {
-        return 'neutral';
+        baseClass = option === correctAnswer ? 'correct' : 'incorrect';
+      } else if (correctAnswer === option) {
+        baseClass = 'correct';
       }
     }
-    else return 'neutral';
+    if (triggeredOption === option) {
+      return `${baseClass} pulse`;
+    }
+    return baseClass;
+  };
+
+  useEffect(() => {
+    if (triggeredOption !== null) {
+      const timeout = setTimeout(() => {
+        setTriggeredOption(null);
+      }, 1000); // Match the animation duration
+      return () => clearTimeout(timeout);
+    }
+  }, [triggeredOption]);
+
+  const handleOptionChangeWrapper = (event) => {
+    handleOptionChange(event);
   };
 
   const assignQuestion = (questionData) => {
@@ -109,6 +130,10 @@ const Controller = () => {
     );
   };
 
+  const handleCatCanvasClose = () => setCatCanvasShow(false);
+  const handleCatCanvasShow = () => setCatCanvasShow(true);
+
+
   useEffect(() => {
     console.log('Submitted answer:', submittedAnswer);
     if (submittedAnswer !== '') {
@@ -123,7 +148,8 @@ const Controller = () => {
             if (response.data.correctAnswer === submittedAnswer) newCount[0] += 1;
             newCount[1] += 1;
             return newCount;
-        });
+          });
+          setTriggeredOption(response.data.correctAnswer);
         })
         .catch(error => {
           console.error('Error fetching data:', error);
@@ -140,6 +166,7 @@ const Controller = () => {
 
   useEffect(() => {
     setQuestionIcons(memoizedQuestionIcons);
+    console.log('requestion new question queue')
     axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories }).then(response => {
       console.log(response)
 
@@ -150,21 +177,6 @@ const Controller = () => {
 
   return (
     <div id='mainBody'>
-      <div id='categoriesDiv'>
-        {questionCategories.map((category, index) => (
-          <div key={index}>
-            <label className='checkboxLabels'>
-              <div className='topLineCheckbox'>
-                <input
-                  type="checkbox"
-                  defaultChecked={category.enabled}
-                  onChange={() => handleCheckboxChange(category)} />
-                {category._id} <IconComponent imageName={category.icon} />
-              </div>
-            </label>
-          </div>
-        ))}
-      </div>
       <div className='questionBody'>
         <div className='questionText'>
           {questionText}
@@ -184,7 +196,7 @@ const Controller = () => {
                   type="radio"
                   value={option}
                   checked={answer === option}
-                  onChange={handleOptionChange}
+                  onChange={handleOptionChangeWrapper}
                 />
                 {option}
               </label>
@@ -193,7 +205,46 @@ const Controller = () => {
         </div>
         <button onClick={submitAnswer} style={submitButtonStyle} className={"submitNextButton"}>Submit Answer</button>
         <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Next question</button>
+      </div>
+      <div className='scoreDiv'>
         <ScorePanel scoreArray={scoreArray} totalQuestionsScore={totalQuestionsScore} questionCategories={questionCategories} />
+      </div>
+      <div id='categoriesDiv'>
+        <Button variant="primary" onClick={handleCatCanvasShow} className='catButton'>
+          K
+          a
+          t
+          e
+          g
+          o
+          r
+          i
+          e
+          r
+        </Button>
+        <Offcanvas show={catCanvasShow} onHide={handleCatCanvasClose} placement='end' className='offcanvas' >
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Kategorier</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body >
+            {questionCategories.map((category, index) => (
+              <div key={index}>
+                <label className='checkboxLabels'>
+                  <div className='topLineCheckbox'>
+                    <input
+                      type="checkbox"
+                      defaultChecked={category.enabled}
+                      onChange={() => handleCheckboxChange(category)} />
+                    {category._id} <IconComponent imageName={category.icon} />
+
+                  </div>
+                  ({category.count})
+
+                </label>
+              </div>
+            ))}
+          </Offcanvas.Body>
+        </Offcanvas>
       </div>
     </div>
   );
