@@ -51,9 +51,9 @@
 }
 #categoriesDiv
 {
-  margin-top: 5vh;
+  margin-top: 1%;
   align-items:flex-start;
-  margin-left: 3vw;
+  margin-left: 1%;
 }
 .questionText
 {
@@ -71,7 +71,7 @@
   display: flex;
   flex-direction:row; /* Ensures vertical stacking */
   height: 100%;
-  width: 100vw;
+  width: 100%;
 }
 .radioButtonLabels
 {
@@ -91,17 +91,32 @@
   margin: 4px;
   border-radius: 5px;
   align-items: center;
+  font-size:smaller;
+  background-color: rgb(218, 211, 211);
 }
 .icon-container {
-  display: inline-flex; /* Keeps the container fitting tightly around the image */
-  margin: 5px;
+  display: inline-flex; 
+  margin-left: 5px;
   align-items: center;
   flex-direction: column;
 }
+#tagIcons > .tagIcon > .icon-container > .icon-image {
+  min-height: 25px;
+  max-height: 25px;
+  width: auto;
+  height: auto;
+}
+
+.iconCompDiv > .icon-container > .icon-image {
+  min-height: 25px;
+  max-height: 25px;
+  width: auto;
+  height: auto;
+}
 
 .icon-image {
-  min-height: 30px;
-  max-height: 30px;
+  min-height: 15px;
+  max-height: 15px;
   width: auto;
   height: auto;
 }
@@ -134,6 +149,7 @@
   display: flex;
   align-items: center;
   width: 100%;
+  margin-bottom: 2px;
 }
 .iconCompDiv
 {

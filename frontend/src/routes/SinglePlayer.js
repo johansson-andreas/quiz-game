@@ -157,7 +157,6 @@ const Controller = () => {
                   onChange={() => handleCheckboxChange(category)} />
                 {category._id} <IconComponent imageName={category.icon} />
               </div>
-              <div className='catCountDiv'>({category.count})</div>
             </label>
           </div>
         ))}

@@ -62,7 +62,7 @@ const HeaderPanel = ({ togglePanelVisibility }) => {
           <div className={styles.usernameDiv}>
             {user}
           </div> 
-          <button onClick={logoutUser}>
+          <button className={styles.toggleButton} onClick={logoutUser}>
             Logga ut
           </button>
         </div>
