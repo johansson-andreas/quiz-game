@@ -9,7 +9,7 @@
     flex-wrap: wrap;
 }
 .gameModeButton {
-    background-color: rgb(111, 179, 238);
+    background-color: rgb(151, 151, 151);
     height:50%;
     width: 50%;
     min-width: 50%;
@@ -20,7 +20,7 @@
 }
 .gameModeButton:hover {
     background-color: rgb(131, 54, 233);
-
+    transform: scale(1.05,1.05);
 }
 
 .gmbTopLeft {

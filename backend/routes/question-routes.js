@@ -66,7 +66,7 @@ router.post('/get-new-question-queue-by-tags', async (req, res) => {
     clientData.unusedQuestions = ([...clientData.cachedQuestions]);
     req.session.save();
 
-    res.status(200).json({response: "Ok", text: "New question length: ", amount: clientData.unusedQuestions})
+    res.status(200).json({response: "Ok", text: "New question length: ", amount: clientData.unusedQuestions.length})
 
   } catch (err) {
     console.error('Failed to fetch questions by tags:', err);
