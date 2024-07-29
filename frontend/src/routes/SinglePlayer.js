@@ -162,7 +162,7 @@ const Controller = () => {
       const categoryIcon = questionCategories.find(category => category._id === tag);
       return categoryIcon ? categoryIcon.icon : null;
     }).filter(icon => icon !== null);
-  }, [questionCategories, questionTags]);
+  }, [questionCategories]);
 
   useEffect(() => {
     setQuestionIcons(memoizedQuestionIcons);
