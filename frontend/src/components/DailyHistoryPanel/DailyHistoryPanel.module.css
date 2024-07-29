@@ -1,6 +1,40 @@
-.mainbody{
-
-    background-color: red;
-    display: flex;
+.mainbody {
+  background-color: red;
+  display: flex;
   text-wrap: nowrap;
+  flex-direction: column;
+  width: 15%;
+  margin: 2%;
+  border-radius: 15px;
+  height: 100%;
+  border: 1px solid black
+}
+
+.topText {
+  display:flex;
+  flex-direction: column;
+}
+.dateScoreText {
+  display:flex;
+  font-weight: bold;
+}
+.scoreEntry {
+  display:flex;
+  border-top: 1px solid black;
+}
+.entryScoreDiv {
+  justify-content: center;
+  display: flex;
+  width: 33%
+}
+.entryDateDiv
+{
+  justify-content: center;
+  display: flex;
+  width: 66%
+}
+
+.yourHistoryTitle {
+  align-self: center;
+  font-weight: bold;
 }

@@ -23,6 +23,7 @@ const DailyChallenge = () => {
   const [currentScore, setCurrentScore] = useState(0);
   const [questionsRemaining, setQuestionsRemaining] = useState(0);
   const [currentUser, setCurrentUser] = useState('');
+  const [activeQuiz, setActiveQuiz] = useState(true)
 
   const initialContact = async () => {
     try {
@@ -32,7 +33,10 @@ const DailyChallenge = () => {
       const categories = response.data.categories;
       setQuestionCategories(categories);
       setQuestion(currentQuestion);
-      setQuestionsRemaining(questionsRemaining.length + 1);
+      setQuestionsRemaining(questionsRemaining.length);
+      setCurrentScore(todaysScore);
+      if (questionsRemaining.length === 0) setActiveQuiz(false)
+      else setActiveQuiz(true)
     } catch (error) {
       console.error('Error fetching initial data:', error);
     }
@@ -63,6 +67,7 @@ const DailyChallenge = () => {
       }
       else if (response.data.status === "out of questions") {
         //TODO: ADD SOMETHING WHEN UUT OF QUESTIONS. MAYBE REMOVE QUESTION PANEL AND ADD RESULT PANEL?
+        setActiveQuiz(false);
       }
     } catch (error) {
       console.error(error);
@@ -115,11 +120,13 @@ const DailyChallenge = () => {
   };
 
   useEffect(() => {
-    const tempQuestionIcons = question.tags.map(tag => {
-      const categoryIcon = questionCategories.find(category => category._id === tag);
-      return categoryIcon ? categoryIcon.icon : null;
-    }).filter(icon => icon !== null);
-    setQuestion(prevQuestion => ({ ...prevQuestion, icons: tempQuestionIcons }));
+    if (question) {
+      const tempQuestionIcons = question.tags.map(tag => {
+        const categoryIcon = questionCategories.find(category => category._id === tag);
+        return categoryIcon ? categoryIcon.icon : null;
+      }).filter(icon => icon !== null);
+      setQuestion(prevQuestion => ({ ...prevQuestion, icons: tempQuestionIcons }));
+    }
   }, [questionCategories, question.tags]);
 
   const memoizedQuestionIcons = useMemo(() => {
@@ -134,47 +141,56 @@ const DailyChallenge = () => {
     <div className={styles.mainBody}>
       {user ? (
         <div className={styles.loggedInPanel}>
-          <div className={styles.questionPanel}>
-            {question.choices ? (
-              <div className={styles.questionBody}>
-                <div className={styles.questionText}>
-                  {question.text}
-                  <div className={styles.tagIcons}>
-                    {memoizedQuestionIcons.length > 0 ? (
-                      <div>
-                        {memoizedQuestionIcons.map((icon, index) => (
-                          <div key={index} className={styles.tagIcon}>
-                            <IconComponent imageName={icon} />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p>Loading...</p>
-                    )}
-                  </div>
-                </div>
-                <div className={styles.radioButtonsDiv}>
-                  {question.choices.map((option, index) => (
-                    <div key={index} className={getDivClassName(option)}>
-                      <label className={styles.radioButtonLabels}>
-                        <input
-                          type="radio"
-                          value={option}
-                          checked={answer === option}
-                          onChange={handleOptionChange}
-                        />
-                        {option}
-                      </label>
+          {activeQuiz ? (
+            <div className={styles.questionPanel}>
+              {question.choices ? (
+                <div className={styles.questionBody}>
+                  <div className={styles.questionText}>
+                    {question.text}
+                    <div className={styles.tagIcons}>
+                      {memoizedQuestionIcons.length > 0 ? (
+                        <div>
+                          {memoizedQuestionIcons.map((icon, index) => (
+                            <div key={index} className={styles.tagIcon}>
+                              <IconComponent imageName={icon} />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p>Loading...</p>
+                      )}
                     </div>
-                  ))}
+                  </div>
+                  <div className={styles.radioButtonsDiv}>
+                    {question.choices.map((option, index) => (
+                      <div key={index} className={getDivClassName(option)}>
+                        <label className={styles.radioButtonLabels}>
+                          <input
+                            type="radio"
+                            value={option}
+                            checked={answer === option}
+                            onChange={handleOptionChange}
+                          />
+                          {option}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={submitAnswer} style={submitButtonStyle} className={styles.submitNextButton} >Submit Answer</button>
+                  <button onClick={nextQuestion} style={nextButtonStyle} className={styles.submitNextButton}>Next question</button>
                 </div>
-                <button onClick={submitAnswer} style={submitButtonStyle} className={styles.submitNextButton} >Submit Answer</button>
-                <button onClick={nextQuestion} style={nextButtonStyle} className={styles.submitNextButton}>Next question</button>
+              ) : (
+                <p>Loading...</p>
+              )}
+            </div>
+          ) : (
+            <div className={styles.scorePanel}>
+              <div className={styles.scoreSection}>
+                Du fick {currentScore} rätt svar idag!
               </div>
-            ) : (
-              <p>Loading...</p>
-            )}
-          </div>
+              <div className={styles.historySection}>
+              </div>
+            </div>)}
           <DailyHistoryPanel />
         </div>
       ) : (
