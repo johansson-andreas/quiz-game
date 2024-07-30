@@ -11,8 +11,9 @@ export const createClientData = async (req) => {
         cachedQuestions: [],
         username: '',
         clientId: session.id,
-        currentScores: {},
-        currentQuestion: {}
+        scoreArray: {},
+        currentQuestion: {},
+        currentTotals: [0,0],
       };
     }
   
@@ -29,10 +30,5 @@ export const createClientData = async (req) => {
   
     if (clientData.cachedQuestions.length === 0) {
       clientData.cachedQuestions = await getNewQuestionQueue();
-    }
-  
-    let scoreArray = null;
-    if (Object.keys(session.clientData.currentScores).length > 0) {
-      scoreArray = clientData.currentScores;
     }
   }

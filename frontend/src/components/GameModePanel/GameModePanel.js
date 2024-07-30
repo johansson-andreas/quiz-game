@@ -22,7 +22,7 @@ const GameModePanel = () => {
         <div className={styles.gameModeButtonsContainer}>
             <button className={`${styles.gameModeButton} ${styles.gmbTopLeft}`} onClick={spChoice}>Spela själv</button>
             <button className={`${styles.gameModeButton} ${styles.gmbTopRight}`} onClick={mpChoice}>Dagens frågor</button>
-            <button className={`${styles.gameModeButton} ${styles.gmbBottomLeft}`} onClick={questionFormChoice}>QuestionForm</button>
+            <button className={`${styles.gameModeButton} ${styles.gmbBottomLeft}`} onClick={questionFormChoice}>Lägg till frågor</button>
             <button className={`${styles.gameModeButton} ${styles.gmbBottomRight}`} onClick={spChoice}>Spela själv</button>
         </div>
       )

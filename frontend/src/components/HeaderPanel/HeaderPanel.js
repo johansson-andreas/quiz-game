@@ -10,6 +10,11 @@ const HeaderPanel = ({ togglePanelVisibility }) => {
   const handleNavigateHome = () => {
     navigate('/');
   };
+
+  const handleNavigateProfile = () => {
+    navigate('/profile');
+  };
+
   const { user, setUser } = useContext(UserContext);
   let loggedIn = false;
 
@@ -50,21 +55,19 @@ const HeaderPanel = ({ togglePanelVisibility }) => {
   return (
     <div>
       <div className={styles.headerPanel}>
-        <div>
-          <Link to="/">Home</Link>
+        <div className={styles.homeButton} onClick={handleNavigateHome}>
+          Home
         </div>
-        <div style={notLoggedInActive} className={styles.notLoggedIn}>
-          <button onClick={togglePanelVisibility} className={styles.toggleButton}>
+        <div style={notLoggedInActive} className={styles.loginButton} onClick={togglePanelVisibility} >
             Logga in
-          </button>
         </div>
         <div style={loggedInActive} className={styles.loggedIn}>
-          <div className={styles.usernameDiv}>
+          <div className={styles.usernameDiv} onClick={handleNavigateProfile}>
             {user}
           </div> 
-          <button className={styles.toggleButton} onClick={logoutUser}>
-            Logga ut
-          </button>
+          <div className={styles.logoutButton} onClick={logoutUser} >
+          Logga ut
+          </div>
         </div>
       </div>
     </div>

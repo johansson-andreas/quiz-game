@@ -1,5 +1,5 @@
 import express from 'express';
-import { getNewQuestion, obfQuestion, updateScoreArray, getNewQuestionQueueByTags, shuffleArray, updateScoresInDatabase } from './questionRouteUtils.js';
+import { getNewQuestion, obfQuestion, updateScoreArray, getNewQuestionQueueByTags, updateCurrentTotals, updateScoresInDatabase } from './questionRouteUtils.js';
 import {createClientData } from './loginRouteUtils.js';
 import { Question } from '../models/Question.js';
 
@@ -7,7 +7,7 @@ const router = express.Router();
 
 const timeLog = async (req, res, next) => {
   if(!req.session.clientData) {
-    console.log('Found no data for', req.session.clientId, 'creating new data')
+    console.log('Found no data for', req.sessionID, 'creating new data')
     await createClientData(req);
     await getNewQuestion(req.session.clientData);
     next();
@@ -19,7 +19,7 @@ router.use(timeLog);
 router.get('/request-question', async (req, res, next) => {
   const clientData = req.session.clientData;
 
-  res.send(obfQuestion(await getNewQuestion(clientData)));
+  if(clientData.currentQuestion) res.send(obfQuestion(await getNewQuestion(clientData)));
 });
 
 router.get('/initial-contact', async (req, res) => {
@@ -27,7 +27,7 @@ router.get('/initial-contact', async (req, res) => {
   await createClientData(req);
   const newQuestion = await getNewQuestion(req.session.clientData);
   console.log(req.session.clientData.unusedQuestions.length);
-  res.send({ question: obfQuestion(newQuestion), categories: req.session.clientData.categories, scoreArray: req.session.clientData.currentScores });
+  res.send({ question: obfQuestion(newQuestion), categories: req.session.clientData.categories, scoreArray: req.session.clientData.scoreArray, currentTotals: req.session.clientData.currentTotals });
 });
 
 
@@ -39,12 +39,15 @@ router.post('/submit-answer', async (req, res) => {
     let correct = false;
     if(answer === clientData.currentQuestion.correctAnswer) correct = true
 
-    clientData.currentScores = updateScoreArray(clientData, correct);
-    res.send({ scoreArray: clientData.currentScores, correctAnswer: clientData.currentQuestion.correctAnswer });
+    clientData.scoreArray = updateScoreArray(clientData, correct);
+    //clientData.currentTotals = updateCurrentTotals(clientData, correct);
+    res.send({ scoreArray: clientData.scoreArray, correctAnswer: clientData.currentQuestion.correctAnswer });
 
     //Update database if user in logged in
     if (req.user && req.user._id) {
-      updateScoresInDatabase(req.user._id, clientData.currentScores).catch(error => {
+      console.log(clientData.currentQuestion)
+
+      updateScoresInDatabase(req.user._id, clientData.currentQuestion.tags, correct).catch(error => {
         console.error('Failed to update scores in database:', error);
       });
     }  

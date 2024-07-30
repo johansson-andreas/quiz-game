@@ -67,7 +67,7 @@ router.get('/request-question', async (req, res) => {
 });
 router.get('/get-user-history', async (req, res) => {
   try {
-    const userHistory = await DailyScore.find({ userId: req.user._id}).exec();
+    const userHistory = await DailyScore.find({ userId: req.user._id}).select('date score').exec();
     res.send(userHistory)
 
   } catch (error) {

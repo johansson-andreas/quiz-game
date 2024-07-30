@@ -17,25 +17,29 @@ const Controller = () => {
   const [submittedAnswer, setSubmittedAnswer] = useState('');
   const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
   const [activeQuestion, setActive] = useState(true);
-  const [questionCategories, setQuestionCategories] = useState([]);
+  const [currentQuestionCategories, setCurrentQuestionCategories] = useState([]);
+  const [newQuestionCategories, setNewQuestionCategories] = useState([]);
   const [scoreArray, setScoreArray] = useState({});
   const [questionTags, setQuestionTags] = useState([]);
   const { user, setUser } = useContext(UserContext);
   const [catCanvasShow, setCatCanvasShow] = useState(false);
   const [triggeredOption, setTriggeredOption] = useState(null);
+  const [hasMounted, setHasMounted] = useState(false);
 
 
 
 
   useEffect(() => {
+    setTotalQuestionsScore([0, 0])
+    setScoreArray({});
     initialContact();
-  }, []);
+  }, [user]);
 
   const initialContact = () => {
     axios.get('/api/question-routes/initial-contact')
       .then(response => {
         console.log('Received initial data:', response.data);
-        const { question, categories, scoreArray } = response.data;
+        const { question, categories, scoreArray, currentTotals } = response.data;
         assignQuestion(question);
         const newCategories = categories.map(category => ({
           _id: category._id,
@@ -43,12 +47,21 @@ const Controller = () => {
           icon: category.icon,
           enabled: category.enabled,
         }));
-        setQuestionCategories(newCategories);
+        setCurrentQuestionCategories(newCategories);
+        setNewQuestionCategories(newCategories);
+        
         if (scoreArray) setScoreArray(scoreArray);
+        if (currentTotals) {
+          console.log('currentotals', currentTotals)
+          setTotalQuestionsScore([currentTotals[0], currentTotals[1]])
+        }
+        setHasMounted(true);
+
       })
       .catch(error => {
         console.error('Error fetching data:', error);
       });
+
   }
 
   const submitAnswer = (e) => {
@@ -121,7 +134,7 @@ const Controller = () => {
   };
 
   const handleCheckboxChange = (category) => {
-    setQuestionCategories(prevCategories =>
+    setNewQuestionCategories(prevCategories =>
       prevCategories.map(cat =>
         cat._id === category._id
           ? { ...cat, enabled: !cat.enabled }
@@ -157,23 +170,28 @@ const Controller = () => {
     }
   }, [submittedAnswer]);
 
-  const memoizedQuestionIcons = useMemo(() => {
-    return questionTags.map(tag => {
-      const categoryIcon = questionCategories.find(category => category._id === tag);
+  useEffect(() => {
+    setQuestionIcons(questionTags.map(tag => {
+      const categoryIcon = currentQuestionCategories.find(category => category._id === tag);
       return categoryIcon ? categoryIcon.icon : null;
-    }).filter(icon => icon !== null);
-  }, [questionCategories]);
+    }).filter(icon => icon !== null));
+  }, [questionTags]);
 
   useEffect(() => {
-    setQuestionIcons(memoizedQuestionIcons);
-    console.log('requestion new question queue')
-    axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories }).then(response => {
-      console.log(response)
+    if (newQuestionCategories.length > 0 && newQuestionCategories != currentQuestionCategories) {
+      setCurrentQuestionCategories(newQuestionCategories);
+      console.log('requestion new question queue')
+      axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories: newQuestionCategories }).then(response => {
+        console.log(response)
+      }).catch(error => {
+        console.log(error)
+      });
+    }
 
-    }).catch(error => {
-      console.log(error)
-    });
-  }, [memoizedQuestionIcons]);
+  }, [newQuestionCategories]);
+
+
+
 
   return (
     <div id='mainBody'>
@@ -207,7 +225,7 @@ const Controller = () => {
         <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Next question</button>
       </div>
       <div className='scoreDiv'>
-        <ScorePanel scoreArray={scoreArray} totalQuestionsScore={totalQuestionsScore} questionCategories={questionCategories} />
+        <ScorePanel scoreArray={scoreArray} totalQuestionsScore={totalQuestionsScore} questionCategories={currentQuestionCategories} />
       </div>
       <div id='categoriesDiv'>
         <Button variant="primary" onClick={handleCatCanvasShow} className='catButton'>
@@ -227,7 +245,7 @@ const Controller = () => {
             <Offcanvas.Title>Kategorier</Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body >
-            {questionCategories.map((category, index) => (
+            {currentQuestionCategories.map((category, index) => (
               <div key={index}>
                 <label className='checkboxLabels'>
                   <div className='topLineCheckbox'>

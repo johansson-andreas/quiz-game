@@ -1,27 +1,43 @@
 .headerPanel {
     display: flex;
     justify-content: space-between;
-    background-color: #e3e3f5;
+    background-color: #d5d5d5;    
     border-bottom: 1px solid black;
-    align-items: center;
 }
-.headerPanel > * {
-    padding: 2px 8px 2px 8px;
-}
-.loggedIn > * {
-    margin: 0px 0px 0px 4px;
-    align-items: center;
-}
+
 .usernameDiv {
+    border-left: 1px solid black;
+    display: inline-flex;
     align-items: center;
-    display:flex;
-    border: 1px solid black;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 20px;
-    background-color: blanchedalmond;
+    background-color: rgb(160, 179, 179);
+    padding: 0px 10px 0px 10px;
+
 }
-.toggleButton {
-    font-size: inherit;
-    
+.usernameDiv:hover {
+    background-color: aliceblue;
+    cursor: pointer;
+}
+.logoutButton, .loginButton {
+    border-left: 1px solid black;
+    display: inline-flex;
+    align-items: center;
+    background-color: rgb(160, 179, 179);
+    padding: 0px 10px 0px 10px;
+
+}
+.logoutButton:hover, .loginButton:hover {
+    background-color: aliceblue;
+    cursor: pointer;
+}
+.homeButton {
+    border-right: 1px solid black;
+    display: inline-flex;
+    align-items: center;
+    background-color: rgb(160, 179, 179);
+    padding: 0px 10px 0px 10px;
+
+}
+.homeButton:hover {
+    background-color: aliceblue;
+    cursor: pointer;
 }
