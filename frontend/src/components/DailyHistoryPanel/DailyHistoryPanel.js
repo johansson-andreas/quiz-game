@@ -1,6 +1,6 @@
 import styles from './DailyHistoryPanel.module.css';
 import { UserContext } from '../../contexts/UserContext';
-import React, { useState, useContext, useEffect} from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
 
@@ -16,17 +16,27 @@ const DailyHistoryPanel = () => {
         console.log('getting user history')
         try {
             const response = await axios.get('/api/daily-challenge-routes/get-user-history');
-            setHistoryData(response.data);
+            console.log(response.data)
+            return response.data;
         } catch (error) {
-            console.log(error)
+            throw error;
         }
     }
 
     useEffect(() => {
-        if (user) getUserHistory();
+        async function loadUserHistory() {
+            try {
+                if (user) {
+                    setHistoryData(await getUserHistory())
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        loadUserHistory();
     }, [user])
 
-    useEffect(() => {   
+    useEffect(() => {
         if (historyData && historyData.length > 0) {
             setUserHistory(historyData.map(historyEntry => ({
                 date: historyEntry.date,
@@ -39,7 +49,7 @@ const DailyHistoryPanel = () => {
         <div className={styles.mainbody}>
             <div className={styles.topText}>
                 <p className={styles.yourHistoryTitle}>Din historik</p>
-                <div className={styles.dateScoreText}><div className={styles.entryDateDiv}>Datum</div><div  className={styles.entryScoreDiv}>Poäng</div></div>
+                <div className={styles.dateScoreText}><div className={styles.entryDateDiv}>Datum</div><div className={styles.entryScoreDiv}>Poäng</div></div>
             </div>
             {userHistory.map((entry, index) => (
                 <div className={styles.scoreEntry} key={index}>

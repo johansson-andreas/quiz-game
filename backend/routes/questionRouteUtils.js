@@ -92,25 +92,73 @@ export const obfQuestion = (question) => {
  * @returns {Object} Updated score array.
  */
 export const updateScoreArray = (clientData, correct) => {
-  const scoreArray = { ...clientData.currentScores };
+  const tempScoreArray = { ...clientData.scoreArray };
   clientData.currentQuestion.tags.forEach(tag => {
-    if (!scoreArray[tag]) scoreArray[tag] = [0, 0];
+    if (!tempScoreArray[tag]) tempScoreArray[tag] = [0, 0];
     if (correct) {
-      scoreArray[tag][0] += 1;
+      tempScoreArray[tag][0] += 1;
     }
-    scoreArray[tag][1] += 1;
+    tempScoreArray[tag][1] += 1;
   });
-  return scoreArray;
+  return tempScoreArray;
 };
 
-export const updateScoresInDatabase = async (userID, newScoreArray) => {
+export const updateCurrentTotals = (clientData, correct) => {
+  const tempCurrentTotals = {...clientData.currentTotals}
+  if(correct) {
+    tempCurrentTotals[0] += 1;
+    tempCurrentTotals[1] += 1;
+  }
+  else
+  {
+    tempCurrentTotals[1] += 1;
+  }
+  return tempCurrentTotals;
+}
+export const updateScoresInDatabase = async (userID, categories, correct) => {
   try {
-    await Account.updateOne({ _id: userID }, { categoryStats: newScoreArray });
+    const updatePromises = categories.map(tag => {
+      if (correct) {
+        return updateCategoryStats(userID, tag, [1, 1]);
+      } else {
+        return updateCategoryStats(userID, tag, [0, 1]);
+      }
+    });
+
+    // Include the total updates
+    if (correct) {
+      updatePromises.push(updateCategoryStats(userID, 'Total', [1, 1]));
+    } else {
+      updatePromises.push(updateCategoryStats(userID, 'Total', [0, 1]));
+    }
+
+    // Wait for all update promises to complete
+    await Promise.all(updatePromises);
+
+    // Verify the updated document
+    const updatedUser = await Account.findById(userID);
+    console.log('Updated categoryStats:', updatedUser.categoryStats);
+
   } catch (error) {
     console.error('Error updating scores in database:', error);
     throw error; 
   }
 };
+
+const updateCategoryStats = async (userId, category, increments) => {
+  // Construct the updates object to increment specific array elements
+  const updates = {
+    [`categoryStats.${category}.0`]: increments[0],
+    [`categoryStats.${category}.1`]: increments[1]
+  };
+
+  // Perform the update operation using $inc
+  await Account.updateOne(
+    { _id: userId },
+    { $inc: updates }
+  );
+};
+
 
 export const getQuestionCategories = async () => {
 

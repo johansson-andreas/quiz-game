@@ -14,7 +14,7 @@ module.exports = function(io) {
         cachedQuestions: [],
         username: '',
         clientId: session.id,
-        currentScores: {},
+        scoreArray: {},
         currentQuestion: {}
       };
       session.save();

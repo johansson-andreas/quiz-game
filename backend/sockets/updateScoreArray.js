@@ -1,14 +1,14 @@
 const updateScoreArray = function(session, answer) {
-    let scoreArray = {...session.clientData.currentScores}
+    let tempScoreArray = {...session.clientData.scoreArray}
     session.clientData.currentQuestion.tags.forEach(element => {
-        if(!scoreArray[element]) scoreArray[element] = [0,0];
+        if(!tempScoreArray[element]) tempScoreArray[element] = [0,0];
         if(answer === session.clientData.currentQuestion.correctAnswer) {
-            scoreArray[element][0] += 1;
+            tempScoreArray[element][0] += 1;
         }
-        scoreArray[element][1] += 1;
+        tempScoreArray[element][1] += 1;
     });
-    session.clientData.currentScores = {...scoreArray};
-    console.log(session.clientData.currentScores);
+    session.clientData.scoreArray = {...tempScoreArray};
+    console.log(session.clientData.scoreArray);
 };
 
 module.exports = {
