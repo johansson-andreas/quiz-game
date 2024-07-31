@@ -5,7 +5,7 @@ import axios from 'axios';
 
 
 
-const DailyHistoryPanel = () => {
+const DailyHistoryPanel = ({historyPanelTitle}) => {
 
     const { user, setUser } = useContext(UserContext);
     const [userHistory, setUserHistory] = useState([]);
@@ -48,7 +48,7 @@ const DailyHistoryPanel = () => {
     return (
         <div className={styles.mainbody}>
             <div className={styles.topText}>
-                <p className={styles.yourHistoryTitle}>Din historik</p>
+                <p className={styles.yourHistoryTitle}>{historyPanelTitle}</p>
                 <div className={styles.dateScoreText}><div className={styles.entryDateDiv}>Datum</div><div className={styles.entryScoreDiv}>Poäng</div></div>
             </div>
             {userHistory.map((entry, index) => (

@@ -86,6 +86,19 @@ router.post('/submit-answer', async (req, res) => {
 
   }
 });
+router.get('/get-daily-best', async (req, res) => {
+  try{
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+    const dailyBest = await DailyScore.find({date:today}, 'userId score').populate('userId', 'username').exec()
+    res.status(200).json({status: "ok", message: dailyBest});
+  }
+  catch(error)
+  {
+    console.log(error)
+  }
+
+})
 
 
 export default router;

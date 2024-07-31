@@ -117,42 +117,33 @@ export const updateCurrentTotals = (clientData, correct) => {
 }
 export const updateScoresInDatabase = async (userID, categories, correct) => {
   try {
-    const updatePromises = categories.map(tag => {
+    for (const tag of categories) {
+      console.log('Updating tag:', tag);
       if (correct) {
-        return updateCategoryStats(userID, tag, [1, 1]);
+        await updateCategoryStats(userID, tag, 1, 1);
       } else {
-        return updateCategoryStats(userID, tag, [0, 1]);
+        await updateCategoryStats(userID, tag, 0, 1);
       }
-    });
-
-    // Include the total updates
-    if (correct) {
-      updatePromises.push(updateCategoryStats(userID, 'Total', [1, 1]));
-    } else {
-      updatePromises.push(updateCategoryStats(userID, 'Total', [0, 1]));
     }
-
-    // Wait for all update promises to complete
-    await Promise.all(updatePromises);
-
-    // Verify the updated document
-    const updatedUser = await Account.findById(userID);
-    console.log('Updated categoryStats:', updatedUser.categoryStats);
-
+    
+    // Update the total category
+    if (correct) {
+      await updateCategoryStats(userID, 'Total', 1, 1);
+    } else {
+      await updateCategoryStats(userID, 'Total', 0, 1);
+    }
   } catch (error) {
     console.error('Error updating scores in database:', error);
-    throw error; 
+    throw error;
   }
 };
 
-const updateCategoryStats = async (userId, category, increments) => {
-  // Construct the updates object to increment specific array elements
+const updateCategoryStats = async (userId, category, correctIncrement, totalIncrement) => {
   const updates = {
-    [`categoryStats.${category}.0`]: increments[0],
-    [`categoryStats.${category}.1`]: increments[1]
+    [`categoryStats.${category}.correct`]: correctIncrement,
+    [`categoryStats.${category}.total`]: totalIncrement
   };
 
-  // Perform the update operation using $inc
   await Account.updateOne(
     { _id: userId },
     { $inc: updates }

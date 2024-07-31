@@ -221,8 +221,8 @@ const Controller = () => {
             </div>
           ))}
         </div>
-        <button onClick={submitAnswer} style={submitButtonStyle} className={"submitNextButton"}>Submit Answer</button>
-        <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Next question</button>
+        <button onClick={submitAnswer} style={submitButtonStyle} className={"submitNextButton"}>Svara</button>
+        <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Nästa fråga</button>
       </div>
       <div className='scoreDiv'>
         <ScorePanel scoreArray={scoreArray} totalQuestionsScore={totalQuestionsScore} questionCategories={currentQuestionCategories} />
