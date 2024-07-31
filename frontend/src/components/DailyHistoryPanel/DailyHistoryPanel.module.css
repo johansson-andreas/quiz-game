@@ -3,8 +3,8 @@
   display: flex;
   text-wrap: nowrap;
   flex-direction: column;
-  width: 15%;
-  margin: 2%;
+  padding: 2%;
+   margin: 2%;
   border-radius: 15px;
   height: 70%;
   border: 1px solid black
@@ -31,7 +31,8 @@
 {
   justify-content: center;
   display: flex;
-  width: 66%
+  width: 66%;
+  margin-right: 10%;
 }
 
 .yourHistoryTitle {

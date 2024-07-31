@@ -23,7 +23,8 @@ const DailyChallenge = () => {
   const [currentScore, setCurrentScore] = useState(0);
   const [questionsRemaining, setQuestionsRemaining] = useState(0);
   const [currentUser, setCurrentUser] = useState('');
-  const [activeQuiz, setActiveQuiz] = useState(true)
+  const [activeQuiz, setActiveQuiz] = useState(true);
+  const [dailyBestList, setDailyBestList] = useState({});
 
   const initialContact = async () => {
     try {
@@ -90,6 +91,34 @@ const DailyChallenge = () => {
   };
 
   useEffect(() => {
+    const getDailyBest = async () => {
+      if (activeQuiz == false) {
+        try {
+          const response = await axios.get('/api/daily-challenge-routes/get-daily-best');
+          console.log(response.data.message)
+
+          const newBestList = Object.keys(response.data.message).reduce((acc, key) => {
+            const username = response.data.message[key].userId.username;
+            acc[username] = response.data.message[key].score;
+            return acc;
+          }, {});
+          
+          setDailyBestList(newBestList);
+        }
+        catch (error) {
+          console.log(error)
+
+        }
+      }
+    };
+    getDailyBest();
+  }, [activeQuiz]);
+
+  useEffect(() => {
+    console.log('dailybestlist', dailyBestList)
+  }, [dailyBestList]);
+
+  useEffect(() => {
     console.log('Submitted answer:', submittedAnswer);
     if (submittedAnswer != '') {
       axios.post('/api/daily-challenge-routes/submit-answer', { submittedAnswer })
@@ -145,6 +174,7 @@ const DailyChallenge = () => {
             <div className={styles.questionPanel}>
               {question.choices ? (
                 <div className={styles.questionBody}>
+                  Fråga {10 - questionsRemaining} av 10
                   <div className={styles.questionText}>
                     {question.text}
                     <div className={styles.tagIcons}>
@@ -189,9 +219,13 @@ const DailyChallenge = () => {
                 Du fick {currentScore} rätt svar idag!
               </div>
               <div className={styles.historySection}>
+                Dagens bästa
+                {Object.keys(dailyBestList).map((key, index) => {
+                    <div key={index}>{key}</div>
+                })}
               </div>
             </div>)}
-          <DailyHistoryPanel />
+          <DailyHistoryPanel historyPanelTitle="Din historik" />
         </div>
       ) : (
         <div className={styles.loginPanel}>
