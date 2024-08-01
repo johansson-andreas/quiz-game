@@ -25,6 +25,8 @@ const DailyChallenge = () => {
   const [currentUser, setCurrentUser] = useState('');
   const [activeQuiz, setActiveQuiz] = useState(true);
   const [dailyBestList, setDailyBestList] = useState({});
+  const [submittedAnswers, setSubmittedAnswers] = useState({});
+  const [questionKey, setQuestionKey] = useState({});
 
   const initialContact = async () => {
     try {
@@ -94,15 +96,20 @@ const DailyChallenge = () => {
     const getDailyBest = async () => {
       if (activeQuiz == false) {
         try {
-          const response = await axios.get('/api/daily-challenge-routes/get-daily-best');
-          console.log(response.data.message)
+          const dailyBestResponse = await axios.get('/api/daily-challenge-routes/get-daily-best');
+          const dailyQuestionKey = await axios.get('/api/daily-challenge-routes/get-daily-question-key');
+          console.log(dailyQuestionKey.data.submittedAnswers)
 
-          const newBestList = Object.keys(response.data.message).reduce((acc, key) => {
-            const username = response.data.message[key].userId.username;
-            acc[username] = response.data.message[key].score;
+          setQuestionKey(dailyQuestionKey.data.correctAnswers);
+          setSubmittedAnswers(dailyQuestionKey.data.submittedAnswers);
+
+
+          const newBestList = Object.keys(dailyBestResponse.data.message).reduce((acc, key) => {
+            const username = dailyBestResponse.data.message[key].userId.username;
+            acc[username] = dailyBestResponse.data.message[key].score;
             return acc;
           }, {});
-          
+
           setDailyBestList(newBestList);
         }
         catch (error) {
@@ -115,7 +122,11 @@ const DailyChallenge = () => {
   }, [activeQuiz]);
 
   useEffect(() => {
-    console.log('dailybestlist', dailyBestList)
+    {
+      Object.keys(dailyBestList).forEach((key) => {
+        console.log(key, dailyBestList[key]);
+      })
+    }
   }, [dailyBestList]);
 
   useEffect(() => {
@@ -217,12 +228,19 @@ const DailyChallenge = () => {
             <div className={styles.scorePanel}>
               <div className={styles.scoreSection}>
                 Du fick {currentScore} rätt svar idag!
+                {Object.keys(questionKey).map((index) => (
+                  <div key={index} className={styles.keyDiv}>
+                    <div className={styles.keyQuestionText}>{questionKey[index].text}</div><div className={styles.keyCorrectAnswer}> {questionKey[index].correctAnswer}</div>
+                    <div className={styles.submittedAnswers}>{submittedAnswers[questionKey[index]._id]}</div>
+                  </div>
+                ))}
               </div>
               <div className={styles.historySection}>
-                Dagens bästa
-                {Object.keys(dailyBestList).map((key, index) => {
-                    <div key={index}>{key}</div>
-                })}
+                <div id={styles.dailyBestTitle}>Dagens Bästa</div>
+                <div id={styles.dailyBestHeader}>Namn Poäng</div>
+                {Object.keys(dailyBestList).map((name, index) => (
+                  <div key={index} className={styles.dailyBestEntry}><div className={styles.dailyBestEntryScore}>{name}</div> <div className={styles.dailyBestEntryScore}>{dailyBestList[name]}</div></div>
+                ))}
               </div>
             </div>)}
           <DailyHistoryPanel historyPanelTitle="Din historik" />
