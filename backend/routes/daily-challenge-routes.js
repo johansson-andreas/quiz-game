@@ -3,59 +3,81 @@ import { DailyChallengeQuestions, generateNewQuestions } from '../models/DailyCh
 import { getNewQuestion, obfQuestion, updateDatabaseDailyChallengeScore } from './dailyChallengeRouteUtils.js';
 import { getQuestionCategories } from './questionRouteUtils.js'
 import { DailyScore } from '../models/DailyScore.js';
+import Redis from 'ioredis';
+import { Question } from '../models/Question.js';
 
 const router = express.Router();
+const redis = new Redis();
 
 router.get('/initial-contact', async (req, res, next) => {
   try {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-    // Check if there is no session data or if the date in session data is different from today
-    if (!req.session.dailyChallengeData || req.session.dailyChallengeData.date ==! today) {
-      const todaysDailyScoreInfo = await DailyScore.findOne({date:today, userId:req.user._id}) //Try to get data from db, otherwise create new
-      if(todaysDailyScoreInfo) {
-        console.log('Found data in db for user', req.user.username)
+    // Try to get daily questions from Redis
+    let todaysQuestions = await redis.get(`dailyQuestions:${today}`);
+    if (!todaysQuestions) {
+      // If not in cache, fetch from database or generate new ones
+      console.log('Cache miss, fetching from DB');
+      todaysQuestions = await DailyChallengeQuestions.findOne({ date: today }, 'questionIDs').lean();
+      if (!todaysQuestions) {
+        // If no questions found for today, generate new questions
+        console.log('No daily questions found, generating new questions');
+        const questionIds = await generateNewQuestions();
+        todaysQuestions = { questionIDs: questionIds };
+        // Save the new questions in the database
+        await new DailyChallengeQuestions({ date: today, questionIDs: questionIds }).save();
+      }
+      // Store daily questions in Redis cache
+      await redis.set(`dailyQuestions:${today}`, JSON.stringify(todaysQuestions));
+      for (const questionId of todaysQuestions.questionIDs) {
+        const questionData = await Question.findById(questionId).lean();  
+        if (questionData) {
+          await redis.set(questionId, JSON.stringify(questionData));
+        }
+      }
 
-        //TODO: currentQuestion might be outdated if user requested a question they didnt answer to as the data is only saved on /submit-answer, not on /request-question
+    } else {
+      todaysQuestions = JSON.parse(todaysQuestions);
+    }
+
+    // Check if there is no session data or if the date in session data is different from today
+    if (!req.session.dailyChallengeData || req.session.dailyChallengeData.date != today) {
+      const todaysDailyScoreInfo = await DailyScore.findOne({ date: today, userId: req.user._id }).lean();
+      if (todaysDailyScoreInfo) {
         req.session.dailyChallengeData = {
           date: todaysDailyScoreInfo.date,
           todaysScore: todaysDailyScoreInfo.score,
           questionsRemaining: todaysDailyScoreInfo.questionsRemaining,
-          currentQuestion: todaysDailyScoreInfo.currentQuestion
-        }
-      }
-      else {
-        let todaysQuestions = await DailyChallengeQuestions.findOne({ date: today }, 'questionIDs').lean();
-
-        if (!todaysQuestions) {
-          // If no questions found for today, generate new questions
-          console.log('No daily questions found, generating new questions')
-          const questionIds = await generateNewQuestions();
-          todaysQuestions = { questionIDs: questionIds };
-        }
-  
+          currentQuestion: todaysDailyScoreInfo.currentQuestion,
+          submittedAnswers: todaysDailyScoreInfo.submittedAnswers
+        };
+      } else {
         // Update session data
         req.session.dailyChallengeData = {
           date: today,
           questionsRemaining: todaysQuestions.questionIDs,
+          submittedAnswers: {},
           todaysScore: 0,
         };
         await getNewQuestion(req);
       }
     }
+
     let categories = await getQuestionCategories();
     const initialDataToSend = {
       questionsRemaining: req.session.dailyChallengeData.questionsRemaining,
       todaysScore: req.session.dailyChallengeData.todaysScore,
       currentQuestion: obfQuestion(req.session.dailyChallengeData.currentQuestion)
-    }
-    const dailyChallengeData = ({ dcd: initialDataToSend, categories: categories });
+    };
+    const dailyChallengeData = { dcd: initialDataToSend, categories: categories };
     res.status(200).json(dailyChallengeData);
   } catch (error) {
     console.error('Error in requestDailyQuestions:', error);
     res.status(500).json({ error: 'Failed to fetch daily challenge questions' });
   }
 });
+
+
 router.get('/request-question', async (req, res) => {
   try {
     const { statusCode, data } = await getNewQuestion(req);
@@ -65,9 +87,10 @@ router.get('/request-question', async (req, res) => {
     res.status(500).json({ status: "error", message: error.message });
   }
 });
+
 router.get('/get-user-history', async (req, res) => {
   try {
-    const userHistory = await DailyScore.find({ userId: req.user._id}).select('date score').exec();
+    const userHistory = await DailyScore.find({ userId: req.user._id}).select('date score').lean().exec();
     res.send(userHistory)
 
   } catch (error) {
@@ -79,6 +102,7 @@ router.post('/submit-answer', async (req, res) => {
   if (dailyChallengeData) {
     const answer = req.body.submittedAnswer;
     if (answer === dailyChallengeData.currentQuestion.correctAnswer) dailyChallengeData.todaysScore += 1;
+    dailyChallengeData.submittedAnswers[dailyChallengeData.currentQuestion._id] = answer;
 
     res.send({ todaysScore: dailyChallengeData.todaysScore, correctAnswer: dailyChallengeData.currentQuestion.correctAnswer });
 
@@ -90,7 +114,7 @@ router.get('/get-daily-best', async (req, res) => {
   try{
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-    const dailyBest = await DailyScore.find({date:today}, 'userId score').populate('userId', 'username').exec()
+    const dailyBest = await DailyScore.find({date:today}, 'userId score').populate('userId', 'username').lean().exec()
     res.status(200).json({status: "ok", message: dailyBest});
   }
   catch(error)
@@ -99,6 +123,36 @@ router.get('/get-daily-best', async (req, res) => {
   }
 
 })
+router.get('/get-daily-question-key', async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+    // Retrieve daily question IDs from Redis
+    const dailyQuestionIdsStr = await redis.get(`dailyQuestions:${today}`);
+    if (!dailyQuestionIdsStr) {
+      return res.status(404).json({ error: 'No questions found for today' });
+    }
+
+    const dailyQuestionIds = JSON.parse(dailyQuestionIdsStr);
+
+    let dailyQuestionKeys = [];
+    for (const questionId of dailyQuestionIds.questionIDs) {
+      // Retrieve each question from Redis
+      const questionKeyStr = await redis.get(questionId);
+      if (questionKeyStr) {
+        const questionKey = JSON.parse(questionKeyStr);
+        dailyQuestionKeys.push(questionKey);
+      } else {
+        console.warn(`Question ID ${questionId} not found in cache`);
+      }
+    }
+
+    res.status(200).json({correctAnswers:dailyQuestionKeys, submittedAnswers:req.session.dailyChallengeData.submittedAnswers});
+  } catch (error) {
+    console.error('Error retrieving daily questions:', error);
+    res.status(500).json({ error: 'Failed to retrieve daily questions' });
+  }
+});
 
 
 export default router;
