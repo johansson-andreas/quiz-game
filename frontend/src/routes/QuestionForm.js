@@ -1,41 +1,46 @@
 import React, { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
 import axios from "axios";
+import "./styles/questionFormStyle.css";
 
 const QuestionForm = () => {
-  // State variables for form data
   const [questions, setQuestions] = useState("");
   const [answers, setAnswers] = useState({ svar1: "", svar2: "" });
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [categories, setCategories] = useState("");
   const [quizData, setQuizData] = useState([]);
+  const [submissionStatus, setSubmissionStatus] = useState("idle");
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmissionStatus("submitting");
+    console.log("Submit button clicked");
 
-    // Process categories and create new question object
     const kategorierArray = categories
       .split(",")
       .map((kategori) => kategori.trim());
     const newQuestion = {
-      questions: questions,
+      questions,
       answers: Object.values(answers),
-      correctAnswer: correctAnswer,
+      correctAnswer,
       categories: kategorierArray,
     };
 
-    axios.post('/api/question-routes/add-question-to-db', { newQuestion })
+    try {
+      const response = await axios.post(
+        "/api/question-routes/add-question-to-db",
+        { newQuestion }
+      );
+      console.log(response.data);
 
-    // Update quiz data and reset form
-    setQuizData([...quizData, newQuestion]);
-    console.log("Quiz Data Submitted", newQuestion);
-    resetForm();
+      setQuizData([...quizData, newQuestion]);
+      setSubmissionStatus("success");
+      resetForm();
+    } catch (error) {
+      console.error("Failed to submit question:", error);
+      setSubmissionStatus("error");
+    }
   };
 
-  // Reset form fields
   const resetForm = () => {
     setQuestions("");
     setAnswers({ svar1: "", svar2: "" });
@@ -44,73 +49,76 @@ const QuestionForm = () => {
   };
 
   return (
-    <div style={{ display: "block", width: 700, padding: 30 }}>
-      <h4>Quiz Game Form</h4>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3">
-          <Form.Label>Fråga:</Form.Label>
-          <Form.Control
+    <section className="questionForm">
+      <form onSubmit={handleSubmit}>
+        <h2>Quiz Game Form</h2>
+        <div className="input-box">
+          <label htmlFor="question">Question:</label>
+          <input
+            className="field"
+            id="question"
             type="text"
             placeholder="Enter the question"
             value={questions}
             onChange={(e) => setQuestions(e.target.value)}
           />
-        </Form.Group>
+        </div>
 
         {["svar1", "svar2"].map((key, index) => (
-          <Form.Group key={key} className="mb-3">
-            <Form.Label>{`Fel svar ${index + 1}:`}</Form.Label>
-            <Form.Control
+          <div className="input-box" key={key}>
+            <label htmlFor={key}>{`Incorrect Answer ${index + 1}:`}</label>
+            <input
+              className="field"
+              id={key}
               type="text"
               placeholder={`Enter answer ${index + 1}`}
               value={answers[key]}
-              onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
+              onChange={(e) =>
+                setAnswers({ ...answers, [key]: e.target.value })
+              }
             />
-          </Form.Group>
+          </div>
         ))}
 
-        <Form.Label>{`Korrekt Svar:`}</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder={`Enter answer:`}
-          value={correctAnswer}
-          onChange={(e) => setCorrectAnswer(e.target.value)}
-        />
+        <div className="input-box">
+          <label htmlFor="correctAnswer">Correct Answer:</label>
+          <input
+            className="field"
+            id="correctAnswer"
+            type="text"
+            placeholder="Enter the correct answer"
+            value={correctAnswer}
+            onChange={(e) => setCorrectAnswer(e.target.value)}
+          />
+        </div>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Kategorier:</Form.Label>
-          <Form.Control
+        <div className="input-box">
+          <label htmlFor="categories">Categories:</label>
+          <input
+            className="field"
+            id="categories"
             type="text"
             placeholder="Enter categories separated by commas"
             value={categories}
             onChange={(e) => setCategories(e.target.value)}
           />
-        </Form.Group>
-
-        <Button variant="primary" type="submit">
-          Skicka
-        </Button>
-      </Form>
-
-      {quizData.length > 0 && (
-        <div className="mt-4">
-          <h5>Quiz Data</h5>
-          <ul>
-            {quizData.map((item, index) => (
-              <li key={index}>
-                <strong>Fråga:</strong> {item.questions}
-                <br />
-                <strong>Fel svar:</strong> {item.answers.join(", ")}
-                <br />
-                <strong>Rätt Svar:</strong> {item.correctAnswer}
-                <br />
-                <strong>Kategorier:</strong> {item.categories.join(", ")}
-              </li>
-            ))}
-          </ul>
         </div>
+
+        <button type="submit">Submit</button>
+        
+        {submissionStatus === "success" && (
+        <p className="success-message">Question submitted successfully!</p>
       )}
-    </div>
+      {submissionStatus === "error" && (
+        <p className="error-message">Failed to submit question. Please try again.</p>
+      )}
+      {submissionStatus === "submitting" && (
+        <p className="submitting-message">Submitting your question...</p>
+      )}
+      </form>
+
+
+    </section>
   );
 };
 

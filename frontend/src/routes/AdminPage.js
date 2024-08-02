@@ -1,100 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const AdminPage = () => {
-    const [questionData, setQuestionData] = useState({
-      text: '',
-      correctAnswer: '',
-      incorrectAnswerOne: '',
-      incorrectAnswerTwo: '',
-      tags: ''
-    });
-  
-    const handleChange = (e) => {
-      const { name, value } = e.target;
-      setQuestionData(prevData => ({
-        ...prevData,
-        [name]: value
-      }));
+  const [data, setData] = useState(null); // Storing fetched data
+  const [loading, setLoading] = useState(true); // Loading Status??
+  const [error, setError] = useState(null); // Error handling ??
+
+  // useEffect to fetch data when the component mounts?
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/api/request-newquestions");
+        setData(response.data); // Store fetched data
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setQuestionData({
-          text: '',
-          correctAnswer: '',
-          incorrectAnswerOne: '',
-          incorrectAnswerTwo: '',
-          tags: ''
-        });
-      };
-  
-    return (
-      <div>
-        <h2>Add New Question</h2>
-        <form onSubmit={handleSubmit}>
-          <label>
-            Question:
-            <input
-              type="text"
-              name="text"
-              value={questionData.text}
-              onChange={handleChange}
-              required
-              style={{ width: '600px' }}
-            />
-          </label>
-          <br />
-          <label>
-            Correct Answer:
-            <input
-              type="text"
-              name="correctAnswer"
-              value={questionData.correctAnswer}
-              onChange={handleChange}
-              required
-              style={{ width: '600px' }}
-            />
-          </label>
-          <br />
-          <label>
-            Incorrect Answers (comma-separated):
-            <input
-              type="text"
-              name="incorrectAnswerOne"
-              value={questionData.incorrectAnswerOne}
-              onChange={handleChange}
-              required
-              style={{ width: '600px' }}
-            />
-          </label>
-          <label>
-            Incorrect Answers (comma-separated):
-            <input
-              type="text"
-              name="incorrectAnswerTwo"
-              value={questionData.incorrectAnswerTwo}
-              onChange={handleChange}
-              required
-              style={{ width: '600px' }}
-            />
-          </label>
-          <br />
-          <label>
-            Tags (comma-separated):
-            <input
-              type="text"
-              name="tags"
-              value={questionData.tags}
-              onChange={handleChange}
-              required
-              style={{ width: '600px' }}
-            />
-          </label>
-          <br />
-          <button type="submit">Add Question</button>
-        </form>
-      </div>
-    );
-  };
-  
-  export default AdminPage;
+    fetchData(); // Call fetchData function
+  }, []); // Empty dependency array means this runs once on mount? Why?
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+  if (!data) return <p>No Data available</p>;
+
+  return (
+    <div>
+      <h1>Admin Page</h1>
+      <pre>{JSON.stringify(data, null, 2)}</pre> {/* Render fetched data */}
+    </div>
+  );
+};
+
+export default AdminPage;
