@@ -227,7 +227,7 @@ const DailyChallenge = () => {
           ) : (
             <div className={styles.scorePanel}>
               <div className={styles.scoreSection}>
-                Du fick {currentScore} rätt svar idag!
+                <div>Du hade {currentScore} rätt svar idag!</div>
                 {Object.keys(questionKey).map((index) => (
                   <div key={index} className={styles.keyDiv}>
                     <div className={styles.keyQuestionText}>{questionKey[index].text}</div><div className={styles.keyCorrectAnswer}> {questionKey[index].correctAnswer}</div>
