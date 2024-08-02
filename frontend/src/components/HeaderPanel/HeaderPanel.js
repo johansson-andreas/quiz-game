@@ -20,8 +20,6 @@ const HeaderPanel = ({ togglePanelVisibility }) => {
 
   useEffect(() => {
     (user) ? loggedIn = true : loggedIn = false;
-    console.log(loggedIn)
-    console.log(user);
   }, [user]);
 
   const logoutUser = async () => {

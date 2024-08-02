@@ -59,7 +59,7 @@ router.get('/ping', (req, res) => {
 });
 
 router.get('/get-username', (req, res) => {
-  if(req.user) res.send({ username: req.user.username });
+  if(req.user) res.json({ username: req.user.username });
   else res.json({ message: "Not logged in" })
 });
 
