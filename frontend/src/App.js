@@ -9,6 +9,7 @@ import Layout from './layouts/Layout.js';
 import { UserProvider } from './contexts/UserContext.js';
 import QuestionForm from './routes/QuestionForm.js';
 import ProfilePage from './routes/ProfilePage.js';
+import AdminPage from './routes/AdminPage.js';
 
 const App = () => {
   
@@ -24,6 +25,8 @@ const App = () => {
         <Route path="/QuestionForm" element={<QuestionForm />} />
         <Route path="/daily" element={<DailyChallengeLanding />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/Admin" element={<AdminPage />} />
+
         </Route>
       </Routes>
     </Router>
