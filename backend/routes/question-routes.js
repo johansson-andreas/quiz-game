@@ -99,12 +99,11 @@ try {
   res.status(500).send('Internal Server Error');
 
 }
-
-router.get('/request-new-questions', async (req, res, next) => {
-  console.log(req)
-  res.json({message:"Ok"})
 });
 
+router.get('/request-new-questions', (req, res, next) => {
+  console.log(req)
+  res.send({message:"Ok"})
 });
 
 export default router;

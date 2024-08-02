@@ -13,6 +13,7 @@ const AdminPage = () => {
         const response = await axios.get("/api/question-routes/request-new-questions");
         setData(response.data.message); // Store fetched data
       } catch (err) {
+        console.log(err)
         setError(err);
       } finally {
         setLoading(false);
