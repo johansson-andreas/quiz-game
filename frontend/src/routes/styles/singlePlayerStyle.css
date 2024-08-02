@@ -98,11 +98,16 @@
 }
 .radioButtonLabels
 {
-  display: block;
-  max-width: 100%;
+  display: flex;
+    max-width: 100%;
   border: 1px solid black;
   border-radius: 15px;
   padding: 5px;
+}
+.radioButtonLabels > input
+{
+  margin-right:5px;
+  margin-left: 5px;
 }
 .checkboxLabels
 {
