@@ -100,8 +100,9 @@ try {
 
 }
 
-router.get('/request-newquestions', async (req, res, next) => {
-
+router.get('/request-new-questions', async (req, res, next) => {
+  console.log(req)
+  res.json({message:"Ok"})
 });
 
 });
