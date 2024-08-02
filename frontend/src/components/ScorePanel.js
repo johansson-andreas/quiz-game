@@ -26,7 +26,8 @@ const ScorePanel = ({scoreArray, totalQuestionsScore, questionCategories}) => {
 
     return (
         <div id="scorePanel">
-            <p id='answerTally'>Correct answers: {correctAnswers} / Total questions: {totalQuestions} </p>
+            <p id='scorePanelTitle'>Statistik denna session</p>
+            <p id='answerTally'>Korrekta svar: {correctAnswers} / Totala frågor: {totalQuestions} </p>
             <div id="scoreCatPanel">
                 {groupedEntries.length > 0 ? (
                 groupedEntries.map((group, index) => (
@@ -42,7 +43,7 @@ const ScorePanel = ({scoreArray, totalQuestionsScore, questionCategories}) => {
                     </div>
                 ))
                 ) : (
-                <div>No scores available</div>
+                <div>Inga svar än</div>
                 )}
             </div>
         </div>

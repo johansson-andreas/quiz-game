@@ -1,34 +1,37 @@
 .correct {
-    background-color: lightgreen;
-    border-radius: 15px;
-    width: 100%;
-  }
-  
+  background-color: lightgreen;
+  border-radius: 15px;
+  width: 100%;
+}
+
 .incorrect {
   background-color: red;
   border-radius: 15px;
   width: 100%;
 }
-  
+
 .neutral {
   background-color: #d8e8f3e5;
   border-radius: 15px;
   width: 100%;
 }
+
 .submitNextButton {
   width: 400px;
   height: 50px;
   background-color: #d3f06de5;
   border-radius: 50px;
-  border: 1px solid black; /* Combined border style */
+  border: 1px solid black;
+  /* Combined border style */
   font-size: 20px;
 }
+
 .questionBody {
   display: flex;
-  flex-direction: column; /* Ensures vertical stacking */
+  flex-direction: column;
+  /* Ensures vertical stacking */
   margin-left: 5%;
   margin-top: 3%;
-  height: 70%; 
   font-size: 18px;
   border: 1px solid black;
   padding: 20px;
@@ -37,26 +40,30 @@
   background-color: rgb(224, 250, 255);
   width: 50%;
 }
-.questionBody > * {
-  margin-bottom: 10px; /* Adjust the spacing as per your design */
+
+.questionBody>* {
+  margin-bottom: 10px;
+  /* Adjust the spacing as per your design */
 }
+
 #radioButtonsDiv {
   align-items: flex-start;
   font-size: 18px;
   max-width: 75%;
   width: 75%;
 }
-.radioButtonsDiv > * {
+
+.radioButtonsDiv>* {
   margin-bottom: 5px;
 }
-.categoriesDiv
-{
+
+.categoriesDiv {
   margin-top: 5vh;
-  align-items:flex-start;
+  align-items: flex-start;
   margin-left: 3vw;
 }
-.questionText
-{
+
+.questionText {
   max-width: 75%;
   border: 1px solid black;
   border-radius: 10px;
@@ -66,23 +73,24 @@
   flex-direction: column;
   align-items: center;
 }
-.mainBody
-{
+
+.mainBody {
   display: flex;
-  flex-direction:row; /* Ensures vertical stacking */
+  flex-direction: row;
+  /* Ensures vertical stacking */
   width: 100%;
-  height:100%
+  height: 100%
 }
-.radioButtonLabels
-{
+
+.radioButtonLabels {
   display: block;
   max-width: 100%;
   border: 1px solid black;
   border-radius: 15px;
   padding: 5px;
 }
-.checkboxLabels
-{
+
+.checkboxLabels {
   display: flex;
   flex-direction: column;
   max-width: 100%;
@@ -92,8 +100,10 @@
   border-radius: 5px;
   align-items: center;
 }
+
 .icon-container {
-  display: inline-flex; /* Keeps the container fitting tightly around the image */
+  display: inline-flex;
+  /* Keeps the container fitting tightly around the image */
   margin: 5px;
   align-items: center;
   flex-direction: column;
@@ -105,66 +115,114 @@
   width: auto;
   height: auto;
 }
+
 .tagIcons {
   display: inline-flex;
   flex-direction: row;
-  align-items:center;
+  align-items: center;
 }
+
 .tagIcon {
-  display:flex;
+  display: flex;
   align-items: flex-end;
 }
-.topLineCheckbox
-{
-  display:flex;
+
+.topLineCheckbox {
+  display: flex;
   flex-direction: row;
   align-items: center;
 }
-.catCountDiv
-{
+
+.catCountDiv {
   font-size: 12px;
 }
-.scoreCatPanel
-{
+
+.scoreCatPanel {
   display: flex;
   flex-direction: row;
 }
-.iconScoreDiv
-{
+
+.iconScoreDiv {
   display: flex;
   align-items: center;
   width: 100%;
 }
-.iconCompDiv
-{
+
+.iconCompDiv {
   width: 100%;
   display: flex;
   flex-direction: column;
 }
-.questionPanel
-{
-  display:flex;
-  width:100%;
-  left:auto;
+
+.questionPanel {
+  display: flex;
+  width: 100%;
+  left: auto;
   height: 100%;
 }
-.loggedInPanel
-{
+
+.loggedInPanel {
   display: inline-flex;
   flex-direction: row;
   width: 100%;
 }
-.scorePanel 
-{
+
+.scorePanel {
   display: flex;
-  background-color: #63b4ebe5;
+  background-color: rgb(224, 250, 255);
   width: 100%;
   margin: 2%;
   border-radius: 15px;
   border: 1px solid black;
 }
-.scoreSection
-{
-  margin-top: 2%;
+
+.scoreSection {
+  margin: 2%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: aquamarine;
+  justify-content: space-evenly;
+}
+
+.historySection {
+  background-color: aliceblue;
+  display: flex;
+  flex-direction: column;
+  margin-top: 3px;
   margin-left: 2%;
+  min-width: 10%;
+}
+
+#dailyBestTitle {
+  font-weight: bold;
+  border-bottom: 1px solid black;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#dailyBestHeader {
+  font-weight: bold;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.dailyBestEntry {
+  justify-content: space-evenly;
+  display: flex;
+
+}
+
+.keyQuestionText {
+  background-color: rgb(51, 114, 170);
+  width:60%;
+  max-width: 60%;
+}
+
+.submittedAnswers {
+  background-color: bisque;
+}
+
+.keyDiv {
+  display: flex;
 }

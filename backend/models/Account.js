@@ -3,22 +3,19 @@ import passportLocalMongoose from 'passport-local-mongoose';
 
 const Schema = mongoose.Schema;
 
+const categoryStatsSchema = new Schema({
+  correct: { type: Number, default: 0 },
+  total: { type: Number, default: 0 }
+}, { _id: false });
+
 const AccountSchema = new Schema({
-    username: String,
-    password: String,
-    categoryStats: {
-        type: Map,
-        of: {
-            type: [Number],  // Each value is an array of numbers
-            validate: {
-                validator: function (v) {
-                    return v.length === 2;
-                },
-                message: props => `${props.value} does not have exactly 2 elements!`
-            }
-        },
-        default: {}
-    }
+  username: String,
+  password: String,
+  categoryStats: {
+    type: Map,
+    of: categoryStatsSchema,
+    default: {}
+  },
 });
 
 AccountSchema.plugin(passportLocalMongoose);
