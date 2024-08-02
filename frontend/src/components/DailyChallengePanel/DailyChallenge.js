@@ -24,7 +24,7 @@ const DailyChallenge = () => {
   const [questionsRemaining, setQuestionsRemaining] = useState(0);
   const [currentUser, setCurrentUser] = useState('');
   const [activeQuiz, setActiveQuiz] = useState(true);
-  const [dailyBestList, setDailyBestList] = useState({});
+  const [dailyBestList, setDailyBestList] = useState([]);
   const [submittedAnswers, setSubmittedAnswers] = useState({});
   const [questionKey, setQuestionKey] = useState({});
 
@@ -103,14 +103,18 @@ const DailyChallenge = () => {
           setQuestionKey(dailyQuestionKey.data.correctAnswers);
           setSubmittedAnswers(dailyQuestionKey.data.submittedAnswers);
 
-
-          const newBestList = Object.keys(dailyBestResponse.data.message).reduce((acc, key) => {
-            const username = dailyBestResponse.data.message[key].userId.username;
-            acc[username] = dailyBestResponse.data.message[key].score;
-            return acc;
+          let newBestList = [];
+          Object.keys(dailyBestResponse.data.message).forEach((key) => {
+            const bestListEntry = {username: dailyBestResponse.data.message[key].userId.username, score: dailyBestResponse.data.message[key].score}
+            newBestList.push(bestListEntry)
           }, {});
 
-          setDailyBestList(newBestList);
+          newBestList.sort(function (a, b) {
+            return b.score - a.score;
+          }); 
+
+
+          setDailyBestList(newBestList.splice(0,5));
         }
         catch (error) {
           console.log(error)
@@ -122,11 +126,8 @@ const DailyChallenge = () => {
   }, [activeQuiz]);
 
   useEffect(() => {
-    {
-      Object.keys(dailyBestList).forEach((key) => {
-        console.log(key, dailyBestList[key]);
-      })
-    }
+
+    console.log(dailyBestList)
   }, [dailyBestList]);
 
   useEffect(() => {
@@ -157,6 +158,14 @@ const DailyChallenge = () => {
       }
     }
     else return (styles.neutral);
+  };
+
+
+  const checkCorrect = (submittedAnswer, correctAnswer) => {
+      if (submittedAnswer === correctAnswer) {
+        return (styles.correctAnswer);
+      }
+      else return styles.incorrectAnswer;
   };
 
   useEffect(() => {
@@ -227,19 +236,25 @@ const DailyChallenge = () => {
           ) : (
             <div className={styles.scorePanel}>
               <div className={styles.scoreSection}>
-                <div>Du hade {currentScore} rätt svar idag!</div>
+                <div>Du hade {currentScore} rätt(a) svar idag!</div>
+                <div id={styles.scoreHeaders}><div className={styles.keyQuestionTextTitle}>Fråga</div>
+                <div className={styles.submittedAnswersTitle}>Ditt svar:</div>
+                <div className={styles.keyCorrectAnswerTitle}>Rätt svar:</div></div>
                 {Object.keys(questionKey).map((index) => (
                   <div key={index} className={styles.keyDiv}>
-                    <div className={styles.keyQuestionText}>{questionKey[index].text}</div><div className={styles.keyCorrectAnswer}> {questionKey[index].correctAnswer}</div>
-                    <div className={styles.submittedAnswers}>{submittedAnswers[questionKey[index]._id]}</div>
+                    <div className={styles.keyQuestionText}>{questionKey[index].text}</div>
+                    <div className={checkCorrect(submittedAnswers[questionKey[index]._id], questionKey[index].correctAnswer)}>{submittedAnswers[questionKey[index]._id]}</div>
+                    <div className={styles.keyCorrectAnswer}> {questionKey[index].correctAnswer}</div>
                   </div>
                 ))}
               </div>
               <div className={styles.historySection}>
                 <div id={styles.dailyBestTitle}>Dagens Bästa</div>
-                <div id={styles.dailyBestHeader}>Namn Poäng</div>
-                {Object.keys(dailyBestList).map((name, index) => (
-                  <div key={index} className={styles.dailyBestEntry}><div className={styles.dailyBestEntryScore}>{name}</div> <div className={styles.dailyBestEntryScore}>{dailyBestList[name]}</div></div>
+                <div id={styles.dailyBestHeader}><div id={styles.nameHeader}>Namn</div> <div id={styles.pointHeader}>Poäng</div></div>
+                {Object.keys(dailyBestList).map((index) => (
+                  <div key={index} className={styles.dailyBestEntry}>
+                    <div className={styles.dailyBestEntryName}>{dailyBestList[index].username}</div> 
+                    <div className={styles.dailyBestEntryScore}>{dailyBestList[index].score}</div></div>
                 ))}
               </div>
             </div>)}
