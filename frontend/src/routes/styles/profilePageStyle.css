@@ -1,10 +1,39 @@
 .scoreArrayDiv
 {
-
+  display: flex;
+  margin: 2%;
+background: antiquewhite;
+border: 1px solid black;
+border-radius: 15px;
+padding: 1%;
+flex-direction: column;
 
 }
 .body {
+  display: inline-flex;
+  width: 100%;
+}
+.catDiv
+{
+  display: inline-flex;
 
+}
+.catStats
+{
+  display:inline-flex;
+  flex-direction: column;
+  text-wrap: nowrap;
+  width: 50%;
+}
+.catName
+{
+  display: inline-flex;
+  width: 50%;
+  font-weight: bold;
+}
+.scoreArrayTitle
+{
+  font-weight: bold;
+  align-self: center;
 
-  
 }

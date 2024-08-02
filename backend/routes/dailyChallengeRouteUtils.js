@@ -1,6 +1,10 @@
 import { Account } from "../models/Account.js";
 import { Question } from "../models/Question.js";
 import { DailyScore } from "../models/DailyScore.js";
+import { Redis } from "ioredis";
+
+const redis = new Redis();
+
 
 export const generateNewQuestions = async () => {
   const possibleQuestions = await Question.distinct('_id').lean().exec();
@@ -41,13 +45,19 @@ export const getNewQuestion = async (req) => {
       data: { status: "out of questions", message: `${req.user.username} is out of daily questions.` }
     };
   }
-  console.log(`${req.user.username} is requesting a new daily question: Current length: ${req.session.dailyChallengeData.questionsRemaining.length}`);
+  
+  const nextQuestionId = req.session.dailyChallengeData.questionsRemaining.pop();
   try {
-    const newQuestion = await Question.findById(req.session.dailyChallengeData.questionsRemaining.pop()).lean();
-    req.session.dailyChallengeData.currentQuestion = newQuestion;
+    const questionData = await redis.get(nextQuestionId);
+    if (!questionData) {
+      throw new Error('Question data not found in cache');
+    }
+    
+    req.session.dailyChallengeData.currentQuestion = JSON.parse(questionData);
+    
     return {
       statusCode: 200,
-      data: { status: "ok", question: obfQuestion(newQuestion) }
+      data: { status: "ok", question: obfQuestion(req.session.dailyChallengeData.currentQuestion) }
     };
   } catch (error) {
     console.error('Error in getNewQuestion:', error);
@@ -98,7 +108,8 @@ export const updateDatabaseDailyChallengeScore = async (req) => {
         date: new Date().toISOString().split('T')[0],
         score: req.session.dailyChallengeData.todaysScore,
         questionsRemaining: req.session.dailyChallengeData.questionsRemaining,
-        currentQuestion: req.session.dailyChallengeData.currentQuestion
+        currentQuestion: req.session.dailyChallengeData.currentQuestion,
+        submittedAnswers: req.session.dailyChallengeData.submittedAnswers
       },
       { upsert: true }
     );

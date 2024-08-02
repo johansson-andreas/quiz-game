@@ -8,6 +8,7 @@ const dailyScoreSchema = new Schema({
   score: { type: Number, required: true },
   questionsRemaining: { type: [String], required: true },
   currentQuestion: { type: Object, required: true },
+  submittedAnswers: {type: Object, required:true }
 });
 
 export const DailyScore = mongoose.model('DailyScore', dailyScoreSchema);

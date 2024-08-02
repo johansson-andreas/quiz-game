@@ -36,10 +36,11 @@
 .submitNextButton {
   width: 400px;
   height: 50px;
-  background-color: #d3f06de5;
+  background-color: #6b6b6be5;
   border-radius: 50px;
   border: 1px solid black; /* Combined border style */
   font-size: 20px;
+  color: rgb(0, 0, 0);
 }
 .questionBody {
   display: flex;
@@ -47,6 +48,7 @@
   margin-left: 5%;
   margin-top: 3%;
   height: 70%; 
+  min-height: fit-content;
   font-size: 18px;
   border: 1px solid black;
   padding: 20px;
@@ -54,6 +56,7 @@
   align-items: center;
   background-color: rgb(224, 250, 255);
   width: 50%;
+  overflow:auto;
 }
 .questionBody > * {
   margin-bottom: 10px; /* Adjust the spacing as per your design */
@@ -90,7 +93,6 @@
 {
   display: flex;
   flex-direction:row; /* Ensures vertical stacking */
-  height: 100%;
   width: 100%;
   justify-content: space-between;
 }
@@ -188,4 +190,9 @@
   padding:20px;
   border-radius: 15px;
   height:70%;
+}
+#scorePanelTitle
+{
+  font-weight: bold;
+  text-align: center;
 }

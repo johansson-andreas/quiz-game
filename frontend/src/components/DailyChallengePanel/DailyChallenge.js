@@ -23,7 +23,10 @@ const DailyChallenge = () => {
   const [currentScore, setCurrentScore] = useState(0);
   const [questionsRemaining, setQuestionsRemaining] = useState(0);
   const [currentUser, setCurrentUser] = useState('');
-  const [activeQuiz, setActiveQuiz] = useState(true)
+  const [activeQuiz, setActiveQuiz] = useState(true);
+  const [dailyBestList, setDailyBestList] = useState({});
+  const [submittedAnswers, setSubmittedAnswers] = useState({});
+  const [questionKey, setQuestionKey] = useState({});
 
   const initialContact = async () => {
     try {
@@ -90,6 +93,43 @@ const DailyChallenge = () => {
   };
 
   useEffect(() => {
+    const getDailyBest = async () => {
+      if (activeQuiz == false) {
+        try {
+          const dailyBestResponse = await axios.get('/api/daily-challenge-routes/get-daily-best');
+          const dailyQuestionKey = await axios.get('/api/daily-challenge-routes/get-daily-question-key');
+          console.log(dailyQuestionKey.data.submittedAnswers)
+
+          setQuestionKey(dailyQuestionKey.data.correctAnswers);
+          setSubmittedAnswers(dailyQuestionKey.data.submittedAnswers);
+
+
+          const newBestList = Object.keys(dailyBestResponse.data.message).reduce((acc, key) => {
+            const username = dailyBestResponse.data.message[key].userId.username;
+            acc[username] = dailyBestResponse.data.message[key].score;
+            return acc;
+          }, {});
+
+          setDailyBestList(newBestList);
+        }
+        catch (error) {
+          console.log(error)
+
+        }
+      }
+    };
+    getDailyBest();
+  }, [activeQuiz]);
+
+  useEffect(() => {
+    {
+      Object.keys(dailyBestList).forEach((key) => {
+        console.log(key, dailyBestList[key]);
+      })
+    }
+  }, [dailyBestList]);
+
+  useEffect(() => {
     console.log('Submitted answer:', submittedAnswer);
     if (submittedAnswer != '') {
       axios.post('/api/daily-challenge-routes/submit-answer', { submittedAnswer })
@@ -145,6 +185,7 @@ const DailyChallenge = () => {
             <div className={styles.questionPanel}>
               {question.choices ? (
                 <div className={styles.questionBody}>
+                  Fråga {10 - questionsRemaining} av 10
                   <div className={styles.questionText}>
                     {question.text}
                     <div className={styles.tagIcons}>
@@ -186,12 +227,23 @@ const DailyChallenge = () => {
           ) : (
             <div className={styles.scorePanel}>
               <div className={styles.scoreSection}>
-                Du fick {currentScore} rätt svar idag!
+                <div>Du hade {currentScore} rätt svar idag!</div>
+                {Object.keys(questionKey).map((index) => (
+                  <div key={index} className={styles.keyDiv}>
+                    <div className={styles.keyQuestionText}>{questionKey[index].text}</div><div className={styles.keyCorrectAnswer}> {questionKey[index].correctAnswer}</div>
+                    <div className={styles.submittedAnswers}>{submittedAnswers[questionKey[index]._id]}</div>
+                  </div>
+                ))}
               </div>
               <div className={styles.historySection}>
+                <div id={styles.dailyBestTitle}>Dagens Bästa</div>
+                <div id={styles.dailyBestHeader}>Namn Poäng</div>
+                {Object.keys(dailyBestList).map((name, index) => (
+                  <div key={index} className={styles.dailyBestEntry}><div className={styles.dailyBestEntryScore}>{name}</div> <div className={styles.dailyBestEntryScore}>{dailyBestList[name]}</div></div>
+                ))}
               </div>
             </div>)}
-          <DailyHistoryPanel />
+          <DailyHistoryPanel historyPanelTitle="Din historik" />
         </div>
       ) : (
         <div className={styles.loginPanel}>
