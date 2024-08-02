@@ -101,9 +101,12 @@ try {
 }
 });
 
-router.get('/request-new-questions', (req, res, next) => {
-  console.log(req)
-  res.send({message:"Ok"})
+router.get('/request-new-questions', async (req, res, next) => {
+
+  const newQuestions = await QuestionTest.find().exec();
+  console.log(newQuestions)
+  res.send(newQuestions) 
+
 });
 
 export default router;
