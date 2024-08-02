@@ -2,6 +2,8 @@ import express from 'express';
 import { getNewQuestion, obfQuestion, updateScoreArray, getNewQuestionQueueByTags, updateCurrentTotals, updateScoresInDatabase } from './questionRouteUtils.js';
 import {createClientData } from './loginRouteUtils.js';
 import { Question } from '../models/Question.js';
+import { QuestionTest } from '../models/QuestionTest.js';
+
 
 const router = express.Router();
 
@@ -79,10 +81,10 @@ router.post('/get-new-question-queue-by-tags', async (req, res) => {
 });
 
 router.post('/add-question-to-db', async (req, res) => {
-
+try {
     const questionToAdd = req.body.newQuestion;
 
-    const newQuestion = new Question({
+    const newQuestion = new QuestionTest({
       text: questionToAdd.questions,              
       correctAnswer: questionToAdd.correctAnswer,    
       incorrectAnswers: questionToAdd.answers,
@@ -90,7 +92,17 @@ router.post('/add-question-to-db', async (req, res) => {
   });
 
   // Save the new document
-  newQuestion.save();
+  await newQuestion.save();
+  res.status(201).send('Question added successfully');
+} catch (error) {
+  console.error('Failed to add question to database', error);
+  res.status(500).send('Internal Server Error');
+
+}
+
+router.get('/request-newquestions', async (req, res, next) => {
+
+});
 
 });
 
