@@ -1,5 +1,5 @@
 .mainbody {
-  background-color: red;
+  background-color: rgb(238, 116, 116);
   display: flex;
   text-wrap: nowrap;
   flex-direction: column;
@@ -7,7 +7,6 @@
    margin: 2%;
   border-radius: 15px;
   height: 70%;
-  border: 1px solid black
 }
 
 .topText {

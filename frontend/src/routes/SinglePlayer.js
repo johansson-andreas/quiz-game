@@ -91,7 +91,7 @@ const Controller = () => {
     if (triggeredOption !== null) {
       const timeout = setTimeout(() => {
         setTriggeredOption(null);
-      }, 1000); // Match the animation duration
+      }, 1000); 
       return () => clearTimeout(timeout);
     }
   }, [triggeredOption]);

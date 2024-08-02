@@ -72,7 +72,7 @@ const ProfilePage = () => {
                             <div>{scoreArray[cat].correct}/{scoreArray[cat].total} ({(scoreArray[cat].correct / scoreArray[cat].total).toFixed(1)*100}%)</div>
                         </ div>
                     </div>
-                )) : (<div>Loading...</div>)}
+                )) : (<div>Ingen statistik</div>)}
             </div>
 
             <DailyHistoryPanel historyPanelTitle="Historik för dagens frågor"/>
