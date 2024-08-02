@@ -10,8 +10,8 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/api/request-newquestions");
-        setData(response.data); // Store fetched data
+        const response = await axios.get("/api/question-routes/request-new-questions");
+        setData(response.data.message); // Store fetched data
       } catch (err) {
         setError(err);
       } finally {
