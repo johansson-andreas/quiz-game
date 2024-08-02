@@ -178,7 +178,7 @@ const Controller = () => {
   }, [questionTags]);
 
   useEffect(() => {
-    if (newQuestionCategories.length > 0 && newQuestionCategories != currentQuestionCategories) {
+    if (newQuestionCategories.length > 0 && newQuestionCategories !== currentQuestionCategories) {
       setCurrentQuestionCategories(newQuestionCategories);
       console.log('requestion new question queue')
       axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories: newQuestionCategories }).then(response => {
