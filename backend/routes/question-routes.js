@@ -1,7 +1,6 @@
 import express from 'express';
 import { getNewQuestion, obfQuestion, updateScoreArray, getNewQuestionQueueByTags, updateCurrentTotals, updateScoresInDatabase } from './questionRouteUtils.js';
 import {createClientData } from './loginRouteUtils.js';
-import { Question } from '../models/Question.js';
 import { QuestionTest } from '../models/QuestionTest.js';
 
 
