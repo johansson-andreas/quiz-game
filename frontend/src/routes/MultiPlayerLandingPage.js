@@ -4,6 +4,7 @@ import { UserContext } from "../contexts/UserContext";
 import LoginPanel from "../components/LoginPanel/LoginPanel";
 import socket from "../Socket";
 import "./styles/multiPlayerLandingStyle.css";
+import MultiPlayerLobby from "../components/MultiPlayerBody/MultiPlayerLobby";
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function LandingPage() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const location = useLocation();
   const [roomList, setRoomlist] = useState([]);
+  const [state, setState] = useState('login');
 
   const { user } = useContext(UserContext);
 
@@ -19,39 +21,24 @@ function LandingPage() {
     navigate("/main");
   };
 
-  const updateLobby = (event) => {
-    changeLobbyName(event.target.value);
-  };
-  const createNewLobby = () => {
-    socket.emit('createNewLobby', "Test3")
-  };
-
-
 
   useEffect(() => {
     if (location.pathname === "/MultiplayerLobby") {
       if (user) {
         socket.connect();
         console.log("connected to socketio");
-
+        setState('default')
         return () => {
           if (socket.connected) {
             socket.disconnect();
           }
         };
       }
+      else { setState('login')}
     }
   }, [user]);
 
-  const getEntryStyle = (index) => {
-    if(index % 2 == 0) return 'lobbyEntry evenEntry';
-    else return 'lobbyEntry oddEntry';
 
-  }
-
-  const joinLobby = (lobbyName) => {
-      console.log(lobbyName)
-  }
 
   useEffect(() => {
     const onConnect = () => {
@@ -65,45 +52,15 @@ function LandingPage() {
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
 
-    socket.on("listOfCurrentRooms", (rooms) => {
-      console.log("Received list of room:", rooms);
-      setRoomlist(rooms);
-    });
-
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
     };
   }, []);
 
-  useEffect(() => {}, [roomList]);
-
   return (
     <div>
-      {user ? (
-        <div id="mainBody">
-          <div id="mainForm">
-            <button onClick={createNewLobby} id="newLobbyButton">
-              Skapa nytt rum
-            </button>
-            <div id="mainLobbyDiv">
-              <div id="roomTitle">Nuvarande rum: </div>{" "}
-              <div id="lobbiesDiv">
-                {roomList.map((room, index) => (
-                  <div className={getEntryStyle(index)} key={room} onClick={() => joinLobby(room)}>
-                    {" "}
-                    <label >{room}</label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <LoginPanel />{" "}
-        </div>
-      )}
+      <MultiPlayerLobby state={state} setState={setState}/>
     </div>
   );
 }
