@@ -9,15 +9,6 @@ const initialContact = (socket, rooms) => {
   const username = socket.request.session.passport.user;
   console.log('Client', username, 'connected to the server');
 
-  const roomName = 'test2';
-  if (!rooms[roomName]) {
-    rooms[roomName] = [];
-  }
-  if (!rooms[roomName].includes(username)) rooms[roomName].push(username);
-  
-  socket.emit('listOfCurrentRooms', Object.keys(rooms));
-
-  console.log('Sending', rooms);
 
   // main namespace
   socket.on('initialContact', async () => {

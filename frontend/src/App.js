@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './routes/LandingPage.js';
 import SP from './routes/SinglePlayer.js';
-import MP from './routes/MultiPlayer.js';
 import MPLanding from './routes/MultiPlayerLandingPage.js';
 import DailyChallengeLanding from './routes/DailyChallengeLanding.js'; 
 import Layout from './layouts/Layout.js';
@@ -20,7 +19,6 @@ const App = () => {
       <Route element={<Layout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/sp" element={<SP />} />
-        <Route path="/mp" element={<MP />} />
         <Route path="/MultiplayerLobby" element={<MPLanding />} />
         <Route path="/QuestionForm" element={<QuestionForm />} />
         <Route path="/daily" element={<DailyChallengeLanding />} />
