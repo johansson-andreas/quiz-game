@@ -56,6 +56,10 @@ button {
     white-space: nowrap;
 }
 
+button:last-child {
+    margin-right: 0;
+}
+
 button:hover {
     background-color: #0056b3;
 }
@@ -79,6 +83,12 @@ button.delete {
 
 button.delete:hover {
     background-color: #c82333;
+}
+
+.button-container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
 }
 
 .pagination {
