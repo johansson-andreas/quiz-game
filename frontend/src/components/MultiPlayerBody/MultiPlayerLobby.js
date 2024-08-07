@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginPanelComponent from './LoginPanelComponent';
 import DefaultComponent from './DefaultComponent';
 import CreateLobbyComponent from './CreateLobbyComponent';
 import socket from '../../Socket';
 import styles from './MultiPlayerLobby.module.css';
 
-const MultiPlayerLobby = ({ state, setState }) => {
+const MultiPlayerLobby = ({ state, setState, joinedLobby }) => {
   const [playerName, changePlayerName] = useState('');
   const [joinLobbyName, setJoinLobbyName] = useState('');
   const [chosenWinCon, setChosenWinCon] = useState('correctCon');
@@ -15,6 +15,9 @@ const MultiPlayerLobby = ({ state, setState }) => {
   const [newLobbyPassword, setNewLobbyPassword] = useState('');
   const [newLobbyTimer, setNewLobbyTimer] = useState(15);
   const [joinLobbyPassword, setJoinLobbyPassword] = useState('');
+  const [currentLobby, setCurrentLobby] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [lobbyCreateErrorText, setLobbyCreateErrorText] = useState('');
 
   const updateLobbyName = (event) => {
     setJoinLobbyName(event.target.value);
@@ -53,6 +56,34 @@ const MultiPlayerLobby = ({ state, setState }) => {
     console.log('trying to join', lobbyName, 'password', joinLobbyPassword);
   };
 
+  useEffect(() => {
+    socket.on('createdNewLobby', (data) => {
+      console.log(data);
+      if(data == "A lobby with that name already exists")
+        {
+          setLobbyCreateErrorText(data);
+        }
+        else
+        {
+          console.log('New lobby created:', data.newLobby);
+          socket.emit('joinLobby', {lobbyName: data.newLobby.lobbyName, joinLobbyPassword:data.newLobby.password});
+          setState('default');
+        }
+
+    });
+
+    socket.on('lobbyJoinTry', (lobbyName) => {
+      if(lobbyName) {
+        joinedLobby(lobbyName)
+    }});
+
+    return () => {
+      socket.off('createdNewLobby');
+      socket.off('currentUsersInRoom');
+    };
+  }, []);
+
+
   const updateChosenWinCon = (event) => {
     setChosenWinCon(event.target.value);
   };
@@ -86,10 +117,11 @@ const MultiPlayerLobby = ({ state, setState }) => {
             newLobbyPassword={newLobbyPassword}
             newLobbyTimer={newLobbyTimer}
             setNewLobbyTimer={setNewLobbyTimer}
+            lobbyCreateErrorText={lobbyCreateErrorText}
           />
         );
       default:
-        return <div>Default Section</div>;
+        return <div>Oopsie this is not supposed to happen</div>;
     }
   };
 

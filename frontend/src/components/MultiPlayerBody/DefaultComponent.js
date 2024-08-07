@@ -25,7 +25,6 @@ const DefaultComponent = ({
           type="text"
           placeholder="Lösenord:"
           onChange={updateLobbyPassword}
-          required
         />
         <button type="submit">Anslut till rum</button>
       </form>

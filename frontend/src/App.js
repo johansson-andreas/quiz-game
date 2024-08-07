@@ -9,6 +9,7 @@ import { UserProvider } from './contexts/UserContext.js';
 import QuestionForm from './routes/QuestionForm.js';
 import ProfilePage from './routes/ProfilePage.js';
 import AdminPage from './routes/AdminPage.js';
+import MultiPlayer from './routes/MultiPlayer.js';
 
 const App = () => {
   
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="/daily" element={<DailyChallengeLanding />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/Admin" element={<AdminPage />} />
+        <Route path="/MultiPlayer" element={<MultiPlayer />} />
 
         </Route>
       </Routes>

@@ -11,7 +11,7 @@ const sockets = (io) => {
     const session = socket.request.session;
 
     initialContact(socket, rooms);
-    createNewLobby(socket, rooms);
+    createNewLobby(socket, rooms, io);
     
 
     socket.on('disconnect', () => {
