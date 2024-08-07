@@ -12,10 +12,19 @@ const CreateLobbyComponent = ({
     setNewLobbyPassword,
     newLobbyPassword,
     newLobbyTimer,
-    setNewLobbyTimer
+    setNewLobbyTimer,
+    lobbyCreateErrorText
   }) => (
     <div className={styles.createLobbyDiv}>
       <form onSubmit={createNewLobby}>
+        <div className={styles.errorText}>
+          {lobbyCreateErrorText ?
+          ( 
+            <div>{lobbyCreateErrorText}</div>
+          ) : (
+            <div></div>
+          )}
+        </div>
         <div className={styles.createRoomName}>
           Rumsnamn: 
           <input

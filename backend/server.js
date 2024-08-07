@@ -11,7 +11,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import logger from 'morgan';
 import {Account} from './models/Account.js'; // Importing Account model
-import sockets from './sockets/index.js';
+import sockets from './multiplayerSockets/index.js';
 import { Server } from 'socket.io';
 
 // Configure dotenv for environment variables

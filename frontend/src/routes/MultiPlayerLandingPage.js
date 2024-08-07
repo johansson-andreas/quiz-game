@@ -1,24 +1,24 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
-import LoginPanel from "../components/LoginPanel/LoginPanel";
 import socket from "../Socket";
 import "./styles/multiPlayerLandingStyle.css";
 import MultiPlayerLobby from "../components/MultiPlayerBody/MultiPlayerLobby";
+import MultiPlayer from "./MultiPlayer";
 
 function LandingPage() {
   const navigate = useNavigate();
-  const [playerName, changePlayerName] = useState("");
-  const [lobbyName, changeLobbyName] = useState("");
   const [isConnected, setIsConnected] = useState(socket.connected);
   const location = useLocation();
-  const [roomList, setRoomlist] = useState([]);
   const [state, setState] = useState('login');
+  const [currentLobbyName, setCurrentLobbyName] = useState('');
 
   const { user } = useContext(UserContext);
 
-  const mpChoice = (e) => {
-    navigate("/main");
+  const joinedLobby = (lobbyName) => {
+    setCurrentLobbyName(lobbyName)
+    console.log('joining game', lobbyName)
+    setState('inGame')
   };
 
 
@@ -30,6 +30,7 @@ function LandingPage() {
         setState('default')
         return () => {
           if (socket.connected) {
+            console.log('disconnect from socketio')
             socket.disconnect();
           }
         };
@@ -60,7 +61,17 @@ function LandingPage() {
 
   return (
     <div>
-      <MultiPlayerLobby state={state} setState={setState}/>
+    {state !== 'inGame' ? (    
+      <MultiPlayerLobby 
+      state={state} 
+      setState={setState}
+      joinedLobby={joinedLobby}/>
+) : 
+    (
+      <MultiPlayer 
+      lobbyName={currentLobbyName}
+        />
+    )}
     </div>
   );
 }
