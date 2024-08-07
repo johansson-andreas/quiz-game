@@ -31,7 +31,7 @@ const AdminPage = () => {
       { Header: "Correct Answer", accessor: "correctAnswer" },
       { Header: "Incorrect Answers", accessor: "incorrectAnswers" },
       { Header: "Tags", accessor: "tags" },
-      { Header: "Actions", accessor: "actions" },
+      { Header: "Actions", accessor: "actions"},
     ],
     []
   );
