@@ -12,13 +12,9 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          "/api/question-routes/request-new-questions"
-        );
+        const response = await axios.get("/api/question-routes/request-new-questions");
         setData(response.data); // Store fetched data
-        // console.log(response.data)
       } catch (err) {
-        //  console.log(err)
         setError(err);
       } finally {
         setLoading(false);
@@ -47,7 +43,7 @@ const AdminPage = () => {
     getTableBodyProps,
     headerGroups,
     prepareRow,
-    page, // Instead of using 'rows, we use 'page,
+    page, // Instead of using 'rows', we use 'page'
     nextPage,
     previousPage,
     canNextPage,
@@ -67,10 +63,7 @@ const AdminPage = () => {
   const saveEdits = async (id) => {
     const editedItem = data.find((item) => item._id === id);
     try {
-      const response = await axios.put(
-        `/api/question-routes/update-question/${id}`,
-        editedItem
-      );
+      const response = await axios.put(`/api/question-routes/update-question/${id}`, editedItem);
       const updatedItem = response.data;
       const updatedData = data.map((item) =>
         item._id === id ? updatedItem : item
@@ -84,12 +77,9 @@ const AdminPage = () => {
 
   const acceptQuestion = async (id) => {
     try {
-      const response = await axios.post(
-        `/api/question-routes/accept-question/${id}`
-      );
-      const acceptedQuestion = response.data;
-      setData(data.filter((item) => item._id !== id));
-      console.log(`Accepted question: ${acceptedQuestion}`);
+      await axios.post(`/api/question-routes/accept-question/${id}`);
+      setData(prevData => prevData.filter((item) => item._id !== id));
+      console.log(`Accepted question: ${id}`);
     } catch (error) {
       console.error("Failed to accept question:", error);
     }
@@ -97,12 +87,9 @@ const AdminPage = () => {
 
   const deleteQuestion = async (id) => {
     try {
-      const response = await axios.delete(
-        `/api/question-routes/delete-question/${id}`
-      );
-      const deletedQuestion = response.data;
-      setData(data.filter((item) => item._id !== id));
-      console.log(`Deleted question: ${deletedQuestion}`);
+      await axios.delete(`/api/question-routes/delete-question/${id}`);
+      setData(prevData => prevData.filter((item) => item._id !== id));
+      console.log(`Deleted question: ${id}`);
     } catch (error) {
       console.error("Failed to delete:", error);
     }
@@ -113,7 +100,7 @@ const AdminPage = () => {
   if (!data.length) return <p>No Data available</p>;
 
   return (
-    <div>
+    <div className="container">
       <h1>Admin Page</h1>
       <table {...getTableProps()}>
         <thead>
@@ -134,28 +121,18 @@ const AdminPage = () => {
                   if (cell.column.id === "actions") {
                     return (
                       <td {...cell.getCellProps()}>
-                        <button
-                          onClick={() => acceptQuestion(row.original._id)}
-                        >
+                        <button onClick={() => acceptQuestion(row.original._id)}>
                           Accept
                         </button>
-                        <button
-                          onClick={() => deleteQuestion(row.original._id)}
-                          className="delete"
-                        >
+                        <button onClick={() => deleteQuestion(row.original._id)} className="delete">
                           Delete
                         </button>
                         {editingId === row.original._id ? (
-                          <button
-                            onClick={() => saveEdits(row.original._id)}
-                            className="save"
-                          >
+                          <button onClick={() => saveEdits(row.original._id)} className="save">
                             Save
                           </button>
                         ) : (
-                          <button
-                            onClick={() => setEditingId(row.original._id)}
-                          >
+                          <button onClick={() => setEditingId(row.original._id)}>
                             Edit
                           </button>
                         )}
@@ -165,12 +142,7 @@ const AdminPage = () => {
 
                   if (
                     editingId === row.original._id &&
-                    [
-                      "text",
-                      "correctAnswer",
-                      "incorrectAnswers",
-                      "tags",
-                    ].includes(cell.column.id)
+                    ["text", "correctAnswer", "incorrectAnswers", "tags"].includes(cell.column.id)
                   ) {
                     return (
                       <td {...cell.getCellProps()}>
@@ -187,9 +159,7 @@ const AdminPage = () => {
                       </td>
                     );
                   }
-                  return (
-                    <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                  );
+                  return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
                 })}
               </tr>
             );
