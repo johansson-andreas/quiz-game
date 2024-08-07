@@ -1,40 +1,66 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
+import LoginPanel from "../components/LoginPanel/LoginPanel";
+import socket from "../Socket";
+import "./styles/multiPlayerLandingStyle.css";
+import MultiPlayerLobby from "../components/MultiPlayerBody/MultiPlayerLobby";
 
 function LandingPage() {
   const navigate = useNavigate();
-  const [playerName, changePlayerName] = useState('');
-  const [lobbyName, changeLobbyName] = useState('');
+  const [playerName, changePlayerName] = useState("");
+  const [lobbyName, changeLobbyName] = useState("");
+  const [isConnected, setIsConnected] = useState(socket.connected);
+  const location = useLocation();
+  const [roomList, setRoomlist] = useState([]);
+  const [state, setState] = useState('login');
+
+  const { user } = useContext(UserContext);
 
   const mpChoice = (e) => {
-    navigate('/main');
+    navigate("/main");
   };
 
-  const updateName = (event) => {
-    changePlayerName(event.target.value);
-  };
 
-  const updateLobby = (event) => {
-    changeLobbyName(event.target.value);
-  };
+  useEffect(() => {
+    if (location.pathname === "/MultiplayerLobby") {
+      if (user) {
+        socket.connect();
+        console.log("connected to socketio");
+        setState('default')
+        return () => {
+          if (socket.connected) {
+            socket.disconnect();
+          }
+        };
+      }
+      else { setState('login')}
+    }
+  }, [user]);
+
+
+
+  useEffect(() => {
+    const onConnect = () => {
+      setIsConnected(true);
+    };
+
+    const onDisconnect = () => {
+      setIsConnected(false);
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, []);
 
   return (
     <div>
-    <form >
-      <label>
-        <input
-          type="text"
-          value={playerName}
-          onChange={updateName}
-        />
-        <input
-          type="text"
-          value={lobbyName}
-          onChange={updateLobby}
-        />
-      </label>
-      <button type="submit">Submit</button>
-    </form> 
+      <MultiPlayerLobby state={state} setState={setState}/>
     </div>
   );
 }

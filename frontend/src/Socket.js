@@ -4,7 +4,10 @@ import { io } from 'socket.io-client';
 const socket = io('localhost:4000', {
   transports: ['websocket'], 
   withCredentials: true,
+  autoConnect: false
 });  
+
+export default socket;
 
 /*
 const socket = io('192.168.50.95:4000', {

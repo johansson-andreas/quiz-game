@@ -1,8 +1,9 @@
-const { getNewQuestion} = require('./socketUtils');
-const { getNewQuestionQueueByTags, shuffleArray, sendNewQuestion, sendScoreArray } = require('./socketUtils');
-const { updateScoreArray } = require('./updateScoreArray');
+import { getNewQuestion } from './socketUtils.js'; 
+import { getNewQuestionQueueByTags, shuffleArray, sendNewQuestion, sendScoreArray } from './socketUtils.js';
+import { updateScoreArray } from './updateScoreArray.js';
 
-const getNewQuestionRequest = function(socket, session) {
+
+export const getNewQuestionRequest = (socket, session) => {
     let client = session.clientData;
     socket.on('question:newQuestionRequest', async () => {
         let newQuestion = await getNewQuestion(client);
@@ -11,7 +12,7 @@ const getNewQuestionRequest = function(socket, session) {
     });
 };
 
-const submittedAnswer = function(socket, session) {
+export const submittedAnswer = (socket, session) => {
 socket.on('question:submittedAnswer', (answer) => {
     console.log(`Received answer "${answer}" from controller client ${session.clientData.clientId}`);
     updateScoreArray(session, answer);
@@ -20,7 +21,7 @@ socket.on('question:submittedAnswer', (answer) => {
   });
 }
 
-const getQueueByTags = function(socket, session) {
+export const getQueueByTags = (socket, session) => {
     let client = session.clientData;
     socket.on('questionQueue:getQueueByTags', async (data) => {
         client.categories = data;
@@ -37,9 +38,4 @@ const getQueueByTags = function(socket, session) {
       });
 };
 
-module.exports = {
-  submittedAnswer,
-  getQueueByTags,
-  getNewQuestionRequest
-};
   

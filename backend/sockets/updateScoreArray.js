@@ -1,4 +1,4 @@
-const updateScoreArray = function(session, answer) {
+export const updateScoreArray = (session, answer) => {
     let tempScoreArray = {...session.clientData.scoreArray}
     session.clientData.currentQuestion.tags.forEach(element => {
         if(!tempScoreArray[element]) tempScoreArray[element] = [0,0];
@@ -10,7 +10,3 @@ const updateScoreArray = function(session, answer) {
     session.clientData.scoreArray = {...tempScoreArray};
     console.log(session.clientData.scoreArray);
 };
-
-module.exports = {
-    updateScoreArray,
-}

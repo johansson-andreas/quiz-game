@@ -50,7 +50,7 @@ const QuestionForm = () => {
 
   return (
     <section className="questionForm">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="main-form">
         <h2>Quiz Game Form</h2>
         <div className="input-box">
           <label htmlFor="question">Question:</label>

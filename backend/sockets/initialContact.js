@@ -1,52 +1,21 @@
-const { getNewQuestion, getNewQuestionQueue, sendScoreArray, sendNewQuestion } = require('./socketUtils');
-const Question = require('../models/Question'); 
-const CategoryIcon = require('../models/CategoryIcon');
+import { getNewQuestion, getNewQuestionQueue, sendScoreArray, sendNewQuestion } from './socketUtils.js'
+import {Question} from '../models/Question.js';
+import {CategoryIcon} from '../models/CategoryIcon.js';
 
 
-module.exports = function(socket, session) {
-  let client = session.clientData;
+
+const initialContact = (socket, rooms) => {
+
+  const username = socket.request.session.passport.user;
+  console.log('Client', username, 'connected to the server');
+
+
+  // main namespace
   socket.on('initialContact', async () => {
     try {
-
-      if (Object.keys(client.categories).length === 0) {
-        const tagsWithCounts = await Question.aggregate([
-          { $unwind: '$tags' },
-          { $group: { _id: '$tags', count: { $sum: 1 } } },
-          { $sort: { count: -1 } } // Sort by count in descending order
-        ]);
-
-        const catIconDB = await CategoryIcon.find();
-        const categoryIcons = catIconDB.map(category => ({
-          catName: category.catName,
-          iconName: category.iconName
-        }));
-  
-
-        const updatedTagsWithCounts = tagsWithCounts.map(tag => {
-          const tempTag = { ...tag };
-          const categoryIcon = categoryIcons.find(category => category.catName === tempTag._id);
-          if (categoryIcon) {
-            tempTag.icon = categoryIcon.iconName;
-          }
-          tempTag.enabled = true;
-          return tempTag;
-        });
-
-        client.categories = updatedTagsWithCounts;
-      }
-      session.save();
-
-      if(client.cachedQuestions.length === 0) client.cachedQuestions = await getNewQuestionQueue();
-
-      let newQuestion = await getNewQuestion(client)
-
-      socket.emit('questionCategories', client.categories);
-
-      sendNewQuestion(newQuestion, socket);
-      sendScoreArray(session, socket);      
-
     } catch (err) {
-      console.error(`Failed to populate default question queue for ${client}:`, err);
     }
   });
 };
+
+export default initialContact;
