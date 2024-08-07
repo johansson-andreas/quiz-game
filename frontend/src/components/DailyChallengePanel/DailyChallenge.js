@@ -27,6 +27,12 @@ const DailyChallenge = () => {
   const [dailyBestList, setDailyBestList] = useState([]);
   const [submittedAnswers, setSubmittedAnswers] = useState({});
   const [questionKey, setQuestionKey] = useState({});
+  const [isLoginPanelVisible, setLoginPanelVisible] = useState(true);
+
+
+  const togglePanelVisibility = () => {
+    setLoginPanelVisible(prev => !prev);
+  };
 
   const initialContact = async () => {
     try {
@@ -47,6 +53,7 @@ const DailyChallenge = () => {
 
   useEffect(() => {
     if (user) initialContact();
+    else setLoginPanelVisible(true);
   }, [user]);
 
   const assignQuestion = (questionData) => {
@@ -262,9 +269,9 @@ const DailyChallenge = () => {
         </div>
       ) : (
         <div className={styles.loginPanel}>
-
-          <LoginPanel />
-
+          {isLoginPanelVisible && (
+          <LoginPanel togglePanelVisibility={togglePanelVisibility} />
+        )}
         </div>)}
     </div>
   );

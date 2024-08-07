@@ -11,6 +11,8 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import logger from 'morgan';
 import {Account} from './models/Account.js'; // Importing Account model
+import sockets from './sockets/index.js';
+import { Server } from 'socket.io';
 
 // Configure dotenv for environment variables
 dotenv.config();
@@ -18,6 +20,7 @@ dotenv.config();
 const app = express();
 // Create an HTTP server
 const httpServer = createServer(app);
+const io = new Server(httpServer);
 // Connect to the database
 async function initializeServer() {
   try {
@@ -68,6 +71,14 @@ async function initializeServer() {
 
   // Use API routes
   app.use('/api', routes);
+
+  // Share session middleware with Socket.IO
+  io.use((socket, next) => {
+    sessionMiddleware(socket.request, {}, next);
+  });
+
+  // Initialize Socket.IO
+  sockets(io);
 
   // Passport configuration
   passport.use(new LocalStrategy(Account.authenticate()));

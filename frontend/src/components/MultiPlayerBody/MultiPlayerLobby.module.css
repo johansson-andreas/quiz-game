@@ -1,0 +1,59 @@
+.mainForm
+{
+    display: flex;
+    background-color: rgb(70, 169, 255);
+    margin-top: 10%;
+    margin-left:50%;
+    transform: translate(-50%, -50%);
+    width:25vw;
+    height:25vh;
+}
+.mainBody{
+    display: flex;
+    background-color: azure;
+    height: 100%;
+    width: 100%;
+
+}
+.winConText
+{
+    width: auto;
+}
+.lobbiesDiv{
+    border: 1px solid black;
+    width: 100%;
+    height: 100%;
+}
+.newLobbyButton{
+    height: fit-content;
+    align-self: flex-end;
+    margin: 1%;
+}
+.mainLobbyDiv
+{
+    width:100%;
+    height: 100%;
+    display: flex;
+flex-direction: column;
+}
+.roomTitle{
+    margin: 1%;
+
+}
+.lobbyEntry {
+    padding: 1%;
+    border-bottom: 1px solid black;   
+}
+.lobbyEntry:hover{
+    filter: brightness(0.85); 
+}
+.evenEntry{
+    background-color: beige;
+}
+.oddEntry{
+    background-color: rgb(252, 252, 127);
+}
+.winConText
+{
+    width:50px;
+}
