@@ -9,6 +9,6 @@ const questionSchema = new Schema({
   tags: [String]             // Array of tags
 });
 
-export const QuestionTest = mongoose.model('QuestionTest', questionSchema);
+export const NewQuestion = mongoose.model('NewQuestion', questionSchema);
 
 
