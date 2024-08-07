@@ -88,13 +88,11 @@ router.post("/get-new-question-queue-by-tags", async (req, res) => {
     clientData.unusedQuestions = [...clientData.cachedQuestions];
     req.session.save();
 
-    res
-      .status(200)
-      .json({
-        response: "Ok",
-        text: "New question length: ",
-        amount: clientData.unusedQuestions.length,
-      });
+    res.status(200).json({
+      response: "Ok",
+      text: "New question length: ",
+      amount: clientData.unusedQuestions.length,
+    });
   } catch (err) {
     console.error("Failed to fetch questions by tags:", err);
     res
@@ -169,7 +167,7 @@ router.post("/accept-question/:id", async (req, res) => {
     });
 
     await newQuestion.save();
-    await question.remove();
+    await NewQuestion.findByIdAndDelete(id);
 
     res.send(newQuestion);
   } catch (error) {
