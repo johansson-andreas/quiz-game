@@ -100,7 +100,7 @@ const AdminPage = () => {
   if (!data.length) return <p>No Data available</p>;
 
   return (
-    <div className="container">
+    <div className="main-div">
       <h1>Admin Page</h1>
       <table {...getTableProps()}>
         <thead>

@@ -6,12 +6,12 @@ body {
     overflow-x: hidden;
 }
 
-h1 {
+.main-div h1 {
     text-align: center;
     margin: 20px 0;
 }
 
-.container {
+.main-div {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
@@ -21,14 +21,15 @@ h1 {
     overflow: hidden;
 }
 
-table {
+.main-div table {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
     table-layout: fixed;
 }
 
-th, td {
+.main-div th,
+.main-div td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
@@ -36,16 +37,16 @@ th, td {
     text-overflow: ellipsis;
 }
 
-th {
+.main-div th {
     background-color: #f4f4f4;
     font-weight: bold;
 }
 
-tr:nth-child(even) {
+.main-div tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-button {
+.main-div button {
     padding: 8px 16px;
     margin-right: 8px;
     background-color: #007bff;
@@ -56,53 +57,52 @@ button {
     white-space: nowrap;
 }
 
-button:last-child {
+.main-div button:last-child {
     margin-right: 0;
 }
 
-button:hover {
+.main-div button:hover {
     background-color: #0056b3;
 }
 
-button[disabled] {
+.main-div button[disabled] {
     background-color: #ccc;
     cursor: not-allowed;
 }
 
-button.save {
+.main-div button.save {
     background-color: #28a745;
 }
 
-button.save:hover {
+.main-div button.save:hover {
     background-color: #218838;
 }
 
-button.delete {
+.main-div button.delete {
     background-color: #dc3545;
 }
 
-button.delete:hover {
+.main-div button.delete:hover {
     background-color: #c82333;
 }
 
-.button-container {
+.main-div .button-container {
     display: flex;
     flex-wrap: nowrap;
     gap: 8px;
 }
 
-.pagination {
+.main-div .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 20px;
 }
 
-.pagination button {
+.main-div .pagination button {
     margin: 0 5px;
 }
 
-.paginaton span {
+.main-div .pagination span {
     margin: 0 10px;
 }
-
