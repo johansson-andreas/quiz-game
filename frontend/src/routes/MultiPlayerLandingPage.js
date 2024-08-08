@@ -60,7 +60,7 @@ function LandingPage() {
   }, []);
 
   return (
-    <div>
+    <>
     {state !== 'inGame' ? (    
       <MultiPlayerLobby 
       state={state} 
@@ -72,7 +72,7 @@ function LandingPage() {
       lobbyName={currentLobbyName}
         />
     )}
-    </div>
+    </>
   );
 }
 

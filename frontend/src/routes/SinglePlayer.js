@@ -1,47 +1,50 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
-import './styles/singlePlayerStyle.css';
-import IconComponent from '../components/IconComponent';
-import ScorePanel from '../components/ScorePanel';
-import { UserContext } from '../contexts/UserContext';
-import axios from 'axios';
-import Offcanvas from 'react-bootstrap/Offcanvas';
-import Button from 'react-bootstrap/Button'
+import React, { useState, useEffect, useContext, useMemo } from "react";
+import "./styles/singlePlayerStyle.css";
+import IconComponent from "../components/IconComponent";
+import ScorePanel from "../components/ScorePanel";
+import { UserContext } from "../contexts/UserContext";
+import axios from "axios";
+import Offcanvas from "react-bootstrap/Offcanvas";
+import Button from "react-bootstrap/Button";
+import QuestionComponent from "../components/QuestionComponent/QuestionComponent.js";
 
 const Controller = () => {
   const [questionText, setQuestionText] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const [questionIcons, setQuestionIcons] = useState([]);
-  const [question, setQuestion] = useState([]);
+  const [question, setQuestion] = useState({});
   const [options, setOptions] = useState([]);
-  const [answer, setAnswer] = useState('');
-  const [submittedAnswer, setSubmittedAnswer] = useState('');
+  const [answer, setAnswer] = useState("");
+  const [submittedAnswer, setSubmittedAnswer] = useState("");
   const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
   const [activeQuestion, setActive] = useState(true);
-  const [currentQuestionCategories, setCurrentQuestionCategories] = useState([]);
+  const [currentQuestionCategories, setCurrentQuestionCategories] = useState(
+    []
+  );
   const [newQuestionCategories, setNewQuestionCategories] = useState([]);
   const [scoreArray, setScoreArray] = useState({});
   const [questionTags, setQuestionTags] = useState([]);
   const { user, setUser } = useContext(UserContext);
   const [catCanvasShow, setCatCanvasShow] = useState(false);
-  const [triggeredOption, setTriggeredOption] = useState(null);
   const [hasMounted, setHasMounted] = useState(false);
-
-
+  const [triggeredOption, setTriggeredOption] = useState(null);
 
 
   useEffect(() => {
-    setTotalQuestionsScore([0, 0])
+    setTotalQuestionsScore([0, 0]);
     setScoreArray({});
     initialContact();
   }, [user]);
 
   const initialContact = () => {
-    axios.get('/api/question-routes/initial-contact')
-      .then(response => {
-        console.log('Received initial data:', response.data);
-        const { question, categories, scoreArray, currentTotals } = response.data;
+    axios
+      .get("/api/question-routes/initial-contact")
+      .then((response) => {
+        console.log("Received initial data:", response.data);
+        const { question, categories, scoreArray, currentTotals } =
+          response.data;
         assignQuestion(question);
-        const newCategories = categories.map(category => ({
+        const newCategories = categories.map((category) => ({
           _id: category._id,
           count: category.count,
           icon: category.icon,
@@ -49,20 +52,18 @@ const Controller = () => {
         }));
         setCurrentQuestionCategories(newCategories);
         setNewQuestionCategories(newCategories);
-        
+
         if (scoreArray) setScoreArray(scoreArray);
         if (currentTotals) {
-          console.log('currentotals', currentTotals)
-          setTotalQuestionsScore([currentTotals[0], currentTotals[1]])
+          console.log("currentotals", currentTotals);
+          setTotalQuestionsScore([currentTotals[0], currentTotals[1]]);
         }
         setHasMounted(true);
-
       })
-      .catch(error => {
-        console.error('Error fetching data:', error);
+      .catch((error) => {
+        console.error("Error fetching data:", error);
       });
-
-  }
+  };
 
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
@@ -72,29 +73,7 @@ const Controller = () => {
     setAnswer(e.target.value);
   };
 
-  const getDivClassName = (option) => {
-    let baseClass = 'neutral';
-    if (!activeQuestion) {
-      if (submittedAnswer === option) {
-        baseClass = option === correctAnswer ? 'correct' : 'incorrect';
-      } else if (correctAnswer === option) {
-        baseClass = 'correct';
-      }
-    }
-    if (triggeredOption === option) {
-      return `${baseClass} pulse`;
-    }
-    return baseClass;
-  };
 
-  useEffect(() => {
-    if (triggeredOption !== null) {
-      const timeout = setTimeout(() => {
-        setTriggeredOption(null);
-      }, 1000); 
-      return () => clearTimeout(timeout);
-    }
-  }, [triggeredOption]);
 
   const handleOptionChangeWrapper = (event) => {
     handleOptionChange(event);
@@ -104,41 +83,29 @@ const Controller = () => {
     setQuestion(questionData);
     setQuestionText(questionData.text);
     setQuestionTags(questionData.tags);
-
-    let choices = questionData.choices;
-
-    setOptions(choices);
+    setOptions(questionData.choices);
   };
 
   const nextQuestion = () => {
     console.log("Next question");
 
-    axios.get('/api/question-routes/request-question')
-      .then(response => {
+    axios
+      .get("/api/question-routes/request-question")
+      .then((response) => {
         setActive(true);
 
-        console.log('GET request successful:', response.data);
+        console.log("GET request successful:", response.data);
         assignQuestion(response.data);
       })
-      .catch(error => {
-        console.error('Error fetching data:', error);
+      .catch((error) => {
+        console.error("Error fetching data:", error);
       });
   };
 
-  const submitButtonStyle = {
-    display: activeQuestion ? 'block' : 'none'
-  };
-
-  const nextButtonStyle = {
-    display: activeQuestion ? 'none' : 'block'
-  };
-
   const handleCheckboxChange = (category) => {
-    setNewQuestionCategories(prevCategories =>
-      prevCategories.map(cat =>
-        cat._id === category._id
-          ? { ...cat, enabled: !cat.enabled }
-          : cat
+    setNewQuestionCategories((prevCategories) =>
+      prevCategories.map((cat) =>
+        cat._id === category._id ? { ...cat, enabled: !cat.enabled } : cat
       )
     );
   };
@@ -146,118 +113,123 @@ const Controller = () => {
   const handleCatCanvasClose = () => setCatCanvasShow(false);
   const handleCatCanvasShow = () => setCatCanvasShow(true);
 
-
   useEffect(() => {
-    console.log('Submitted answer:', submittedAnswer);
-    if (submittedAnswer !== '') {
-      axios.post('/api/question-routes/submit-answer', { submittedAnswer })
-        .then(response => {
+    console.log("Submitted answer:", submittedAnswer);
+    if (submittedAnswer !== "") {
+      axios
+        .post("/api/question-routes/submit-answer", { submittedAnswer })
+        .then((response) => {
           setActive(false);
-          console.log('ScoreArray:', response.data.scoreArray, 'Correct answer:', response.data.correctAnswer);
+          console.log(
+            "ScoreArray:",
+            response.data.scoreArray,
+            "Correct answer:",
+            response.data.correctAnswer
+          );
           setScoreArray(response.data.scoreArray);
           setCorrectAnswer(response.data.correctAnswer);
-          setTotalQuestionsScore(prevCount => {
+          setTotalQuestionsScore((prevCount) => {
             const newCount = [...prevCount];
-            if (response.data.correctAnswer === submittedAnswer) newCount[0] += 1;
+            if (response.data.correctAnswer === submittedAnswer)
+              newCount[0] += 1;
             newCount[1] += 1;
             return newCount;
           });
           setTriggeredOption(response.data.correctAnswer);
         })
-        .catch(error => {
-          console.error('Error fetching data:', error);
+        .catch((error) => {
+          console.error("Error fetching data:", error);
         });
     }
   }, [submittedAnswer]);
 
   useEffect(() => {
-    setQuestionIcons(questionTags.map(tag => {
-      const categoryIcon = currentQuestionCategories.find(category => category._id === tag);
-      return categoryIcon ? categoryIcon.icon : null;
-    }).filter(icon => icon !== null));
+    setQuestionIcons(
+      questionTags
+        .map((tag) => {
+          const categoryIcon = currentQuestionCategories.find(
+            (category) => category._id === tag
+          );
+          return categoryIcon ? categoryIcon.icon : null;
+        })
+        .filter((icon) => icon !== null)
+    );
   }, [questionTags]);
 
   useEffect(() => {
-    if (newQuestionCategories.length > 0 && newQuestionCategories !== currentQuestionCategories) {
+    if (
+      newQuestionCategories.length > 0 &&
+      newQuestionCategories !== currentQuestionCategories
+    ) {
       setCurrentQuestionCategories(newQuestionCategories);
-      console.log('requestion new question queue')
-      axios.post('/api/question-routes/get-new-question-queue-by-tags', { questionCategories: newQuestionCategories }).then(response => {
-        console.log(response)
-      }).catch(error => {
-        console.log(error)
-      });
+      console.log("requestion new question queue");
+      axios
+        .post("/api/question-routes/get-new-question-queue-by-tags", {
+          questionCategories: newQuestionCategories,
+        })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
-
   }, [newQuestionCategories]);
 
-
-
-
   return (
-    <div id='mainBody'>
-      <div className='questionBody'>
-        <div className='questionText'>
-          {questionText}
-          <div id='tagIcons'>
-            {questionIcons.map((index) => (
-              <div key={index} className="tagIcon">
-                <IconComponent imageName={index} />
-              </div>
-            ))}
-          </div>
-        </div>
-        <div id='radioButtonsDiv'>
-          {options.map((option, index) => (
-            <div key={index} className={getDivClassName(option)}>
-              <label className='radioButtonLabels'>
-                <input
-                  type="radio"
-                  value={option}
-                  checked={answer === option}
-                  onChange={handleOptionChangeWrapper}
-                />
-                {option}
-              </label>
-            </div>
-          ))}
-        </div>
-        <button onClick={submitAnswer} style={submitButtonStyle} className={"submitNextButton"}>Svara</button>
-        <button onClick={nextQuestion} style={nextButtonStyle} className={"submitNextButton"}>Nästa fråga</button>
+    <div className="mainBody">
+      <div className="questionBody">
+        <QuestionComponent
+          handleOptionChangeWrapper={handleOptionChangeWrapper}
+          answer={answer}
+          question={question}
+          questionIcons={questionIcons}
+          activeQuestion={activeQuestion}
+          nextQuestion={nextQuestion}
+          submitAnswer={submitAnswer}
+          submittedAnswer={submittedAnswer}
+          correctAnswer={correctAnswer}
+          triggeredOption={triggeredOption}
+          setTriggeredOption={setTriggeredOption}
+        />
       </div>
-      <div className='scoreDiv'>
-        <ScorePanel scoreArray={scoreArray} totalQuestionsScore={totalQuestionsScore} questionCategories={currentQuestionCategories} />
+      <div className="scoreDiv">
+        <ScorePanel
+          scoreArray={scoreArray}
+          totalQuestionsScore={totalQuestionsScore}
+          questionCategories={currentQuestionCategories}
+        />
       </div>
-      <div id='categoriesDiv'>
-        <Button variant="primary" onClick={handleCatCanvasShow} className='catButton'>
-          K
-          a
-          t
-          e
-          g
-          o
-          r
-          i
-          e
-          r
+      <div id="categoriesDiv">
+        <Button
+          variant="primary"
+          onClick={handleCatCanvasShow}
+          className="catButton"
+        >
+          K a t e g o r i e r
         </Button>
-        <Offcanvas show={catCanvasShow} onHide={handleCatCanvasClose} placement='end' className='offcanvas' >
+        <Offcanvas
+          show={catCanvasShow}
+          onHide={handleCatCanvasClose}
+          placement="end"
+          className="offcanvas"
+        >
           <Offcanvas.Header closeButton>
             <Offcanvas.Title>Kategorier</Offcanvas.Title>
           </Offcanvas.Header>
-          <Offcanvas.Body >
+          <Offcanvas.Body>
             {currentQuestionCategories.map((category, index) => (
               <div key={index}>
-                <label className='checkboxLabels'>
-                  <div className='topLineCheckbox'>
+                <label className="checkboxLabels">
+                  <div className="topLineCheckbox">
                     <input
                       type="checkbox"
                       defaultChecked={category.enabled}
-                      onChange={() => handleCheckboxChange(category)} />
+                      onChange={() => handleCheckboxChange(category)}
+                    />
                     {category._id} <IconComponent imageName={category.icon} />
-
                   </div>
                   ({category.count})
-
                 </label>
               </div>
             ))}
