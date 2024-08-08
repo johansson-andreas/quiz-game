@@ -1,0 +1,102 @@
+/* CSS Module file */
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Transition for immediate color changes */
+.radioButtonLabels {
+  display: flex;
+  max-width: 100%;
+  border: 1px solid black;
+  border-radius: 15px;
+  padding: 5px;
+}
+
+.correct {
+  background-color: lightgreen;
+}
+
+.incorrect {
+  background-color: red;
+}
+
+.neutral {
+  background-color: #d8e8f3e5;
+}
+
+/* Pulse animation */
+.pulse {
+  animation: pulse 1s ease-in-out;
+}
+
+.icon-container {
+  display: inline-flex;
+  margin-left: 5px;
+  align-items: center;
+  flex-direction: column;
+}
+
+.tagIcons > .tagIcon > .icon-container > .icon-image {
+  min-height: 25px;
+  max-height: 25px;
+  width: auto;
+  height: auto;
+}
+
+.questionText {
+  max-width: 75%;
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #d8e8f3e5;
+  background-image: url('../../images/textureTest.png');
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.submitNextButton {
+  width: 400px;
+  height: 50px;
+  background-color: #6b6b6be5;
+  border-radius: 50px;
+  border: 1px solid black; /* Combined border style */
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+}
+
+.radioButtonsDiv {
+  align-items: flex-start;
+  font-size: 18px;
+  max-width: 75%;
+  width: 75%;
+}
+
+.radioButtonsDiv > * {
+  margin-bottom: 5px;
+}
+
+.tagIcons {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.tagIcon {
+  display: flex;
+  align-items: flex-end;
+}
+
+.radioButtonLabels > input {
+  margin-right: 5px;
+  margin-left: 5px;
+}
