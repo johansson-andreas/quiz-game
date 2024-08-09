@@ -6,7 +6,9 @@ import {CategoryIcon} from '../models/CategoryIcon.js';
 
 const initialContact = (socket, rooms) => {
 
-  const username = socket.request.session.passport.user;
+  if(socket.request.session.passport) 
+    {
+      const username = socket.request.session.passport.user;
   console.log('Client', username, 'connected to the server');
 
 
@@ -16,6 +18,7 @@ const initialContact = (socket, rooms) => {
     } catch (err) {
     }
   });
+}
 };
 
 export default initialContact;
