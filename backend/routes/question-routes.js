@@ -120,11 +120,20 @@ router.post("/add-question-to-db", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
-router.get("/request-new-questions", async (req, res, next) => {
-  const newQuestions = await NewQuestion.find().exec();
-  console.log(newQuestions);
-  res.send(newQuestions);
+router.get("/request-new-questions", async (req, res) => {
+  // Check if user is inlogged and has 'admin' role
+  if (req.user && req.user.role === "admin") {
+    try {
+      const newQuestions = await NewQuestion.find().exec();
+      console.log(newQuestions);
+      res.send(newQuestions);
+    } catch (error) {
+      console.error("Failed to fetch new question", error);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.status(403).json({ message: "Access denied" }); // Forbidden
+  }
 });
 
 // Route to update a question
