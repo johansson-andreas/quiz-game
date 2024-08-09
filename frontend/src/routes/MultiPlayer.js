@@ -1,15 +1,22 @@
 import socket from "../Socket.js";
-import { useState, useEffect, useContext, useRef} from "react";
+import React from 'react';
+import { useState, useEffect, useContext, useRef } from "react";
 import { UserContext } from "../contexts/UserContext.js";
 import QuestionComponent from "../components/QuestionComponent/QuestionComponent.js";
-import ProgressBar from 'react-bootstrap/ProgressBar';
+import { ProgressBar } from "react-bootstrap";
 
 
 const MultiPlayer = ({ lobbyName }) => {
   const [users, setUsers] = useState([]);
   const [lobbyInfo, setLobbyInfo] = useState({
+    users: {},
+    chosenWinCon: "",
+    winConNumber: 0,
     questionTimer: 0,
-  });  
+    active: false,
+    host: "",
+    currentQuestion: {},
+  });
   const { user, setUser } = useContext(UserContext);
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [questionText, setQuestionText] = useState(null);
@@ -32,92 +39,118 @@ const MultiPlayer = ({ lobbyName }) => {
   const [triggeredOption, setTriggeredOption] = useState(null);
   const [seconds, setSeconds] = useState(0);
   const lobbyInfoRef = useRef(lobbyInfo);
+  const [timerStarted, setTimerStarted] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const [canProgress, setCanProgress] = useState(false);
 
   const startGame = () => {
     socket.emit("startGame", lobbyName);
+    console.log(new Date().toISOString())
   };
+
+  const timerFinished = () => {
+    if(!submittedAnswer)
+      {
+        if(answer)setSubmittedAnswer(answer);
+        else setSubmittedAnswer('pass')
+      }
+      setCanProgress(true)
+      setTimerStarted(false)
+  };
+
+  const [timeLeft, setTimeLeft] = useState(30);
+
+  useEffect(() => {
+    if (!timeLeft) return;
+
+    const intervalId = setInterval(() => {
+      setTimeLeft((prevTimeLeft) => prevTimeLeft - 0.001);
+    }, 0.1);
+
+    return () => clearInterval(intervalId);
+  }, [timeLeft]);
+
+  const progress = (30 - timeLeft) / 30;
+
+
+  const nextQuestion = () => {
+    console.log('next question')
+    socket.emit('getNextQuestion', lobbyName)
+  };
+  useEffect(() => {
+    if(submittedAnswer)
+      {
+        console.log('submitting answer', submittedAnswer)
+        socket.emit('submitAnswer', {lobbyName, submittedAnswer})
+        setIsLocked(true);
+        setActive(false);
+      }
+  }, [submittedAnswer])
 
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
   };
 
   useEffect(() => {
-    console.log('new lobby info', lobbyInfo)
+    console.log("new lobby info", lobbyInfo);
 
     lobbyInfoRef.current = lobbyInfo;
+    setCurrentQuestion(lobbyInfo.currentQuestion);
   }, [lobbyInfo]);
-
-  const nextQuestion = () => {
-    console.log("Next question");
-  };
 
   const handleOptionChange = (e) => {
     setAnswer(e.target.value);
   };
 
-   const renderProgressBar = () => {
-    return <ProgressBar now={seconds} max={lobbyInfo.questionTimer} min={0}/>;
-  }
-
   useEffect(() => {
-    console.log('setting timer to', seconds);
-    
-    if (seconds <= 0) {
-      console.log(new Date().toISOString());
-      return;
-    }
-    
-    const intervalId = setInterval(() => {
-      setSeconds(prevSeconds => Math.max(prevSeconds - 0.01, 0)); // Prevent going negative
-    }, 10);
-  
-    return () => clearInterval(intervalId);
-  }, [seconds]);
-
-  useEffect(() => {
-    console.log("users", Object.keys(users));
-  }, [users]);
-
-  useEffect(() => {
-    console.log('new timer', lobbyInfo.questionTimer)
-
-  }, [lobbyInfo.questionTimer])
-
-  useEffect(() => {
-
     socket.emit("getRoomInfo", lobbyName);
     console.log("Requesting room info");
-  
+
     const handleRoomInfo = (lobbyInfo) => {
-      console.log("Received room info", lobbyInfo);
       setLobbyInfo(lobbyInfo);
       setUsers(lobbyInfo.users);
     };
-  
+
     const handleCurrentUsers = (currentUsers) => {
-      console.log("Current users", currentUsers);
       setUsers(currentUsers);
     };
-  
+
     const handleStartingGame = (updatedLobbyInfo) => {
       setLobbyInfo((prevLobbyInfo) => {
         let newLobbyInfo = { ...prevLobbyInfo };
         newLobbyInfo.active = updatedLobbyInfo.active;
+        newLobbyInfo.currentQuestion = updatedLobbyInfo.currentQuestion;
         return newLobbyInfo;
       });
-      setCurrentQuestion(lobbyInfo.currentQuestion);
-      setSeconds(lobbyInfo.questionTimer);
+      setSeconds(lobbyInfoRef.current.questionTimer);
+      setTimerStarted(true);
     };
-  
+    const updateScores = (newUsersInfo) => {
+      console.log('new users info', newUsersInfo.newUsersInfo)
+      setUsers(newUsersInfo.newUsersInfo);
+    }
+    const receivedNewQuestion = (newQuestion) => {
+      console.log('received new question', newQuestion.newQuestion)
+      setCurrentQuestion(newQuestion.newQuestion)
+      setIsLocked(false);
+      setTimerStarted(true);
+      setActive(true);
+      setCanProgress(false);
+    }
+
     socket.on("sendRoomInfo", handleRoomInfo);
     socket.on("currentUsersInRoom", handleCurrentUsers);
     socket.on("startingGame", handleStartingGame);
+    socket.on("updatedScore", updateScores)
+    socket.on("newQuestion", receivedNewQuestion)
 
     return () => {
       socket.emit("leaveRoom");
       socket.off("sendRoomInfo", handleRoomInfo);
       socket.off("currentUsersInRoom", handleCurrentUsers);
       socket.off("startingGame", handleStartingGame);
+      socket.off("updatedScore", updateScores)
+      socket.off("newQuestion", receivedNewQuestion)
     };
   }, []);
 
@@ -144,8 +177,20 @@ const MultiPlayer = ({ lobbyName }) => {
             correctAnswer={correctAnswer}
             triggeredOption={triggeredOption}
             setTriggeredOption={setTriggeredOption}
+            hostname={lobbyInfo.host}
+            username={user}
+            isLocked={isLocked}
+            canProgress={canProgress}
           />
-          {renderProgressBar()}
+      <div style={{ backgroundColor: "#ddd", height: 20 }}>
+        <div
+          style={{
+            width: `${progress * 100}%`,
+            height: "100%",
+            backgroundColor: "#0070f3",
+          }}
+        />
+      </div>
         </div>
       )}
 

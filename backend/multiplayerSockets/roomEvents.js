@@ -25,21 +25,7 @@ export const createNewLobby = (socket, rooms, io) => {
 
       newLobby.questionQueue = await getNewQuestionQueue();
 
-      const randomIndex = Math.floor(
-        Math.random() * newLobby.questionQueue.length
-      );
-      const [newQuestionId] = newLobby.questionQueue.splice(randomIndex, 1); // Splices a question at randomIndex to randomize the order of the questions provided
-
-      try {
-        const newQuestion = await Question.findById(newQuestionId).lean();
-        console.log(newQuestion);
-        newLobby.currentQuestion = newQuestion;
-      } catch (error) {
-        console.error(
-          `Failed to fetch question by ID ${newQuestionId}:`,
-          error
-        );
-      }
+      newLobby.currentQuestion = await getNewQuestion(newLobby.questionQueue);
 
       rooms[lobbyName] = newLobby;
       console.log("Creating new room", newLobby.lobbyName);
@@ -84,18 +70,39 @@ export const createNewLobby = (socket, rooms, io) => {
       questionTimer: rooms[lobbyName].questionTimer,
       active:rooms[lobbyName].active,
       host:rooms[lobbyName].host,
-      currentQuestion: rooms[lobbyName].currentQuestion
+      currentQuestion:{},
     });
+
   });
 
   socket.on("startGame", (lobbyName) => { 
     rooms[lobbyName].active = true;
+    console.log('sending ', obfQuestion(rooms[lobbyName].currentQuestion))
     io.to(lobbyName).emit("startingGame", {
       currentQuestion: obfQuestion(rooms[lobbyName].currentQuestion),
       active:rooms[lobbyName].active
     })
 
     setTimeout(startTimer, rooms[lobbyName].questionTimer * 1000);
+  })
+  socket.on("submitAnswer", (lobbyInfo) => {
+    const submittedAnswer = lobbyInfo.submittedAnswer;
+    const lobbyName = lobbyInfo.lobbyName;
+    console.log('received', submittedAnswer, 'from', username)
+    if(submittedAnswer == rooms[lobbyName].currentQuestion.correctAnswer) {
+      rooms[lobbyName].users[username].score += 1;
+      socket.emit('updatedScore', {newUsersInfo: rooms[lobbyName].users})
+    }
+    else {
+      socket.emit('updatedScore', {newUsersInfo: rooms[lobbyName].users})
+    }
+
+  })
+  socket.on("getNextQuestion", async (lobbyName) => {
+    rooms[lobbyName].currentQuestion = await getNewQuestion(rooms[lobbyName].questionQueue)
+    console.log('sending', rooms[lobbyName].currentQuestion)
+    socket.emit("newQuestion", ({newQuestion: obfQuestion(rooms[lobbyName].currentQuestion)}))
+
   })
 };
 
@@ -120,3 +127,20 @@ const generateLobbyName = (currentRooms) => {
     else newLobbyName = "";
   }
 };
+
+const getNewQuestion = async (questionQueue) => {
+  const randomIndex = Math.floor(
+    Math.random() * questionQueue.length
+  );
+  const [newQuestionId] = questionQueue.splice(randomIndex, 1); // Splices a question at randomIndex to randomize the order of the questions provided
+
+  try {
+    const newQuestion = await Question.findById(newQuestionId).lean();
+    return newQuestion
+  } catch (error) {
+    console.error(
+      `Failed to fetch question by ID ${newQuestionId}:`,
+      error
+    );
+  }
+}

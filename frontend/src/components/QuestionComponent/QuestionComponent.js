@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
-import styles from './QuestionComponent.module.css';
-import IconComponent from '../IconComponent';
+import React, { useEffect, useState } from "react";
+import classNames from "classnames";
+import styles from "./QuestionComponent.module.css";
+import IconComponent from "../IconComponent";
+
 
 const QuestionComponent = ({
   question,
@@ -15,27 +16,34 @@ const QuestionComponent = ({
   correctAnswer,
   triggeredOption,
   setTriggeredOption,
+  hostname,
+  username,
+  isLocked,
+  canProgress,
 }) => {
   const submitButtonStyle = {
-    display: activeQuestion ? 'block' : 'none',
+    display: activeQuestion ? "block" : "none",
   };
 
   const nextButtonStyle = {
-    display: activeQuestion ? 'none' : 'block',
+    display: activeQuestion ? "none" : "block",
   };
-
   const getDivClassName = (option) => {
-    let baseClass = 'neutral';
+    let baseClass = "neutral";
     if (!activeQuestion) {
       if (submittedAnswer === option) {
-        baseClass = option === correctAnswer ? 'correct' : 'incorrect';
+        baseClass = option === correctAnswer ? "correct" : "incorrect";
       } else if (correctAnswer === option) {
-        baseClass = 'correct';
+        baseClass = "correct";
       }
     }
 
     return baseClass;
   };
+
+  useEffect(() => {
+    console.log("qc", question);
+  }, [question]);
 
   useEffect(() => {
     if (triggeredOption !== null) {
@@ -63,29 +71,32 @@ const QuestionComponent = ({
             </div>
           </div>
           <div className={styles.radioButtonsDiv}>
-            {question.choices.map((option, index) => {
-              const baseClass = getDivClassName(option);
-              const pulseClass = triggeredOption === option ? styles.pulse : '';
+            {question.choices &&
+              question.choices.map((option, index) => {
+                const baseClass = getDivClassName(option);
+                const pulseClass =
+                  triggeredOption === option ? styles.pulse : "";
 
-              return (
-                <label
-                  key={index}
-                  className={classNames(
-                    styles.radioButtonLabels,
-                    styles[baseClass], // Base class (correct, incorrect, neutral)
-                    pulseClass // Apply pulse effect conditionally
-                  )}
-                >
-                  <input
-                    type="radio"
-                    value={option}
-                    checked={answer === option}
-                    onChange={handleOptionChangeWrapper}
-                  />
-                  {option}
-                </label>
-              );
-            })}
+                return (
+                  <label
+                    key={index}
+                    className={classNames(
+                      styles.radioButtonLabels,
+                      styles[baseClass], // Base class (correct, incorrect, neutral)
+                      pulseClass // Apply pulse effect conditionally
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      value={option}
+                      checked={answer === option}
+                      onChange={handleOptionChangeWrapper}
+                      disabled={isLocked}
+                    />
+                    {option}
+                  </label>
+                );
+              })}
           </div>
           <button
             onClick={submitAnswer}
@@ -94,17 +105,27 @@ const QuestionComponent = ({
           >
             Submit Answer
           </button>
-          <button
-            onClick={nextQuestion}
-            style={nextButtonStyle}
-            className={styles.submitNextButton}
-          >
-            Next question
-          </button>
+          {(!hostname || hostname === username) && (
+            <button
+              onClick={nextQuestion}
+              style={nextButtonStyle}
+              className={styles.submitNextButton}
+              disabled={!canProgress}
+            >
+              Next question
+            </button>
+          )}
         </>
       )}
     </>
   );
+};
+
+QuestionComponent.defaultProps = {
+  hostname: "",
+  username: "",
+  isLocked: false,
+  canProgress: true
 };
 
 export default QuestionComponent;

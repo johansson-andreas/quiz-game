@@ -73,6 +73,11 @@
   font-size: 20px;
   color: rgb(0, 0, 0);
 }
+.submitNextButton:disabled {
+  color: rgb(66, 66, 66);
+
+
+}
 
 .radioButtonsDiv {
   align-items: flex-start;
