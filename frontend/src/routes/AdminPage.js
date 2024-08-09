@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useTable, usePagination } from "react-table";
 import "./styles/adminPageStyle.css";
+import { UserContext } from "../contexts/UserContext";
+
 
 const AdminPage = () => {
   const [data, setData] = useState([]); // Storing fetched data
   const [loading, setLoading] = useState(true); // Loading Status
   const [error, setError] = useState(null); // Error handling
   const [editingId, setEditingId] = useState(null); // Track the ID of the row being edited
+  const { user, setUser } = useContext(UserContext);
 
+
+  // Lägg till felmeddelande som obehörig 
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -23,6 +28,22 @@ const AdminPage = () => {
 
     fetchData(); // Call fetchData function
   }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/api/question-routes/request-new-questions");
+        setData(response.data); // Store fetched data
+        console.log(response)
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData(); // Call fetchData function
+  }, [user]);
 
   const columns = React.useMemo(
     () => [
