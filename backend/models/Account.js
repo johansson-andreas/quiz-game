@@ -16,6 +16,11 @@ const AccountSchema = new Schema({
     of: categoryStatsSchema,
     default: {}
   },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
+  },
 });
 
 AccountSchema.plugin(passportLocalMongoose);
