@@ -3,7 +3,7 @@ import { Question } from "../models/Question.js";
 import { obfQuestion } from "../routes/questionRouteUtils.js";
 
 export const createNewLobby = (socket, rooms, io) => {
-  const username = socket.request.session.passport.user; 
+  const username = socket.request.session.passport.user;
 
   // Event handler to create a new lobby
   socket.on("createNewLobby", async (newLobbyInfo) => {
@@ -21,6 +21,7 @@ export const createNewLobby = (socket, rooms, io) => {
         questionQueue: [],
         active: false,
         host: username,
+        timer: 0,
       };
 
       newLobby.questionQueue = await getNewQuestionQueue();
@@ -68,47 +69,74 @@ export const createNewLobby = (socket, rooms, io) => {
       chosenWinCon: rooms[lobbyName].chosenWinCon,
       winConNumber: rooms[lobbyName].winConNumber,
       questionTimer: rooms[lobbyName].questionTimer,
-      active:rooms[lobbyName].active,
-      host:rooms[lobbyName].host,
-      currentQuestion:{},
+      active: rooms[lobbyName].active,
+      host: rooms[lobbyName].host,
+      currentQuestion: {},
     });
-
   });
 
-  socket.on("startGame", (lobbyName) => { 
+
+  socket.on("startGame", (lobbyName) => {
     rooms[lobbyName].active = true;
-    console.log('sending ', obfQuestion(rooms[lobbyName].currentQuestion))
+    console.log("sending ", obfQuestion(rooms[lobbyName].currentQuestion));
     io.to(lobbyName).emit("startingGame", {
       currentQuestion: obfQuestion(rooms[lobbyName].currentQuestion),
-      active:rooms[lobbyName].active
-    })
+      active: rooms[lobbyName].active,
+    });
 
+    rooms[lobbyName].timer = new Date(
+      Date.now() + (rooms[lobbyName].questionTimer + 2) * 1000
+    );
     setTimeout(startTimer, rooms[lobbyName].questionTimer * 1000);
-  })
+  });
+
+
   socket.on("submitAnswer", (lobbyInfo) => {
     const submittedAnswer = lobbyInfo.submittedAnswer;
     const lobbyName = lobbyInfo.lobbyName;
-    console.log('received', submittedAnswer, 'from', username)
-    if(submittedAnswer == rooms[lobbyName].currentQuestion.correctAnswer) {
+    console.log("received", submittedAnswer, "from", username);
+    if (
+      checkTimer(rooms[lobbyName].timer) &&
+      submittedAnswer == rooms[lobbyName].currentQuestion.correctAnswer
+    ) {
       rooms[lobbyName].users[username].score += 1;
-      socket.emit('updatedScore', {newUsersInfo: rooms[lobbyName].users})
+      io.to(lobbyName).emit("updatedScore", {
+        newUsersInfo: rooms[lobbyName].users,
+      });
+    } else if (!checkTimer(rooms[lobbyName].timer)) {
+      socket.emit("timedOut");
+    } else {
+      io.to(lobbyName).emit("updatedScore", {
+        newUsersInfo: rooms[lobbyName].users,
+      });
     }
-    else {
-      socket.emit('updatedScore', {newUsersInfo: rooms[lobbyName].users})
-    }
+    socket.emit(
+      "correctAnswer",
+      rooms[lobbyName].currentQuestion.correctAnswer
+    );
+  });
 
-  })
+  
   socket.on("getNextQuestion", async (lobbyName) => {
-    rooms[lobbyName].currentQuestion = await getNewQuestion(rooms[lobbyName].questionQueue)
-    console.log('sending', rooms[lobbyName].currentQuestion)
-    socket.emit("newQuestion", ({newQuestion: obfQuestion(rooms[lobbyName].currentQuestion)}))
+    rooms[lobbyName].currentQuestion = await getNewQuestion(
+      rooms[lobbyName].questionQueue
+    );
+    console.log("sending", rooms[lobbyName].currentQuestion);
+    io.to(lobbyName).emit("newQuestion", {
+      newQuestion: obfQuestion(rooms[lobbyName].currentQuestion),
+    });
+    rooms[lobbyName].timer = new Date(
+      Date.now() + (rooms[lobbyName].questionTimer + 2) * 1000
+    );
+  });
+};
 
-  })
+const checkTimer = (timer) => {
+  return Date.now() < timer;
 };
 
 const startTimer = () => {
-  console.log(new Date().toISOString())
-
+  console.log(new Date().toISOString());
 };
 
 const generateLobbyName = (currentRooms) => {
@@ -129,18 +157,13 @@ const generateLobbyName = (currentRooms) => {
 };
 
 const getNewQuestion = async (questionQueue) => {
-  const randomIndex = Math.floor(
-    Math.random() * questionQueue.length
-  );
+  const randomIndex = Math.floor(Math.random() * questionQueue.length);
   const [newQuestionId] = questionQueue.splice(randomIndex, 1); // Splices a question at randomIndex to randomize the order of the questions provided
 
   try {
     const newQuestion = await Question.findById(newQuestionId).lean();
-    return newQuestion
+    return newQuestion;
   } catch (error) {
-    console.error(
-      `Failed to fetch question by ID ${newQuestionId}:`,
-      error
-    );
+    console.error(`Failed to fetch question by ID ${newQuestionId}:`, error);
   }
-}
+};
