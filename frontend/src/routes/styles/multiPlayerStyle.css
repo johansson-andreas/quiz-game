@@ -1,0 +1,70 @@
+@keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Pulse animation */
+.pulse {
+    animation: pulse 1s ease-in-out;
+  }
+
+.incorrectClass {
+    background-color: red;
+
+}
+.correctClass {
+    background-color: green;
+
+}
+.questionDiv {
+    margin-left: 30%;
+    width: 30%;
+}
+.mpMainDiv
+{
+    display: flex;
+    flex-direction: column;
+}
+.timerProgressBar
+{
+    width: 75%;
+    height: 20px;
+    border-radius: 15px;
+    border: 0;
+}
+
+.questionScoreDiv
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.startGameButton
+{
+    width: 25%;
+
+}
+.mpScoreDiv
+{
+    margin-right:5%;
+    background-color: aliceblue;
+    width: 10%;
+}
+.userEntry
+{
+    display: flex;
+    flex-direction: row;
+
+}
+.userEntry > * 
+{
+    padding: 0.1%;
+    margin-top: 5%;
+}
