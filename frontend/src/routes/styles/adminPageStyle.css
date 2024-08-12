@@ -1,60 +1,69 @@
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: #f5f5f5;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
+.main-div {
+    max-width: 1000px; /* Reduced width for better readability */
+    margin: 40px auto; /* Added more top margin */
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow */
+    border-radius: 10px;
 }
 
 .main-div h1 {
     text-align: center;
     margin: 20px 0;
+    font-size: 24px;
+    color: #2c3e50;
 }
 
-.main-div {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
+/* Table Styles */
 .main-div table {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
-    table-layout: fixed;
+    font-size: 14px;
 }
 
 .main-div th,
 .main-div td {
-    padding: 12px;
+    padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: nowrap;   
 }
 
 .main-div th {
-    background-color: #f4f4f4;
+    background-color: #34495e; /* Darker header background */
+    color: white;
     font-weight: bold;
+    text-transform: uppercase; /* Uppercase for header text */
+    font-size: 13px;
 }
 
 .main-div tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
+.main-div tr:hover {
+    background-color: #f1f1f1; /* Row hover effect */
+}
+
+.main-div td input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Button Styles */
 .main-div button {
     padding: 8px 16px;
     margin-right: 8px;
-    background-color: #007bff;
+    background-color: #3498db;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    white-space: nowrap;
+    transition: background-color 0.3s ease;
 }
 
 .main-div button:last-child {
@@ -62,7 +71,7 @@ body {
 }
 
 .main-div button:hover {
-    background-color: #0056b3;
+    background-color: #2980b9;
 }
 
 .main-div button[disabled] {
@@ -71,38 +80,91 @@ body {
 }
 
 .main-div button.save {
-    background-color: #28a745;
+    background-color: #2ecc71;
 }
 
 .main-div button.save:hover {
-    background-color: #218838;
+    background-color: #27ae60;
 }
 
 .main-div button.delete {
-    background-color: #dc3545;
+    background-color: #e74c3c;
 }
 
 .main-div button.delete:hover {
-    background-color: #c82333;
+    background-color: #c0392b;
 }
 
-.main-div .button-container {
+/* Button Container for Actions */
+.main-div .main-button-container {
     display: flex;
     flex-wrap: nowrap;
-    gap: 8px;
+    gap: 10px;
 }
 
+/* Pagination Styles */
 .main-div .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 .main-div .pagination button {
     margin: 0 5px;
+    background-color: #7f8c8d;
+}
+
+.main-div .pagination button:hover {
+    background-color: #95a5a6;
 }
 
 .main-div .pagination span {
     margin: 0 10px;
+    font-size: 14px;
+    color: #7f8c8d;
+}
+
+/* Additional Styles for a Modern Look */
+.main-div table {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.main-div th,
+.main-div td {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.main-div tr:hover td {
+    background-color: #ecf0f1; /* Subtle row hover color */
+    color: #2c3e50;
+}
+
+.main-div button:active {
+    transform: scale(0.95); /* Button click effect */
+}
+
+.main-div td input:focus {
+    border-color: #3498db; /* Highlight input on focus */
+}
+
+.main-div h1 {
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Scrollbar Styling */
+.main-div table::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main-div table::-webkit-scrollbar-thumb {
+    background-color: #bdc3c7;
+    border-radius: 10px;
+}
+
+.main-div table::-webkit-scrollbar-track {
+    background-color: #ecf0f1;
 }
