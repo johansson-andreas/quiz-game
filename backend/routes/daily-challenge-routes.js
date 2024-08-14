@@ -1,7 +1,7 @@
 import express from 'express';
 import { DailyChallengeQuestions, generateNewQuestions } from '../models/DailyChallengeQuestions.js';
 import { getNewQuestion, obfQuestion, updateDatabaseDailyChallengeScore } from './dailyChallengeRouteUtils.js';
-import { getQuestionCategories } from './questionRouteUtils.js'
+import { getQuestionCategoriesWithCount } from './questionRouteUtils.js'
 import { DailyScore } from '../models/DailyScore.js';
 import Redis from 'ioredis';
 import { Question } from '../models/Question.js';
@@ -63,7 +63,7 @@ router.get('/initial-contact', async (req, res, next) => {
       }
     }
 
-    let categories = await getQuestionCategories();
+    let categories = await getQuestionCategoriesWithCount();
     const initialDataToSend = {
       questionsRemaining: req.session.dailyChallengeData.questionsRemaining,
       todaysScore: req.session.dailyChallengeData.todaysScore,

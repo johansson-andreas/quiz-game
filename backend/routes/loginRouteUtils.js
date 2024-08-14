@@ -1,5 +1,5 @@
 
-import { getNewQuestionQueue, getQuestionCategories } from './questionRouteUtils.js';
+import { getNewQuestionQueue, getQuestionCategoriesWithCount } from './questionRouteUtils.js';
 
 export const createClientData = async (req) => {
   console.log('Creating new client data')
@@ -18,12 +18,10 @@ export const createClientData = async (req) => {
     }
   
     const clientData = session.clientData;
-  
-    getQuestionCategories();
-  
+    
     if (Object.keys(clientData.categories).length === 0) {
   
-      clientData.categories = await getQuestionCategories();
+      clientData.categories = await getQuestionCategoriesWithCount();
 
       clientData.categories.map(category => category.enabled = true)
     }
