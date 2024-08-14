@@ -21,7 +21,7 @@ const MultiPlayer = ({ lobbyName }) => {
     active: false,
     host: "",
     currentQuestion: {},
-    currentChooser: ''
+    currentChooser: "",
   });
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [correctAnswer, setCorrectAnswer] = useState(null);
@@ -100,9 +100,7 @@ const MultiPlayer = ({ lobbyName }) => {
     socket.emit("getNextQuestion", lobbyName);
   };
 
-  useEffect(() => {
-
-  }, [lobbyInfo.currentChooser])
+  useEffect(() => {}, [lobbyInfo.currentChooser]);
 
   useEffect(() => {
     submittedAnswerRef.current = submittedAnswer;
@@ -176,13 +174,13 @@ const MultiPlayer = ({ lobbyName }) => {
     };
 
     const handleCurrentChooser = (currentChooser) => {
-      setLobbyInfo(prevLobbyInfo => {
-          const updatedLobbyInfo = {...prevLobbyInfo};
-          updatedLobbyInfo.currentChooser = currentChooser
-          return updatedLobbyInfo
+      setLobbyInfo((prevLobbyInfo) => {
+        const updatedLobbyInfo = { ...prevLobbyInfo };
+        updatedLobbyInfo.currentChooser = currentChooser;
+        updatedLobbyInfo.active = currentChooser.active;
+        return updatedLobbyInfo;
       });
-
-    }
+    };
 
     socket.on("sendRoomInfo", handleRoomInfo);
     socket.on("currentUsersInRoom", handleCurrentUsers);
@@ -201,7 +199,6 @@ const MultiPlayer = ({ lobbyName }) => {
       socket.off("correctAnswer", handleCorrectAnswer);
       socket.off("winnerDetermined", handleWinnerDetermined);
       socket.off("currentChooser", handleCurrentChooser);
-
     };
   }, []);
 
@@ -279,71 +276,92 @@ const MultiPlayer = ({ lobbyName }) => {
     };
   }, [updateScores]);
 
-  return (
-    <div className="mpMainDiv">
-      <p>Rumsnamn: {lobbyName}</p>
-
-      {/*PRE START OF GAME */}
-      {lobbyInfo.active == false && lobbyInfo.host == user ? (
+  const preGameState = () => {
+    return (
+      lobbyInfo.host == user && (
         <>
-          {" "}
           <button onClick={() => startGame()} className="startGameButton">
             Start
           </button>
         </>
-      ) : (
-        <div className="questionScoreDiv">
-          { /*START OF GAME*/ }
-          <div className="questionDiv">
-            {winners.length > 0 ? (
-              <div>
-                Vinnaren är: 
-                {winners.map((winner) => (
-                  <div>{winner}</div>
-                ))}
-              </div>
-            ) : (
-              <>
-                <QuestionComponent
-                  handleOptionChangeWrapper={handleOptionChange}
-                  answer={answer}
-                  question={currentQuestion}
-                  questionIcons={questionIcons}
-                  activeQuestion={activeQuestion}
-                  nextQuestion={nextQuestion}
-                  submitAnswer={submitAnswer}
-                  submittedAnswer={submittedAnswer}
-                  correctAnswer={correctAnswer}
-                  triggeredOption={triggeredOption}
-                  setTriggeredOption={setTriggeredOption}
-                  hostname={lobbyInfo.host}
-                  username={user}
-                  isLocked={isLocked}
-                  canProgress={canProgress}
-                />
-                <div className="timerProgressBarContainer">
-                  <progress
-                    value={timeLeft}
-                    max={questionTimer}
-                    className="timerProgressBar"
-                  />
-                </div>
-              </>
-            )}
-          </div>
-          <div className="mpScoreDiv">
-            {Object.keys(users).map((user) => (
-              <div
-                key={user}
-                className={`userEntry ${animatedUsers[user] || ""}`}
-              >
-                <div className="usernameEntry">{users[user].username}</div>
-                <div className="scoreEntry">Score: {users[user].score}</div>
-              </div>
+      )
+    );
+  };
+  const winnersState = () => {
+    return (
+      <div className="questionScoreDiv">
+        <div className="questionDiv">
+          <div>
+            Vinnaren är:
+            {winners.map((winner) => (
+              <div>{winner}</div>
             ))}
           </div>
         </div>
-      )}
+      </div>
+    );
+  };
+  const mainGameState = () => {
+    return (
+      <>
+        <div className="questionScoreDiv">
+          <div className="questionDiv">
+            <QuestionComponent
+              handleOptionChangeWrapper={handleOptionChange}
+              answer={answer}
+              question={currentQuestion}
+              questionIcons={questionIcons}
+              activeQuestion={activeQuestion}
+              nextQuestion={nextQuestion}
+              submitAnswer={submitAnswer}
+              submittedAnswer={submittedAnswer}
+              correctAnswer={correctAnswer}
+              triggeredOption={triggeredOption}
+              setTriggeredOption={setTriggeredOption}
+              hostname={lobbyInfo.host}
+              username={user}
+              isLocked={isLocked}
+              canProgress={canProgress}
+            />
+            <div className="timerProgressBarContainer">
+              <progress
+                value={timeLeft}
+                max={questionTimer}
+                className="timerProgressBar"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mpScoreDiv">
+          {Object.keys(users).map((user) => (
+            <div
+              key={user}
+              className={`userEntry ${animatedUsers[user] || ""}`}
+            >
+              <div className="usernameEntry">{users[user].username}</div>
+              <div className="scoreEntry">Score: {users[user].score}</div>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  };
+  const categoryChoosingState = () => {
+    return ( <></> )
+  }
+
+  const renderContent = () => {
+    if (lobbyInfo.active == false) return preGameState();
+    else if (winners.length > 0) return winnersState();
+    else if (lobbyInfo.currentChooser) return categoryChoosingState();
+    else return mainGameState();
+  };
+
+  return (
+    <div className="mpMainDiv">
+      <p>Rumsnamn: {lobbyName}</p>
+
+      {renderContent()}
     </div>
   );
 };
