@@ -150,8 +150,19 @@ const updateCategoryStats = async (userId, category, correctIncrement, totalIncr
   );
 };
 
+export const getAllCategories = async () => {
+  const categories = await Question.aggregate([
+    { $unwind: '$tags' },
+    { $group: { _id: '$tags'}},
+  ]);
+  const categoriesArray = []
+  Object.keys(categories).forEach(category => {
+    categoriesArray.push(categories[category]._id);
+  })
+  return categoriesArray;
+}
 
-export const getQuestionCategories = async () => {
+export const getQuestionCategoriesWithCount = async () => {
 
   const tagsWithCounts = await Question.aggregate([
     { $unwind: '$tags' },

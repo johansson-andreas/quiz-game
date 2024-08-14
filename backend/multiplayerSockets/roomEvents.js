@@ -1,6 +1,7 @@
 import { getNewQuestionQueue } from "../routes/questionRouteUtils.js";
 import { Question } from "../models/Question.js";
-import { obfQuestion } from "../routes/questionRouteUtils.js";
+import { obfQuestion, getAllCategories  } from "../routes/questionRouteUtils.js";
+import { randomizeArrayIndex } from "../utils/generalUtils";
 
 export const createNewLobby = (socket, rooms, io) => {
   const username = socket.request.session.passport.user;
@@ -9,6 +10,7 @@ export const createNewLobby = (socket, rooms, io) => {
   // Event handler to create a new lobby
   socket.on("createNewLobby", async (newLobbyInfo) => {
     const lobbyName = newLobbyInfo.lobbyName || generateLobbyName(rooms);
+    const allCategories = await getAllCategories();
 
     if (!rooms[lobbyName]) {
       const newLobby = {
@@ -24,6 +26,9 @@ export const createNewLobby = (socket, rooms, io) => {
         host: username,
         timer: 0,
         questionAmount: 0,
+        currentChooser: username,
+        cachedCategories: allCategories,
+        categoriesRemaining: allCategories
       };
 
       newLobby.questionQueue = await getNewQuestionQueue();
@@ -52,7 +57,7 @@ export const createNewLobby = (socket, rooms, io) => {
       (rooms[lobbyName].password ? rooms[lobbyName].password == password : true)
     ) {
       if (!rooms[lobbyName].users[username]) {
-        rooms[lobbyName].users[username] = { username: username, score: 0 };
+        rooms[lobbyName].users[username] = { username: username, score: 0, active:true };
       }
       socket.join(lobbyName);
       io.to(lobbyName).emit("currentUsersInRoom", rooms[lobbyName].users);
@@ -80,15 +85,16 @@ export const createNewLobby = (socket, rooms, io) => {
 
   socket.on("startGame", (lobbyName) => {
     rooms[lobbyName].active = true;
+    const currentChooser = {currentChooser: rooms[lobbyName].currentChooser, categoryChoices:getCategoryChoices(rooms[lobbyName])};
+    console.log('current chooser', currentChooser)
+    io.to(lobbyName).emit('currentChooser', currentChooser);
+    /*
     console.log("sending ", obfQuestion(rooms[lobbyName].currentQuestion));
-    io.to(lobbyName).emit("startingGame", {
-      currentQuestion: obfQuestion(rooms[lobbyName].currentQuestion),
-      active: rooms[lobbyName].active,
-    });
-
+    currentQuestion: obfQuestion(rooms[lobbyName].currentQuestion),
+    active: rooms[lobbyName].active,
     rooms[lobbyName].timer = new Date(
       Date.now() + (rooms[lobbyName].questionTimer + delayCompensation) * 1000
-    );
+    ); */
   });
 
   socket.on("submitAnswer", (lobbyInfo) => {
@@ -141,6 +147,18 @@ export const createNewLobby = (socket, rooms, io) => {
 
   });
 };
+const getCategoryChoices = (lobbyInfo) => {
+  const categoryChoices = []
+
+  if (lobbyInfo.categoriesRemaining.length < 3) {
+    lobbyInfo.categoriesRemaining = lobbyInfo.cachedCategories;
+  }
+  for(let i = 0; i < 3; i++)
+    {
+      categoryChoices.push(lobbyInfo.categoriesRemaining.splice(randomizeArrayIndex(lobbyInfo.categoriesRemaining), 1)[0])
+    }
+  return categoryChoices;
+}
 
 const checkTimer = (timer) => {
   return Date.now() < timer;

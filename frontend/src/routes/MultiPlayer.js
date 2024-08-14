@@ -21,6 +21,7 @@ const MultiPlayer = ({ lobbyName }) => {
     active: false,
     host: "",
     currentQuestion: {},
+    currentChooser: ''
   });
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [correctAnswer, setCorrectAnswer] = useState(null);
@@ -100,10 +101,12 @@ const MultiPlayer = ({ lobbyName }) => {
   };
 
   useEffect(() => {
-    submittedAnswerRef.current = submittedAnswer;
-  }, [submittedAnswer]);
+
+  }, [lobbyInfo.currentChooser])
 
   useEffect(() => {
+    submittedAnswerRef.current = submittedAnswer;
+
     if (submittedAnswer) {
       console.log("submitting answer", submittedAnswer);
       socket.emit("submitAnswer", { lobbyName, submittedAnswer });
@@ -142,7 +145,6 @@ const MultiPlayer = ({ lobbyName }) => {
     };
 
     const handleCurrentUsers = (currentUsers) => {
-      console.log(currentUsers);
       setUsers(currentUsers);
     };
 
@@ -173,12 +175,22 @@ const MultiPlayer = ({ lobbyName }) => {
       setWinners(winnerList);
     };
 
+    const handleCurrentChooser = (currentChooser) => {
+      setLobbyInfo(prevLobbyInfo => {
+          const updatedLobbyInfo = {...prevLobbyInfo};
+          updatedLobbyInfo.currentChooser = currentChooser
+          return updatedLobbyInfo
+      });
+
+    }
+
     socket.on("sendRoomInfo", handleRoomInfo);
     socket.on("currentUsersInRoom", handleCurrentUsers);
     socket.on("startingGame", handleStartingGame);
     socket.on("newQuestion", receivedNewQuestion);
     socket.on("correctAnswer", handleCorrectAnswer);
     socket.on("winnerDetermined", handleWinnerDetermined);
+    socket.on("currentChooser", handleCurrentChooser);
 
     return () => {
       socket.emit("leaveRoom");
@@ -188,6 +200,8 @@ const MultiPlayer = ({ lobbyName }) => {
       socket.off("newQuestion", receivedNewQuestion);
       socket.off("correctAnswer", handleCorrectAnswer);
       socket.off("winnerDetermined", handleWinnerDetermined);
+      socket.off("currentChooser", handleCurrentChooser);
+
     };
   }, []);
 
@@ -268,6 +282,8 @@ const MultiPlayer = ({ lobbyName }) => {
   return (
     <div className="mpMainDiv">
       <p>Rumsnamn: {lobbyName}</p>
+
+      {/*PRE START OF GAME */}
       {lobbyInfo.active == false && lobbyInfo.host == user ? (
         <>
           {" "}
@@ -277,6 +293,7 @@ const MultiPlayer = ({ lobbyName }) => {
         </>
       ) : (
         <div className="questionScoreDiv">
+          { /*START OF GAME*/ }
           <div className="questionDiv">
             {winners.length > 0 ? (
               <div>
