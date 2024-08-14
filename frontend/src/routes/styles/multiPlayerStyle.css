@@ -1,28 +1,48 @@
-@keyframes pulse {
+/* Add these to your CSS file */
+
+@keyframes pulseGreen {
     0% {
       transform: scale(1);
+      color: green;
     }
     50% {
       transform: scale(1.1);
+      color: lightgreen;
     }
     100% {
       transform: scale(1);
+      color: green;
     }
   }
-
-  /* Pulse animation */
-.pulse {
-    animation: pulse 1s ease-in-out;
+  
+  @keyframes pulseRed {
+    0% {
+      transform: scale(1);
+      color: red;
+    }
+    50% {
+      transform: scale(1.1);
+      color: lightcoral;
+    }
+    100% {
+      transform: scale(1);
+      color: red;
+    }
   }
-
-.incorrectClass {
-    background-color: red;
-
-}
-.correctClass {
-    background-color: green;
-
-}
+  
+  .userEntry {
+    /* Other styles */
+    transition: color 1s, transform 1s; /* Ensure smooth transitions */
+  }
+  
+  .pulseGreen {
+    animation: pulseGreen 1s ease-in-out;
+  }
+  
+  .pulseRed {
+    animation: pulseRed 1s ease-in-out;
+  }
+  
 .questionDiv {
     margin-left: 30%;
     width: 30%;

@@ -42,10 +42,6 @@ const QuestionComponent = ({
   };
 
   useEffect(() => {
-    console.log("qc", question);
-  }, [question]);
-
-  useEffect(() => {
     if (triggeredOption !== null) {
       const timeout = setTimeout(() => {
         setTriggeredOption(null);

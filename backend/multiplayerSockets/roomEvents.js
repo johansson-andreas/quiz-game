@@ -87,7 +87,6 @@ export const createNewLobby = (socket, rooms, io) => {
     rooms[lobbyName].timer = new Date(
       Date.now() + (rooms[lobbyName].questionTimer + 2) * 1000
     );
-    setTimeout(startTimer, rooms[lobbyName].questionTimer * 1000);
   });
 
 
@@ -105,6 +104,7 @@ export const createNewLobby = (socket, rooms, io) => {
       });
     } else if (!checkTimer(rooms[lobbyName].timer)) {
       socket.emit("timedOut");
+      console.log('timed out answer')
     } else {
       io.to(lobbyName).emit("updatedScore", {
         newUsersInfo: rooms[lobbyName].users,
@@ -116,7 +116,7 @@ export const createNewLobby = (socket, rooms, io) => {
     );
   });
 
-  
+
   socket.on("getNextQuestion", async (lobbyName) => {
     rooms[lobbyName].currentQuestion = await getNewQuestion(
       rooms[lobbyName].questionQueue
@@ -128,10 +128,13 @@ export const createNewLobby = (socket, rooms, io) => {
     rooms[lobbyName].timer = new Date(
       Date.now() + (rooms[lobbyName].questionTimer + 2) * 1000
     );
+    console.log('question cutoff', rooms[lobbyName].timer, ' time now', new Date().toISOString(), "question timer: " , rooms[lobbyName].questionTimer);
   });
 };
 
 const checkTimer = (timer) => {
+
+  console.log('time now', new Date().toISOString());
   return Date.now() < timer;
 };
 

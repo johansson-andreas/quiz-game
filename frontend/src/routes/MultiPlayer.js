@@ -1,11 +1,11 @@
 import socket from "../Socket.js";
-import React from "react";
-import { useState, useEffect, useContext, useRef, useCallback } from "react";
+import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { UserContext } from "../contexts/UserContext.js";
 import QuestionComponent from "../components/QuestionComponent/QuestionComponent.js";
 import "./styles/multiPlayerStyle.css";
 
 const MultiPlayer = ({ lobbyName }) => {
+  // State Variables
   const [users, setUsers] = useState({});
   const [lobbyInfo, setLobbyInfo] = useState({
     users: {},
@@ -16,64 +16,83 @@ const MultiPlayer = ({ lobbyName }) => {
     host: "",
     currentQuestion: {},
   });
-  const { user, setUser } = useContext(UserContext);
   const [currentQuestion, setCurrentQuestion] = useState({});
-  const [questionText, setQuestionText] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const [questionIcons, setQuestionIcons] = useState([]);
-  const [question, setQuestion] = useState({});
-  const [options, setOptions] = useState([]);
   const [answer, setAnswer] = useState("");
   const [submittedAnswer, setSubmittedAnswer] = useState("");
-  const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
   const [activeQuestion, setActive] = useState(true);
-  const [currentQuestionCategories, setCurrentQuestionCategories] = useState(
-    []
-  );
-  const [newQuestionCategories, setNewQuestionCategories] = useState([]);
-  const [scoreArray, setScoreArray] = useState({});
-  const [questionTags, setQuestionTags] = useState([]);
-  const [catCanvasShow, setCatCanvasShow] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
   const [triggeredOption, setTriggeredOption] = useState(null);
-  const lobbyInfoRef = useRef(lobbyInfo);
-  const [timerStarted, setTimerStarted] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const [canProgress, setCanProgress] = useState(false);
+  const [questionTimer, setQuestionTimer] = useState(15);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [animatedUsers, setAnimatedUsers] = useState({});
+  const [timeLeft, setTimeLeft] = useState(15);
 
-  const [questionTimer, setQuestionTimer] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(0);
+  // Refs
+  const lobbyInfoRef = useRef(lobbyInfo);
+  const rafRef = useRef(null);
+  const startTimeRef = useRef(null);
+  const answerRef = useRef(answer);
+  const submittedAnswerRef = useRef(submittedAnswer);
+
+  // Context
+  const { user } = useContext(UserContext);
+
 
   const startGame = () => {
     socket.emit("startGame", lobbyName);
-    console.log(new Date().toISOString());
   };
 
   const timerFinished = () => {
-    if (!submittedAnswer) {
-      if (answer) setSubmittedAnswer(answer);
+    const currentSubmittedAnswer = submittedAnswerRef.current;
+    const currentAnswer = answerRef.current;
+
+    console.log("submittedAnswer on timerFinished", currentSubmittedAnswer, "answer:", currentAnswer);
+
+    if (!currentSubmittedAnswer) {
+      if (currentAnswer) setSubmittedAnswer(currentAnswer);
       else setSubmittedAnswer("pass");
       setIsLocked(true);
     }
     setCanProgress(true);
+    setTimerRunning(false);
   };
-  useEffect(() => {
-    if (!timeLeft) return;
-    const intervalId = setInterval(() => {
-      if (timeLeft < 0) {
-        clearInterval(intervalId);
-        timerFinished();
-        return;
-      } else setTimeLeft((prevTimeLeft) => prevTimeLeft - 0.001);
-    }, 1);
 
-    return () => clearInterval(intervalId);
-  }, [timeLeft]);
+
+  const updateTimer = (timestamp) => {
+    if (!startTimeRef.current) {
+      startTimeRef.current = timestamp;
+      rafRef.current = requestAnimationFrame(updateTimer);
+      return;
+    }
+
+    const elapsed = timestamp - startTimeRef.current;
+    startTimeRef.current = timestamp;
+
+    const decrement = elapsed / 1000; // Convert milliseconds to seconds
+    setTimeLeft((prevTimeLeft) => {
+      const newTimeLeft = Math.max(prevTimeLeft - decrement, 0);
+      if (newTimeLeft <= 0) {
+        cancelAnimationFrame(rafRef.current);
+        timerFinished();
+      }
+      return newTimeLeft;
+    });
+
+    rafRef.current = requestAnimationFrame(updateTimer);
+  };
 
   const nextQuestion = () => {
     console.log("next question");
     socket.emit("getNextQuestion", lobbyName);
   };
+
+
+  useEffect(() => {
+    submittedAnswerRef.current = submittedAnswer;
+  }, [submittedAnswer]);
 
   useEffect(() => {
     if (submittedAnswer) {
@@ -84,27 +103,30 @@ const MultiPlayer = ({ lobbyName }) => {
     }
   }, [submittedAnswer]);
 
+  useEffect(() => {
+    answerRef.current = answer;
+  }, [answer]);
+
+
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
   };
 
   useEffect(() => {
     console.log("new lobby info", lobbyInfo);
-
     lobbyInfoRef.current = lobbyInfo;
     setCurrentQuestion(lobbyInfo.currentQuestion);
   }, [lobbyInfo]);
 
-  useEffect(() => {
-    console.log("users object", users);
-  }, [users]);
+  useEffect(() => {}, [users]);
+
   const handleOptionChange = (e) => {
     setAnswer(e.target.value);
   };
 
+  //Socket.on handlers
   useEffect(() => {
     socket.emit("getRoomInfo", lobbyName);
-    console.log("Requesting room info");
 
     const handleRoomInfo = (lobbyInfo) => {
       setLobbyInfo(lobbyInfo);
@@ -112,6 +134,7 @@ const MultiPlayer = ({ lobbyName }) => {
     };
 
     const handleCurrentUsers = (currentUsers) => {
+      console.log(currentUsers);
       setUsers(currentUsers);
     };
 
@@ -123,20 +146,16 @@ const MultiPlayer = ({ lobbyName }) => {
         return newLobbyInfo;
       });
       setQuestionTimer(lobbyInfoRef.current.questionTimer);
-      setTimeLeft(lobbyInfoRef.current.questionTimer);
-      setTimerStarted(true);
+      setTimerRunning(true);
     };
 
     const receivedNewQuestion = (newQuestion) => {
-      console.log("received new question", newQuestion.newQuestion);
-      console.log("reseting timer", lobbyInfoRef.current.questionTimer);
       setCurrentQuestion(newQuestion.newQuestion);
       setIsLocked(false);
-      setTimeLeft(lobbyInfoRef.current.questionTimer);
-      setTimerStarted(true);
       setActive(true);
       setCanProgress(false);
       setSubmittedAnswer("");
+      setTimerRunning(true);
     };
     const handleCorrectAnswer = (correctAnswer) => {
       setCorrectAnswer(correctAnswer);
@@ -160,14 +179,24 @@ const MultiPlayer = ({ lobbyName }) => {
   }, []);
 
   const flashRed = (username) => {
-    
-
-  }
+    setAnimatedUsers((prev) => ({ ...prev, [username]: "pulseRed" }));
+    setTimeout(() => {
+      setAnimatedUsers((prev) => {
+        const { [username]: _, ...rest } = prev;
+        return rest;
+      });
+    }, 1000); // Animation duration
+  };
 
   const flashGreen = (username) => {
-
-    
-  }
+    setAnimatedUsers((prev) => ({ ...prev, [username]: "pulseGreen" }));
+    setTimeout(() => {
+      setAnimatedUsers((prev) => {
+        const { [username]: _, ...rest } = prev;
+        return rest;
+      });
+    }, 1000); // Animation duration
+  };
 
   const updateScores = useCallback(
     (newUsersInfo) => {
@@ -175,21 +204,43 @@ const MultiPlayer = ({ lobbyName }) => {
         console.error("Users data is undefined or null");
         return;
       }
-      const comparisons = [];
+
       for (const key in newUsersInfo.newUsersInfo) {
         if (users[key]) {
           const score1 = newUsersInfo.newUsersInfo[key].score;
           const score2 = users[key].score;
-          if (score1 === score2) flashRed(key);
-          else flashGreen(key);
+          if (score1 === score2) {
+            //TODO: HANDLE INCORRECT ANSWEER?
+            //flashRed(key);
+          } else flashGreen(key);
         }
       }
 
-      console.log("comp", comparisons);
       setUsers(newUsersInfo.newUsersInfo);
     },
     [users]
   );
+
+
+  const startTimer = useCallback(() => {
+    setTimeLeft(questionTimer);
+    startTimeRef.current = null;
+    rafRef.current = requestAnimationFrame(updateTimer);
+  }, [questionTimer, updateTimer]);
+
+  useEffect(() => {
+    if (timerRunning) {
+      startTimer();
+    }
+
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    }
+
+  }, [timerRunning]);
+
   useEffect(() => {
     const handleUpdatedScores = (newUsersInfo) => {
       console.log("Handling updated scores");
@@ -233,23 +284,24 @@ const MultiPlayer = ({ lobbyName }) => {
               isLocked={isLocked}
               canProgress={canProgress}
             />
-            <progress
-              value={timeLeft / questionTimer}
-              className="timerProgressBar"
-            />
+            <div className="timerProgressBarContainer">
+              <progress
+                value={timeLeft}
+                max={questionTimer}
+                className="timerProgressBar"
+              />
+            </div>
           </div>
-
           <div className="mpScoreDiv">
-            {users ? (
-              Object.keys(users).map((user) => (
-                <div key={user} className="userEntry">
-                  <div className="usernameEntry">{users[user].username}</div>
-                  <div className="scoreEntry">Score: {users[user].score}</div>
-                </div>
-              ))
-            ) : (
-              <div></div>
-            )}
+            {Object.keys(users).map((user) => (
+              <div
+                key={user}
+                className={`userEntry ${animatedUsers[user] || ""}`}
+              >
+                <div className="usernameEntry">{users[user].username}</div>
+                <div className="scoreEntry">Score: {users[user].score}</div>
+              </div>
+            ))}
           </div>
         </div>
       )}
