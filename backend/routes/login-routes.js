@@ -27,7 +27,7 @@ router.post('/login', (req, res, next) => {
       if (err) {
         return next(err); // Forward any error to the error handler
       }
-      return res.json({ message: 'Authentication succeeded', username: req.user.username });
+      return res.json({ message: 'Authentication succeeded', username: req.user.username,  role: req.user.role});
     });
     
   })(req, res, next);
@@ -59,7 +59,7 @@ router.get('/ping', (req, res) => {
 });
 
 router.get('/get-username', (req, res) => {
-  if(req.user) res.json({ username: req.user.username });
+  if(req.user) res.json({ username: req.user.username, role:req.user.role });
   else res.json({ message: "Not logged in" })
 });
 

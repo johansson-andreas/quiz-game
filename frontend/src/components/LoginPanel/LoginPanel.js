@@ -10,7 +10,7 @@ const LoginPanel = ({ togglePanelVisibility }) => {
   const [chosenAccountname, setChosenAccountname] = useState(['']);
   const [chosenPassword, setChosenPassword] = useState(['']);
 
-  const { setUser } = useContext(UserContext);
+  const { setUser, setRole } = useContext(UserContext);
   const [loginMessage, setLoginMessage] = useState('');
 
 
@@ -19,6 +19,7 @@ const LoginPanel = ({ togglePanelVisibility }) => {
       const response = await axios.post('/api/login-routes/register', { username: chosenAccountname, password: chosenPassword });
       console.log('Registration successful:', response.data);
       setUser(response.data.username);
+      setRole(response.data.role);
       togglePanelVisibility();
     } catch (error) {
       if (error.response) {
@@ -41,6 +42,8 @@ const LoginPanel = ({ togglePanelVisibility }) => {
       const response = await axios.post('/api/login-routes/login', { username: chosenAccountname, password: chosenPassword });
       console.log('Login successful:', response.data);
       setUser(response.data.username);
+      setRole(response.data.role);
+
       togglePanelVisibility();
     } catch (error) {
       if (error.response) {
