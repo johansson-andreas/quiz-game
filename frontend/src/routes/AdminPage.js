@@ -54,7 +54,7 @@ const AdminPage = () => {
       { Header: "ID", accessor: "_id" },
       { Header: "Text", accessor: "text" },
       { Header: "Correct Answer", accessor: "correctAnswer" },
-      { Header: "Incorrect Answers", accessor: "incorrectAnswers" },
+      { Header: "Incorrect Answers", accessor: "incorrectAnswers", Cell: ({ value }) => value.join(", ")},
       { Header: "Tags", accessor: "tags" },
       { Header: "Actions", accessor: "actions" },
     ],
