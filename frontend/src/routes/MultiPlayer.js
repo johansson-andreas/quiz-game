@@ -1,5 +1,11 @@
 import socket from "../Socket.js";
-import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+} from "react";
 import { UserContext } from "../contexts/UserContext.js";
 import QuestionComponent from "../components/QuestionComponent/QuestionComponent.js";
 import "./styles/multiPlayerStyle.css";
@@ -29,6 +35,7 @@ const MultiPlayer = ({ lobbyName }) => {
   const [timerRunning, setTimerRunning] = useState(false);
   const [animatedUsers, setAnimatedUsers] = useState({});
   const [timeLeft, setTimeLeft] = useState(15);
+  const [winners, setWinners] = useState([]);
 
   // Refs
   const lobbyInfoRef = useRef(lobbyInfo);
@@ -40,7 +47,6 @@ const MultiPlayer = ({ lobbyName }) => {
   // Context
   const { user } = useContext(UserContext);
 
-
   const startGame = () => {
     socket.emit("startGame", lobbyName);
   };
@@ -49,17 +55,21 @@ const MultiPlayer = ({ lobbyName }) => {
     const currentSubmittedAnswer = submittedAnswerRef.current;
     const currentAnswer = answerRef.current;
 
-    console.log("submittedAnswer on timerFinished", currentSubmittedAnswer, "answer:", currentAnswer);
+    console.log(
+      "submittedAnswer on timerFinished",
+      currentSubmittedAnswer,
+      "answer:",
+      currentAnswer
+    );
 
     if (!currentSubmittedAnswer) {
       if (currentAnswer) setSubmittedAnswer(currentAnswer);
       else setSubmittedAnswer("pass");
       setIsLocked(true);
     }
-    setCanProgress(true);
+    setTimeout(() => setCanProgress(true), 1000);
     setTimerRunning(false);
   };
-
 
   const updateTimer = (timestamp) => {
     if (!startTimeRef.current) {
@@ -89,7 +99,6 @@ const MultiPlayer = ({ lobbyName }) => {
     socket.emit("getNextQuestion", lobbyName);
   };
 
-
   useEffect(() => {
     submittedAnswerRef.current = submittedAnswer;
   }, [submittedAnswer]);
@@ -106,7 +115,6 @@ const MultiPlayer = ({ lobbyName }) => {
   useEffect(() => {
     answerRef.current = answer;
   }, [answer]);
-
 
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
@@ -161,12 +169,16 @@ const MultiPlayer = ({ lobbyName }) => {
       setCorrectAnswer(correctAnswer);
       setTriggeredOption(correctAnswer);
     };
+    const handleWinnerDetermined = (winnerList) => {
+      setWinners(winnerList);
+    };
 
     socket.on("sendRoomInfo", handleRoomInfo);
     socket.on("currentUsersInRoom", handleCurrentUsers);
     socket.on("startingGame", handleStartingGame);
     socket.on("newQuestion", receivedNewQuestion);
     socket.on("correctAnswer", handleCorrectAnswer);
+    socket.on("winnerDetermined", handleWinnerDetermined);
 
     return () => {
       socket.emit("leaveRoom");
@@ -175,6 +187,7 @@ const MultiPlayer = ({ lobbyName }) => {
       socket.off("startingGame", handleStartingGame);
       socket.off("newQuestion", receivedNewQuestion);
       socket.off("correctAnswer", handleCorrectAnswer);
+      socket.off("winnerDetermined", handleWinnerDetermined);
     };
   }, []);
 
@@ -185,7 +198,7 @@ const MultiPlayer = ({ lobbyName }) => {
         const { [username]: _, ...rest } = prev;
         return rest;
       });
-    }, 1000); // Animation duration
+    }, 1000); // Animation duration (milliseconds)
   };
 
   const flashGreen = (username) => {
@@ -195,7 +208,7 @@ const MultiPlayer = ({ lobbyName }) => {
         const { [username]: _, ...rest } = prev;
         return rest;
       });
-    }, 1000); // Animation duration
+    }, 1000); // Animation duration (milliseconds)
   };
 
   const updateScores = useCallback(
@@ -221,7 +234,6 @@ const MultiPlayer = ({ lobbyName }) => {
     [users]
   );
 
-
   const startTimer = useCallback(() => {
     setTimeLeft(questionTimer);
     startTimeRef.current = null;
@@ -237,8 +249,7 @@ const MultiPlayer = ({ lobbyName }) => {
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
       }
-    }
-
+    };
   }, [timerRunning]);
 
   useEffect(() => {
@@ -267,30 +278,41 @@ const MultiPlayer = ({ lobbyName }) => {
       ) : (
         <div className="questionScoreDiv">
           <div className="questionDiv">
-            <QuestionComponent
-              handleOptionChangeWrapper={handleOptionChange}
-              answer={answer}
-              question={currentQuestion}
-              questionIcons={questionIcons}
-              activeQuestion={activeQuestion}
-              nextQuestion={nextQuestion}
-              submitAnswer={submitAnswer}
-              submittedAnswer={submittedAnswer}
-              correctAnswer={correctAnswer}
-              triggeredOption={triggeredOption}
-              setTriggeredOption={setTriggeredOption}
-              hostname={lobbyInfo.host}
-              username={user}
-              isLocked={isLocked}
-              canProgress={canProgress}
-            />
-            <div className="timerProgressBarContainer">
-              <progress
-                value={timeLeft}
-                max={questionTimer}
-                className="timerProgressBar"
-              />
-            </div>
+            {winners.length > 0 ? (
+              <div>
+                Vinnaren är: 
+                {winners.map((winner) => (
+                  <div>{winner}</div>
+                ))}
+              </div>
+            ) : (
+              <>
+                <QuestionComponent
+                  handleOptionChangeWrapper={handleOptionChange}
+                  answer={answer}
+                  question={currentQuestion}
+                  questionIcons={questionIcons}
+                  activeQuestion={activeQuestion}
+                  nextQuestion={nextQuestion}
+                  submitAnswer={submitAnswer}
+                  submittedAnswer={submittedAnswer}
+                  correctAnswer={correctAnswer}
+                  triggeredOption={triggeredOption}
+                  setTriggeredOption={setTriggeredOption}
+                  hostname={lobbyInfo.host}
+                  username={user}
+                  isLocked={isLocked}
+                  canProgress={canProgress}
+                />
+                <div className="timerProgressBarContainer">
+                  <progress
+                    value={timeLeft}
+                    max={questionTimer}
+                    className="timerProgressBar"
+                  />
+                </div>
+              </>
+            )}
           </div>
           <div className="mpScoreDiv">
             {Object.keys(users).map((user) => (

@@ -14,12 +14,20 @@ const HeaderPanel = ({ togglePanelVisibility }) => {
   const handleNavigateProfile = () => {
     navigate('/profile');
   };
+  
+  const handleNavigateAdmin = () => {
+    navigate('/admin');
+  }
 
-  const { user, setUser } = useContext(UserContext);
+  const [adminUser, setAdminUser] = useState(false);
+
+  const { user, setUser, role, setRole } = useContext(UserContext);
   let loggedIn = false;
 
   useEffect(() => {
     (user) ? loggedIn = true : loggedIn = false;
+    (role) == "admin" ? setAdminUser(true) : setAdminUser(false)
+    console.log(role)
   }, [user]);
 
   const logoutUser = async () => {
@@ -60,6 +68,11 @@ const HeaderPanel = ({ togglePanelVisibility }) => {
             Logga in
         </div>
         <div style={loggedInActive} className={styles.loggedIn}>
+          {adminUser && 
+            <div className={styles.adminDiv} onClick={handleNavigateAdmin}>
+              Admin sida
+            </div>
+          }
           <div className={styles.usernameDiv} onClick={handleNavigateProfile}>
             {user}
           </div> 

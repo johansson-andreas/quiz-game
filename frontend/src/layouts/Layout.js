@@ -7,7 +7,7 @@ import LoginPanel from '../components/LoginPanel/LoginPanel.js';
 import { UserContext } from '../contexts/UserContext.js';
 
 const Layout = () => {
-  const { setUser } = useContext(UserContext);
+  const { setUser, setRole } = useContext(UserContext);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -15,6 +15,8 @@ const Layout = () => {
         const response = await axios.get('/api/login-routes/get-username'); 
         if (response.data.username) {
           setUser(response.data.username);
+          setRole(response.data.role);
+
           console.log("Setting user to", response.data.username)
         }
         else

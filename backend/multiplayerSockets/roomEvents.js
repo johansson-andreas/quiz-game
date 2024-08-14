@@ -4,6 +4,7 @@ import { obfQuestion } from "../routes/questionRouteUtils.js";
 
 export const createNewLobby = (socket, rooms, io) => {
   const username = socket.request.session.passport.user;
+  const delayCompensation = 0.4; // in seconds
 
   // Event handler to create a new lobby
   socket.on("createNewLobby", async (newLobbyInfo) => {
@@ -22,11 +23,13 @@ export const createNewLobby = (socket, rooms, io) => {
         active: false,
         host: username,
         timer: 0,
+        questionAmount: 0,
       };
 
       newLobby.questionQueue = await getNewQuestionQueue();
 
       newLobby.currentQuestion = await getNewQuestion(newLobby.questionQueue);
+      newLobby.questionAmount++;
 
       rooms[lobbyName] = newLobby;
       console.log("Creating new room", newLobby.lobbyName);
@@ -75,7 +78,6 @@ export const createNewLobby = (socket, rooms, io) => {
     });
   });
 
-
   socket.on("startGame", (lobbyName) => {
     rooms[lobbyName].active = true;
     console.log("sending ", obfQuestion(rooms[lobbyName].currentQuestion));
@@ -85,10 +87,9 @@ export const createNewLobby = (socket, rooms, io) => {
     });
 
     rooms[lobbyName].timer = new Date(
-      Date.now() + (rooms[lobbyName].questionTimer + 2) * 1000
+      Date.now() + (rooms[lobbyName].questionTimer + delayCompensation) * 1000
     );
   });
-
 
   socket.on("submitAnswer", (lobbyInfo) => {
     const submittedAnswer = lobbyInfo.submittedAnswer;
@@ -104,7 +105,7 @@ export const createNewLobby = (socket, rooms, io) => {
       });
     } else if (!checkTimer(rooms[lobbyName].timer)) {
       socket.emit("timedOut");
-      console.log('timed out answer')
+      console.log("timed out answer");
     } else {
       io.to(lobbyName).emit("updatedScore", {
         newUsersInfo: rooms[lobbyName].users,
@@ -116,7 +117,6 @@ export const createNewLobby = (socket, rooms, io) => {
     );
   });
 
-
   socket.on("getNextQuestion", async (lobbyName) => {
     rooms[lobbyName].currentQuestion = await getNewQuestion(
       rooms[lobbyName].questionQueue
@@ -125,21 +125,40 @@ export const createNewLobby = (socket, rooms, io) => {
     io.to(lobbyName).emit("newQuestion", {
       newQuestion: obfQuestion(rooms[lobbyName].currentQuestion),
     });
+    rooms[lobbyName].questionAmount++;
+
     rooms[lobbyName].timer = new Date(
-      Date.now() + (rooms[lobbyName].questionTimer + 2) * 1000
+      Date.now() + (rooms[lobbyName].questionTimer + delayCompensation) * 1000
     );
-    console.log('question cutoff', rooms[lobbyName].timer, ' time now', new Date().toISOString(), "question timer: " , rooms[lobbyName].questionTimer);
+    setTimeout(() => {
+      const winConResult = checkWinCon(rooms[lobbyName])
+      if (winConResult.length > 0) {
+        socket.emit('winnerDetermined', winConResult)
+      }
+      },
+      (rooms[lobbyName].questionTimer + delayCompensation) * 1000
+    );
+
   });
 };
 
 const checkTimer = (timer) => {
-
-  console.log('time now', new Date().toISOString());
   return Date.now() < timer;
 };
+const checkWinCon = (lobbyInfo) => {
+  const chosenWinCon = lobbyInfo.chosenWinCon;
+  const winConNumber = lobbyInfo.winConNumber;
+  const usersData = lobbyInfo.users;
+  let winners = [];
+  console.log(usersData);
+  if (chosenWinCon === "correctCon") {
+    winners = Object.keys(usersData).filter((userData) => {
+      return usersData[userData].score >= winConNumber;
+    });
+  } else {
 
-const startTimer = () => {
-  console.log(new Date().toISOString());
+  }
+  return winners;
 };
 
 const generateLobbyName = (currentRooms) => {

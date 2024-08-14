@@ -41,3 +41,15 @@
     background-color: aliceblue;
     cursor: pointer;
 }
+.adminDiv {
+    border-left: 1px solid black;
+    display: inline-flex;
+    align-items: center;
+    background-color: rgb(160, 179, 179);
+    padding: 0px 10px 0px 10px;
+
+}
+.adminDiv:hover {
+    background-color: aliceblue;
+    cursor: pointer;
+}
