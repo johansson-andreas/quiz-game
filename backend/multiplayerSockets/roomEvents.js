@@ -85,7 +85,7 @@ export const createNewLobby = (socket, rooms, io) => {
 
   socket.on("startGame", (lobbyName) => {
     rooms[lobbyName].active = true;
-    const currentChooser = {currentChooser: rooms[lobbyName].currentChooser, categoryChoices:getCategoryChoices(rooms[lobbyName])};
+    const currentChooser = {currentChooser: rooms[lobbyName].currentChooser, categoryChoices:getCategoryChoices(rooms[lobbyName]), active: rooms[lobbyName].active};
     console.log('current chooser', currentChooser)
     io.to(lobbyName).emit('currentChooser', currentChooser);
     /*
