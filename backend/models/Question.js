@@ -14,3 +14,17 @@ const questionSchema = new Schema({
 export const Question = mongoose.model('Question', questionSchema);
 
 
+export const getRandomQuestionByTag = async (tag) => {
+  try {
+    const result = await Question.aggregate([
+      { $match: { tags: tag } }, // Match documents where category array contains the value
+      { $sample: { size: 1 } } // Randomly sample 1 document
+    ]);
+
+    // If a document is found, return it, otherwise return null
+    return result.length > 0 ? result[0] : null;
+  } catch (error) {
+    console.error('Error getting random document:', error);
+    return null;
+  }
+};
