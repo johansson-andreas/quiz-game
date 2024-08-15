@@ -51,6 +51,7 @@
 {
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 .timerProgressBar
 {
@@ -87,4 +88,40 @@
 {
     padding: 0.1%;
     margin-top: 5%;
+}
+
+.categoryChoice 
+{
+  width: 200px;
+  height: 200px;
+  background-color: aliceblue;
+  text-align: center;
+  align-content: center;
+  border-radius: 15px;
+  border: 1px solid black;
+  user-select: none;
+}
+.categoryChoice:hover{
+  background-color: rebeccapurple;
+
+}
+.categoryChoicesDiv
+{
+  display: flex;
+  margin: auto;
+  flex-direction: row;
+
+}
+.categoryChoicesDiv > * 
+{
+  margin: 1%;
+
+}
+.inactive > *{
+  background-color: rgba(163, 163, 163, 0.726);
+  color: rgba(61, 61, 61, 0.63);
+  border: 1px solid rgba(44, 44, 44, 0.548);
+}
+.inactive > *:hover{
+  background-color: rgba(163, 163, 163, 0.726);
 }

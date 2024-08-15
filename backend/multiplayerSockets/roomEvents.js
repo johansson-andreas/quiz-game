@@ -1,13 +1,18 @@
 import { getNewQuestionQueue } from "../routes/questionRouteUtils.js";
-import { Question } from "../models/Question.js";
-import { obfQuestion, getAllCategories  } from "../routes/questionRouteUtils.js";
-import { randomizeArrayIndex } from "../utils/generalUtils";
+import { obfQuestion, getAllCategories } from "../routes/questionRouteUtils.js";
+import {
+  getCategoryChoices,
+  checkWinCon,
+  checkTimer,
+  getNewQuestion,
+  generateLobbyName,
+  getNextQuestion,
+  getRandomChooser
+} from "./socketUtils.js";
 
-export const createNewLobby = (socket, rooms, io) => {
+export const roomEvents = (socket, rooms, io) => {
   const username = socket.request.session.passport.user;
-  const delayCompensation = 0.4; // in seconds
 
-  // Event handler to create a new lobby
   socket.on("createNewLobby", async (newLobbyInfo) => {
     const lobbyName = newLobbyInfo.lobbyName || generateLobbyName(rooms);
     const allCategories = await getAllCategories();
@@ -19,16 +24,17 @@ export const createNewLobby = (socket, rooms, io) => {
         winConNumber: newLobbyInfo.winConNumber,
         password: newLobbyInfo.password,
         questionTimer: newLobbyInfo.questionTimer,
-        users: {}, // Initialize users as an object
+        users: {}, 
         currentQuestion: {},
         questionQueue: [],
         active: false,
         host: username,
         timer: 0,
         questionAmount: 0,
-        currentChooser: username,
-        cachedCategories: allCategories,
-        categoriesRemaining: allCategories
+        currentChooser: {},
+        cachedCategories: [...allCategories],  // Single shallow copy
+        categoriesRemaining: allCategories,    // Original array (slightly more efficient than creating two shallow copies)
+        currentCategories: [],
       };
 
       newLobby.questionQueue = await getNewQuestionQueue();
@@ -38,7 +44,6 @@ export const createNewLobby = (socket, rooms, io) => {
 
       rooms[lobbyName] = newLobby;
       console.log("Creating new room", newLobby.lobbyName);
-      console.log("listOfCurrentRooms", Object.keys(rooms));
       socket.emit("createdNewLobby", { newLobby });
     } else {
       socket.emit("createdNewLobby", "A lobby with that name already exists");
@@ -46,32 +51,36 @@ export const createNewLobby = (socket, rooms, io) => {
     }
   });
 
-  socket.on("joinLobby", (joinLobbyInfo) => {
-    console.log("current rooms", Object.keys(rooms));
-    const lobbyName = joinLobbyInfo.lobbyName;
-    const password = joinLobbyInfo.joinLobbyPassword;
-    console.log(username, "is trying to join lobby", lobbyName);
 
-    if (
-      rooms[lobbyName] &&
-      (rooms[lobbyName].password ? rooms[lobbyName].password == password : true)
-    ) {
-      if (!rooms[lobbyName].users[username]) {
-        rooms[lobbyName].users[username] = { username: username, score: 0, active:true };
-      }
-      socket.join(lobbyName);
-      io.to(lobbyName).emit("currentUsersInRoom", rooms[lobbyName].users);
-      socket.emit("lobbyJoinTry", lobbyName);
-      console.log("sending", rooms[lobbyName].users, "to:", lobbyName);
-      console.log("managed to join", lobbyName, "with password", password);
-    } else {
-      console.log(
-        "Found no lobby with that name or incorrect password for that lobby"
-      );
+socket.on("joinLobby", (joinLobbyInfo) => {
+  const lobbyName = joinLobbyInfo.lobbyName;
+  const password = joinLobbyInfo.joinLobbyPassword;
+  console.log(username, "is trying to join lobby", lobbyName);
+
+  if (
+    rooms[lobbyName] &&
+    (rooms[lobbyName].password ? rooms[lobbyName].password == password : true)
+  ) {
+    if (!rooms[lobbyName].users[username]) {
+      rooms[lobbyName].users[username] = {
+        username: username,
+        score: 0,
+        active: true,
+      };
     }
-  });
+    socket.join(lobbyName);
+    io.to(lobbyName).emit("currentUsersInRoom", rooms[lobbyName].users);
+    socket.emit("lobbyJoinTry", lobbyName);
+    console.log("managed to join", lobbyName, "with password", password);
+  } else {
+    console.log(
+      "Found no lobby with that name or incorrect password for that lobby"
+    );
+  }
+});
 
-  socket.on("getRoomInfo", (lobbyName) => {
+socket.on("getRoomInfo", (lobbyName) => {
+  if (rooms[lobbyName]) {
     socket.emit("sendRoomInfo", {
       users: rooms[lobbyName].users,
       chosenWinCon: rooms[lobbyName].chosenWinCon,
@@ -80,130 +89,61 @@ export const createNewLobby = (socket, rooms, io) => {
       active: rooms[lobbyName].active,
       host: rooms[lobbyName].host,
       currentQuestion: {},
+      currentChooser: rooms[lobbyName].currentChooser,
     });
-  });
+  }
+});
 
-  socket.on("startGame", (lobbyName) => {
-    rooms[lobbyName].active = true;
-    const currentChooser = {currentChooser: rooms[lobbyName].currentChooser, categoryChoices:getCategoryChoices(rooms[lobbyName]), active: rooms[lobbyName].active};
-    console.log('current chooser', currentChooser)
-    io.to(lobbyName).emit('currentChooser', currentChooser);
-    /*
-    console.log("sending ", obfQuestion(rooms[lobbyName].currentQuestion));
-    currentQuestion: obfQuestion(rooms[lobbyName].currentQuestion),
+socket.on("startGame", (lobbyName) => {
+  rooms[lobbyName].active = true;
+  rooms[lobbyName].currentChooser = {
+    currentChooser: getRandomChooser(Object.keys(rooms[lobbyName].users)),
+    categoryChoices: getCategoryChoices(rooms[lobbyName]),
     active: rooms[lobbyName].active,
-    rooms[lobbyName].timer = new Date(
-      Date.now() + (rooms[lobbyName].questionTimer + delayCompensation) * 1000
-    ); */
-  });
+  };
+  console.log('start game chooser', rooms[lobbyName].currentChooser)
+  io.to(lobbyName).emit("currentChooser", rooms[lobbyName].currentChooser);
+});
 
-  socket.on("submitAnswer", (lobbyInfo) => {
-    const submittedAnswer = lobbyInfo.submittedAnswer;
-    const lobbyName = lobbyInfo.lobbyName;
-    console.log("received", submittedAnswer, "from", username);
-    if (
-      checkTimer(rooms[lobbyName].timer) &&
-      submittedAnswer == rooms[lobbyName].currentQuestion.correctAnswer
-    ) {
-      rooms[lobbyName].users[username].score += 1;
-      io.to(lobbyName).emit("updatedScore", {
-        newUsersInfo: rooms[lobbyName].users,
-      });
-    } else if (!checkTimer(rooms[lobbyName].timer)) {
-      socket.emit("timedOut");
-      console.log("timed out answer");
-    } else {
-      io.to(lobbyName).emit("updatedScore", {
-        newUsersInfo: rooms[lobbyName].users,
-      });
-    }
-    socket.emit(
-      "correctAnswer",
-      rooms[lobbyName].currentQuestion.correctAnswer
-    );
-  });
-
-  socket.on("getNextQuestion", async (lobbyName) => {
-    rooms[lobbyName].currentQuestion = await getNewQuestion(
-      rooms[lobbyName].questionQueue
-    );
-    console.log("sending", rooms[lobbyName].currentQuestion);
-    io.to(lobbyName).emit("newQuestion", {
-      newQuestion: obfQuestion(rooms[lobbyName].currentQuestion),
+socket.on("submitAnswer", (lobbyInfo) => {
+  const submittedAnswer = lobbyInfo.submittedAnswer;
+  const lobbyName = lobbyInfo.lobbyName;
+  console.log("received", submittedAnswer, "from", username);
+  if (
+    checkTimer(rooms[lobbyName].timer) &&
+    submittedAnswer == rooms[lobbyName].currentQuestion.correctAnswer
+  ) {
+    rooms[lobbyName].users[username].score += 1;
+    io.to(lobbyName).emit("updatedScore", {
+      newUsersInfo: rooms[lobbyName].users,
     });
-    rooms[lobbyName].questionAmount++;
-
-    rooms[lobbyName].timer = new Date(
-      Date.now() + (rooms[lobbyName].questionTimer + delayCompensation) * 1000
-    );
-    setTimeout(() => {
-      const winConResult = checkWinCon(rooms[lobbyName])
-      if (winConResult.length > 0) {
-        socket.emit('winnerDetermined', winConResult)
-      }
-      },
-      (rooms[lobbyName].questionTimer + delayCompensation) * 1000
-    );
-
-  });
-};
-const getCategoryChoices = (lobbyInfo) => {
-  const categoryChoices = []
-
-  if (lobbyInfo.categoriesRemaining.length < 3) {
-    lobbyInfo.categoriesRemaining = lobbyInfo.cachedCategories;
-  }
-  for(let i = 0; i < 3; i++)
-    {
-      categoryChoices.push(lobbyInfo.categoriesRemaining.splice(randomizeArrayIndex(lobbyInfo.categoriesRemaining), 1)[0])
-    }
-  return categoryChoices;
-}
-
-const checkTimer = (timer) => {
-  return Date.now() < timer;
-};
-const checkWinCon = (lobbyInfo) => {
-  const chosenWinCon = lobbyInfo.chosenWinCon;
-  const winConNumber = lobbyInfo.winConNumber;
-  const usersData = lobbyInfo.users;
-  let winners = [];
-  console.log(usersData);
-  if (chosenWinCon === "correctCon") {
-    winners = Object.keys(usersData).filter((userData) => {
-      return usersData[userData].score >= winConNumber;
-    });
+  } else if (!checkTimer(rooms[lobbyName].timer)) {
+    socket.emit("timedOut");
+    console.log("timed out answer");
   } else {
-
+    io.to(lobbyName).emit("updatedScore", {
+      newUsersInfo: rooms[lobbyName].users,
+    });
   }
-  return winners;
-};
+  socket.emit("correctAnswer", rooms[lobbyName].currentQuestion.correctAnswer);
+});
 
-const generateLobbyName = (currentRooms) => {
-  const possibleChars = [
-    ...[...Array(26)].map((_, i) => String.fromCharCode("A".charCodeAt(0) + i)),
-    ...[...Array(9)].map((_, i) => (i + 1).toString()),
-  ];
-  let newLobbyName = "";
-  while (!newLobbyName) {
-    for (let i = 0; i <= 4; i++) {
-      const randomIndex = Math.floor(Math.random() * possibleChars.length);
-      newLobbyName = newLobbyName + possibleChars[randomIndex];
-      console.log(newLobbyName);
-    }
-    if (!currentRooms[newLobbyName]) return newLobbyName;
-    else newLobbyName = "";
-  }
-};
+socket.on("getNextQuestion", async (lobbyName) => {
+  rooms[lobbyName].currentChooser = {
+    currentChooser: getRandomChooser(Object.keys(rooms[lobbyName].users)),
+    categoryChoices: getCategoryChoices(rooms[lobbyName]),
+    active: rooms[lobbyName].active,
+  };
+  console.log('getnextquestion chooser', rooms[lobbyName].currentChooser)
+  io.to(lobbyName).emit("currentChooser", rooms[lobbyName].currentChooser);
+});
 
-const getNewQuestion = async (questionQueue) => {
-  const randomIndex = Math.floor(Math.random() * questionQueue.length);
-  const [newQuestionId] = questionQueue.splice(randomIndex, 1); // Splices a question at randomIndex to randomize the order of the questions provided
+socket.on("selectedCategory", async ({ lobbyName, category }) => {
+  rooms[lobbyName] = await getNextQuestion({lobbyInfo:rooms[lobbyName], chosenCategory:category});
+  io.to(lobbyName).emit("categoryChosen", {
+    category,
+    question: obfQuestion(rooms[lobbyName].currentQuestion),
+  });
 
-  try {
-    const newQuestion = await Question.findById(newQuestionId).lean();
-    return newQuestion;
-  } catch (error) {
-    console.error(`Failed to fetch question by ID ${newQuestionId}:`, error);
-  }
+});
 };

@@ -1,9 +1,3 @@
-import { getNewQuestion, getNewQuestionQueue, sendScoreArray, sendNewQuestion } from './socketUtils.js'
-import {Question} from '../models/Question.js';
-import {CategoryIcon} from '../models/CategoryIcon.js';
-
-
-
 const initialContact = (socket, rooms) => {
 
   if(socket.request.session.passport) 

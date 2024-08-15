@@ -1,6 +1,5 @@
 import initialContact from './initialContact.js';
-import { submittedAnswer, getQueueByTags, getNewQuestionRequest } from './questionEvents.js';
-import { createNewLobby } from './roomEvents.js';
+import { roomEvents } from './roomEvents.js';
 
 const sockets = (io) => {
 
@@ -8,10 +7,8 @@ const sockets = (io) => {
 
   io.on('connection', (socket) => {
 
-    const session = socket.request.session;
-
     initialContact(socket, rooms);
-    createNewLobby(socket, rooms, io);
+    roomEvents(socket, rooms, io);
     
 
     socket.on('disconnect', () => {

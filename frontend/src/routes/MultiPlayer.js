@@ -21,7 +21,7 @@ const MultiPlayer = ({ lobbyName }) => {
     active: false,
     host: "",
     currentQuestion: {},
-    currentChooser: "",
+    currentChooser: {},
   });
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [correctAnswer, setCorrectAnswer] = useState(null);
@@ -55,6 +55,7 @@ const MultiPlayer = ({ lobbyName }) => {
   const timerFinished = () => {
     const currentSubmittedAnswer = submittedAnswerRef.current;
     const currentAnswer = answerRef.current;
+    console.log(new Date().toISOString())
 
     console.log(
       "submittedAnswer on timerFinished",
@@ -114,6 +115,11 @@ const MultiPlayer = ({ lobbyName }) => {
   }, [submittedAnswer]);
 
   useEffect(() => {
+    setQuestionTimer(lobbyInfo.questionTimer);
+    }, [lobbyInfo.questionTimer]);
+
+
+  useEffect(() => {
     answerRef.current = answer;
   }, [answer]);
 
@@ -146,24 +152,9 @@ const MultiPlayer = ({ lobbyName }) => {
       setUsers(currentUsers);
     };
 
-    const handleStartingGame = (updatedLobbyInfo) => {
-      setLobbyInfo((prevLobbyInfo) => {
-        let newLobbyInfo = { ...prevLobbyInfo };
-        newLobbyInfo.active = updatedLobbyInfo.active;
-        newLobbyInfo.currentQuestion = updatedLobbyInfo.currentQuestion;
-        return newLobbyInfo;
-      });
-      setQuestionTimer(lobbyInfoRef.current.questionTimer);
-      setTimerRunning(true);
-    };
-
     const receivedNewQuestion = (newQuestion) => {
       setCurrentQuestion(newQuestion.newQuestion);
-      setIsLocked(false);
-      setActive(true);
-      setCanProgress(false);
-      setSubmittedAnswer("");
-      setTimerRunning(true);
+
     };
     const handleCorrectAnswer = (correctAnswer) => {
       setCorrectAnswer(correctAnswer);
@@ -181,24 +172,40 @@ const MultiPlayer = ({ lobbyName }) => {
         return updatedLobbyInfo;
       });
     };
+    const handleCategoryChosen = ({category, question}) => 
+      {
+
+        setLobbyInfo(prevInfo => {
+          const newInfo = {...prevInfo}
+          newInfo.currentChooser.active = false;
+          newInfo.currentQuestion = question;
+          return newInfo;
+        })
+        setIsLocked(false);
+        setActive(true);
+        setCanProgress(false);
+        setSubmittedAnswer("");
+        setTimerRunning(true);
+      }
 
     socket.on("sendRoomInfo", handleRoomInfo);
     socket.on("currentUsersInRoom", handleCurrentUsers);
-    socket.on("startingGame", handleStartingGame);
     socket.on("newQuestion", receivedNewQuestion);
     socket.on("correctAnswer", handleCorrectAnswer);
     socket.on("winnerDetermined", handleWinnerDetermined);
     socket.on("currentChooser", handleCurrentChooser);
+    socket.on("categoryChosen", handleCategoryChosen);
 
     return () => {
       socket.emit("leaveRoom");
       socket.off("sendRoomInfo", handleRoomInfo);
       socket.off("currentUsersInRoom", handleCurrentUsers);
-      socket.off("startingGame", handleStartingGame);
       socket.off("newQuestion", receivedNewQuestion);
       socket.off("correctAnswer", handleCorrectAnswer);
       socket.off("winnerDetermined", handleWinnerDetermined);
       socket.off("currentChooser", handleCurrentChooser);
+      socket.off("categoryChosen", handleCategoryChosen);
+
     };
   }, []);
 
@@ -244,6 +251,17 @@ const MultiPlayer = ({ lobbyName }) => {
     },
     [users]
   );
+
+  useEffect(() => {
+    console.log('updated question', currentQuestion)
+  }, [currentQuestion])
+
+  const categoryChoice = (category) => {
+    return <div className="categoryChoice">{category}</div>;
+  };
+  const selectCategory = (category) => {
+    socket.emit('selectedCategory', {lobbyName, category})
+  }
 
   const startTimer = useCallback(() => {
     setTimeLeft(questionTimer);
@@ -332,7 +350,49 @@ const MultiPlayer = ({ lobbyName }) => {
             </div>
           </div>
         </div>
-        <div className="mpScoreDiv">
+
+      </>
+    );
+  };
+
+  const categoryChoosingState = () => {
+    return (
+      <>
+        {lobbyInfo.currentChooser.currentChooser == user ? (            
+          <>
+          Din tur att välja kategori.
+          <div className="categoryChoicesDiv">
+            {lobbyInfo.currentChooser.categoryChoices.map((category) => (
+              <div onClick={() => selectCategory(category)}>{categoryChoice(category)}</div>
+            ))}
+          </div></>
+        ) : (
+          <>
+            Väntar på att {lobbyInfo.currentChooser.currentChooser} väljer kategori.
+            <div className="categoryChoicesDiv inactive">
+            {lobbyInfo.currentChooser.categoryChoices.map((category) => (
+              <>{categoryChoice(category)}</>
+            ))}
+            </div>
+          </>
+        )}
+      </>
+    );
+  };
+
+  const renderContent = () => {
+    if (lobbyInfo.active == false) return preGameState();
+    else if (winners.length > 0) return winnersState();
+    else if (lobbyInfo.currentChooser.active) return categoryChoosingState();
+    else return mainGameState();
+  };
+
+  return (
+    <div className="mpMainDiv">
+      <p>Rumsnamn: {lobbyName}</p>
+
+      {renderContent()}
+      <div className="mpScoreDiv">
           {Object.keys(users).map((user) => (
             <div
               key={user}
@@ -343,25 +403,6 @@ const MultiPlayer = ({ lobbyName }) => {
             </div>
           ))}
         </div>
-      </>
-    );
-  };
-  const categoryChoosingState = () => {
-    return ( <></> )
-  }
-
-  const renderContent = () => {
-    if (lobbyInfo.active == false) return preGameState();
-    else if (winners.length > 0) return winnersState();
-    else if (lobbyInfo.currentChooser) return categoryChoosingState();
-    else return mainGameState();
-  };
-
-  return (
-    <div className="mpMainDiv">
-      <p>Rumsnamn: {lobbyName}</p>
-
-      {renderContent()}
     </div>
   );
 };
