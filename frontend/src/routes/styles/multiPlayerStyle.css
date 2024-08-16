@@ -1,97 +1,154 @@
-/* Add these to your CSS file */
-
 @keyframes pulseGreen {
-    0% {
-      transform: scale(1);
-      color: green;
-    }
-    50% {
-      transform: scale(1.1);
-      color: lightgreen;
-    }
-    100% {
-      transform: scale(1);
-      color: green;
-    }
+  0% {
+    transform: scale(1);
+    color: green;
   }
-  
-  @keyframes pulseRed {
-    0% {
-      transform: scale(1);
-      color: red;
-    }
-    50% {
-      transform: scale(1.1);
-      color: lightcoral;
-    }
-    100% {
-      transform: scale(1);
-      color: red;
-    }
+  50% {
+    transform: scale(1.1);
+    color: lightgreen;
   }
-  
-  .userEntry {
-    /* Other styles */
-    transition: color 1s, transform 1s; /* Ensure smooth transitions */
+  100% {
+    transform: scale(1);
+    color: green;
   }
-  
-  .pulseGreen {
-    animation: pulseGreen 1s ease-in-out;
+}
+
+@keyframes pulseRed {
+  0% {
+    transform: scale(1);
+    color: red;
   }
-  
-  .pulseRed {
-    animation: pulseRed 1s ease-in-out;
+  50% {
+    transform: scale(1.1);
+    color: lightcoral;
   }
-  
+  100% {
+    transform: scale(1);
+    color: red;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 100%;
+  }
+  50% {
+    opacity: 50%;
+  }
+  100% {
+    opacity: 0%;
+  }
+}
+@keyframes slowFadeOut {
+  0% {
+    opacity: 100%;
+  }
+  30% {
+    opacity: 90%
+  }
+  50% {
+    opacity: 70%;
+  }
+  100% {
+    opacity: 30%;
+  }
+}
+
+.userEntry {
+  display: grid;
+  text-wrap: nowrap;
+  display: contents;
+}
+
+.pulseGreen {
+  animation: pulseGreen 1s ease-in-out;
+}
+
+.pulseRed {
+  animation: pulseRed 1s ease-in-out;
+}
+
+.fade {
+  animation: fadeOut 1s ease-out;
+}
+
+.slowFade {
+  animation: fadeOut 2s ease-out;
+}
+
 .questionDiv {
-    margin-left: 30%;
-    width: 30%;
+  width: 100%;
+  align-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
 }
-.mpMainDiv
-{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.timerProgressBar
-{
-    width: 75%;
-    height: 20px;
-    border-radius: 15px;
-    border: 0;
-}
-
-.questionScoreDiv
-{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-.startGameButton
-{
-    width: 25%;
-
-}
-.mpScoreDiv
-{
-    margin-right:5%;
-    background-color: aliceblue;
-    width: 10%;
-}
-.userEntry
-{
-    display: flex;
-    flex-direction: row;
-
-}
-.userEntry > * 
-{
-    padding: 0.1%;
-    margin-top: 5%;
+.mpMainDiv {
+  display: grid;
+  grid-template-columns: 1fr auto; /* 1fr for the left side, auto for the score */
+  grid-template-rows: auto 1fr; /* auto for the name row, 1fr for the content row */
+  grid-template-areas:
+    "name score"
+    "content score"; /* The score area spans across both rows */
+  padding-right: 3%;
+  padding-left: 3%;
+  width: 100%;
 }
 
-.categoryChoice 
-{
+.username {
+  grid-column: 1; /* Place the username in the first column */
+  text-align: left; /* Align text to the left (default) */
+}
+
+.score {
+  grid-column: 2; /* Place the score in the second column */
+  text-align: right; /* Align text to the right */
+}
+
+.mpMainDiv > p {
+  grid-area: name;
+}
+
+.timerProgressBar {
+  width: 75%;
+  height: 20px;
+  border-radius: 15px;
+  border: 0;
+}
+
+.questionScoreDiv {
+  grid-area: content;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 80%;
+}
+.startGameButton {
+  grid-area: content;
+
+  width: 25%;
+  align-self: center;
+  margin: auto;
+}
+.mpScoreDiv {
+  padding: 5%;
+  padding-left: 15%;
+  padding-right: 15%;
+  background: aliceblue;
+  grid-area: score;
+  height: 500px;
+  margin-top: 30%;
+  width: auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px; 
+  grid-auto-rows: minmax(min-content, min-content);
+  border-radius: 15px;
+  border:1px solid black;
+}
+
+.categoryChoice {
   width: 200px;
   height: 200px;
   background-color: aliceblue;
@@ -100,28 +157,43 @@
   border-radius: 15px;
   border: 1px solid black;
   user-select: none;
+  grid-area: content;
+
 }
-.categoryChoice:hover{
+.categoryChoice:hover {
   background-color: rebeccapurple;
-
 }
-.categoryChoicesDiv
-{
-  display: flex;
+.categoryChoicesDiv {
+  display: grid;
   margin: auto;
-  flex-direction: row;
-
+  margin-top: 0px;
+  grid-area:content;
+  grid-template-areas: "title title title" "content content content";
+  grid-template-columns: auto;
+  grid-template-rows: auto 1fr;
 }
-.categoryChoicesDiv > * 
-{
+.categoryChoicesDiv > * {
   margin: 1%;
-
 }
-.inactive > *{
+.inactive > * > *{
   background-color: rgba(163, 163, 163, 0.726);
   color: rgba(61, 61, 61, 0.63);
   border: 1px solid rgba(44, 44, 44, 0.548);
 }
-.inactive > *:hover{
+.inactive > *> *:hover {
   background-color: rgba(163, 163, 163, 0.726);
+}
+.roomTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.categoryChoicesDivTitle
+{
+  grid-area:title;
+  text-align: center;
+}
+.inactive {
+  grid-area:content;
+
 }
