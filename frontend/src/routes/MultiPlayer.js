@@ -37,6 +37,7 @@ const MultiPlayer = ({ lobbyName }) => {
   const [animatedUsers, setAnimatedUsers] = useState({});
   const [timeLeft, setTimeLeft] = useState(15);
   const [winners, setWinners] = useState([]);
+  const [notChosenCategories, setNotChosenCategories] = useState({});
 
   // Refs
   const lobbyInfoRef = useRef(lobbyInfo);
@@ -55,7 +56,7 @@ const MultiPlayer = ({ lobbyName }) => {
   const timerFinished = () => {
     const currentSubmittedAnswer = submittedAnswerRef.current;
     const currentAnswer = answerRef.current;
-    console.log(new Date().toISOString())
+    console.log(new Date().toISOString());
 
     console.log(
       "submittedAnswer on timerFinished",
@@ -116,8 +117,7 @@ const MultiPlayer = ({ lobbyName }) => {
 
   useEffect(() => {
     setQuestionTimer(lobbyInfo.questionTimer);
-    }, [lobbyInfo.questionTimer]);
-
+  }, [lobbyInfo.questionTimer]);
 
   useEffect(() => {
     answerRef.current = answer;
@@ -125,6 +125,15 @@ const MultiPlayer = ({ lobbyName }) => {
 
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
+  };
+
+  const setFade = (chosenCategory) => {
+    console.log(lobbyInfoRef)
+    const notChosenCategories = lobbyInfoRef.current.currentChooser.categoryChoices.reduce((acc, category) => {
+      acc[category] = category === chosenCategory ? "slowFade" : "fade";
+      return acc;
+    }, {});
+    setNotChosenCategories(notChosenCategories);
   };
 
   useEffect(() => {
@@ -154,7 +163,6 @@ const MultiPlayer = ({ lobbyName }) => {
 
     const receivedNewQuestion = (newQuestion) => {
       setCurrentQuestion(newQuestion.newQuestion);
-
     };
     const handleCorrectAnswer = (correctAnswer) => {
       setCorrectAnswer(correctAnswer);
@@ -172,21 +180,22 @@ const MultiPlayer = ({ lobbyName }) => {
         return updatedLobbyInfo;
       });
     };
-    const handleCategoryChosen = ({category, question}) => 
-      {
-
-        setLobbyInfo(prevInfo => {
-          const newInfo = {...prevInfo}
+    const handleCategoryChosen = ({ category, question }) => {
+      setFade(category);
+      setTimeout(() => {
+        setLobbyInfo((prevInfo) => {
+          const newInfo = { ...prevInfo };
           newInfo.currentChooser.active = false;
           newInfo.currentQuestion = question;
           return newInfo;
-        })
+        });
         setIsLocked(false);
         setActive(true);
         setCanProgress(false);
         setSubmittedAnswer("");
         setTimerRunning(true);
-      }
+      }, 2000)
+    };
 
     socket.on("sendRoomInfo", handleRoomInfo);
     socket.on("currentUsersInRoom", handleCurrentUsers);
@@ -205,7 +214,6 @@ const MultiPlayer = ({ lobbyName }) => {
       socket.off("winnerDetermined", handleWinnerDetermined);
       socket.off("currentChooser", handleCurrentChooser);
       socket.off("categoryChosen", handleCategoryChosen);
-
     };
   }, []);
 
@@ -253,15 +261,15 @@ const MultiPlayer = ({ lobbyName }) => {
   );
 
   useEffect(() => {
-    console.log('updated question', currentQuestion)
-  }, [currentQuestion])
+    console.log("updated question", currentQuestion);
+  }, [currentQuestion]);
 
   const categoryChoice = (category) => {
-    return <div className="categoryChoice">{category}</div>;
+    return <div className={`categoryChoice ${notChosenCategories[category] || ''}`}>{category}</div>;
   };
   const selectCategory = (category) => {
-    socket.emit('selectedCategory', {lobbyName, category})
-  }
+    socket.emit("selectedCategory", { lobbyName, category });
+  };
 
   const startTimer = useCallback(() => {
     setTimeLeft(questionTimer);
@@ -350,7 +358,6 @@ const MultiPlayer = ({ lobbyName }) => {
             </div>
           </div>
         </div>
-
       </>
     );
   };
@@ -358,21 +365,27 @@ const MultiPlayer = ({ lobbyName }) => {
   const categoryChoosingState = () => {
     return (
       <>
-        {lobbyInfo.currentChooser.currentChooser == user ? (            
+        {lobbyInfo.currentChooser.currentChooser == user ? (
           <>
-          Din tur att välja kategori.
-          <div className="categoryChoicesDiv">
-            {lobbyInfo.currentChooser.categoryChoices.map((category) => (
-              <div onClick={() => selectCategory(category)}>{categoryChoice(category)}</div>
-            ))}
-          </div></>
+            <div className="categoryChoicesDiv">
+            <p className="categoryChoicesDivTitle">Din tur att välja kategori.</p>
+
+              {lobbyInfo.currentChooser.categoryChoices.map((category) => (
+                <div onClick={() => selectCategory(category)}>
+                  {categoryChoice(category)}
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <>
-            Väntar på att {lobbyInfo.currentChooser.currentChooser} väljer kategori.
+
             <div className="categoryChoicesDiv inactive">
-            {lobbyInfo.currentChooser.categoryChoices.map((category) => (
-              <>{categoryChoice(category)}</>
-            ))}
+            <p className="categoryChoicesDivTitle">Väntar på att {lobbyInfo.currentChooser.currentChooser} väljer
+            kategori.</p>
+              {lobbyInfo.currentChooser.categoryChoices.map((category) => (
+                <div>{categoryChoice(category)}</div>
+              ))}
             </div>
           </>
         )}
@@ -389,20 +402,19 @@ const MultiPlayer = ({ lobbyName }) => {
 
   return (
     <div className="mpMainDiv">
-      <p>Rumsnamn: {lobbyName}</p>
+      <p className="roomTitle">
+        Rumsnamn: {lobbyName} <br />
+      </p>
 
       {renderContent()}
       <div className="mpScoreDiv">
-          {Object.keys(users).map((user) => (
-            <div
-              key={user}
-              className={`userEntry ${animatedUsers[user] || ""}`}
-            >
-              <div className="usernameEntry">{users[user].username}</div>
-              <div className="scoreEntry">Score: {users[user].score}</div>
-            </div>
-          ))}
-        </div>
+        {Object.keys(users).map((user) => (
+          <div key={user} className={`userEntry ${animatedUsers[user] || ""}`}>
+            <div className="username">{users[user].username}</div>
+            <div className="score">{users[user].score}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
