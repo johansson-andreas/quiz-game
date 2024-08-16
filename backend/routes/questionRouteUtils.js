@@ -187,3 +187,17 @@ export const getQuestionCategoriesWithCount = async () => {
 
   return tagsWithIcons
 }
+
+export const updateQuestionCounts = async (questionId, correct) => {
+  try {
+    const update = correct
+    ? { $inc: { correctAnswerCount: 1 } }
+    : { $inc: { incorrectAnswerCount: 1 } };
+
+    await Question.findByIdAndUpdate(questionId, update, { new: true });
+  } catch (error) {
+    console.error("Failed to update question counts:", error);
+  }
+};
+
+
