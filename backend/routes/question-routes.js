@@ -207,4 +207,3 @@ router.delete("/delete-question/:id", async (req, res) => {
 export default router;
 
 
-//{ text: RegExp("Neil", "i") }
