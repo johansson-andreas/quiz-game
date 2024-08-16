@@ -1,7 +1,7 @@
 import { useMemo} from 'react';
 import IconComponent from './IconComponent';
 
-const ScorePanel = ({scoreArray, totalQuestionsScore, questionCategories}) => {
+const ScorePanel = ({scoreArray, totalQuestionsScore, questionCategories, streakCounter}) => {
 
     const chunkArray = (array, chunkSize) => {
         const chunks = [];
@@ -28,6 +28,7 @@ const ScorePanel = ({scoreArray, totalQuestionsScore, questionCategories}) => {
         <div id="scorePanel">
             <p id='scorePanelTitle'>Statistik denna session</p>
             <p id='answerTally'>Korrekta svar: {correctAnswers} / Totala frågor: {totalQuestions} </p>
+            <p id='streakCounter'>Rätt svar i rad: {streakCounter}</p>
             <div id="scoreCatPanel">
                 {groupedEntries.length > 0 ? (
                 groupedEntries.map((group, index) => (

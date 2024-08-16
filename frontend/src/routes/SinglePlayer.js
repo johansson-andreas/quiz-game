@@ -28,6 +28,7 @@ const Controller = () => {
   const [catCanvasShow, setCatCanvasShow] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
   const [triggeredOption, setTriggeredOption] = useState(null);
+  const [streakCounter, setStreakCounter] = useState(0);
 
 
   useEffect(() => {
@@ -128,6 +129,13 @@ const Controller = () => {
           );
           setScoreArray(response.data.scoreArray);
           setCorrectAnswer(response.data.correctAnswer);
+          // Added streakCounter
+          if (response.data.correctAnswer === submittedAnswer) {
+            setStreakCounter((prevStreak) => prevStreak +1);
+          } else {
+            setStreakCounter(0); // Reset streak on incorrect answer
+          }
+
           setTotalQuestionsScore((prevCount) => {
             const newCount = [...prevCount];
             if (response.data.correctAnswer === submittedAnswer)
@@ -198,6 +206,7 @@ const Controller = () => {
           scoreArray={scoreArray}
           totalQuestionsScore={totalQuestionsScore}
           questionCategories={currentQuestionCategories}
+          streakCounter={streakCounter} // Pass streakcounter to Panel
         />
       </div>
       <div id="categoriesDiv">
