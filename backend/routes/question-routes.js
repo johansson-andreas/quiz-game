@@ -23,6 +23,18 @@ const timeLog = async (req, res, next) => {
 };
 router.use(timeLog);
 
+const updateQuestionCounts = async (questionId, correct) => {
+  try {
+    const update = correct
+    ? { $inc: { correctAnswerCount: 1 } }
+    : { $inc: { incorrectAnswerCount: 1 } };
+
+    await Question.findByIdAndUpdate(questionId, update, { new: true });
+  } catch (error) {
+    console.error("Failed to update question counts:", error);
+  }
+};
+
 router.get("/request-question", async (req, res, next) => {
   const clientData = req.session.clientData;
 
@@ -46,6 +58,7 @@ router.get("/initial-contact", async (req, res) => {
 router.post("/submit-answer", async (req, res) => {
   console.log(req.body.submittedAnswer);
   const clientData = req.session.clientData;
+
   if (clientData) {
     const answer = req.body.submittedAnswer;
     let correct = false;
@@ -70,6 +83,7 @@ router.post("/submit-answer", async (req, res) => {
         console.error("Failed to update scores in database:", error);
       });
     }
+    await updateQuestionCounts(clientData.currentQuestion._id, correct);
   }
 });
 
