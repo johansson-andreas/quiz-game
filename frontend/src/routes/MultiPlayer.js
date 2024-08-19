@@ -350,12 +350,10 @@ const MultiPlayer = ({ lobbyName }) => {
               canProgress={canProgress}
             />
             <div className="timerProgressBarContainer">
-              <progress
-                value={timeLeft}
-                max={questionTimer}
-                className="timerProgressBar"
-              />
-            </div>
+                <div className="timerProgressBarBar" style={{width: (timeLeft/questionTimer)*100 + '%'}} /> 
+                <div className="timerText">{timeLeft > 0 && Math.ceil(timeLeft)}</div>
+            </div> 
+
           </div>
         </div>
       </>

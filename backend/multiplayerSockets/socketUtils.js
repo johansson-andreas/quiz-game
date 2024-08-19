@@ -3,7 +3,7 @@ import { randomizeArrayIndex } from "../utils/generalUtils.js";
 import { Question, getRandomQuestionByTag } from "../models/Question.js";
 import { obfQuestion } from "../routes/questionRouteUtils.js";
 
-const delayCompensation = 0.4; // in seconds
+const delayCompensation = 2.4; // in seconds (2 sec for animation + 0.4 sec for connection delay)
 
 export const getCategoryChoices = (lobbyInfo) => {
   const categoryChoices = []
@@ -34,7 +34,7 @@ export  const checkWinCon = (lobbyInfo) => {
       return usersData[userData].score >= winConNumber;
     });
   } else {
-
+    //TODO: ADD QUESTOON AMOUNT WINCON
   }
   return winners;
 };
@@ -68,17 +68,6 @@ export const getNewQuestion = async (questionQueue) => {
   }
 };
 
-export const getNewQuestionByTag = async (questionQueue) => {
-  const randomIndex = Math.floor(Math.random() * questionQueue.length);
-  const [newQuestionId] = questionQueue.splice(randomIndex, 1); // Splices a question at randomIndex to randomize the order of the questions provided
-
-  try {
-    const newQuestion = await Question.findById(newQuestionId).lean();
-    return newQuestion;
-  } catch (error) {
-    console.error(`Failed to fetch question by ID ${newQuestionId}:`, error);
-  }
-};
 
 export const getNextQuestion = async ({lobbyInfo, chosenCategory}) => {
   const currentLobby = {...lobbyInfo};

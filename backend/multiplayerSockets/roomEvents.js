@@ -11,7 +11,9 @@ import {
 } from "./socketUtils.js";
 
 export const roomEvents = (socket, rooms, io) => {
-  const username = socket.request.session.passport.user;
+  let username = "";
+  if(socket.request.session.passport) username = socket.request.session.passport.user;
+  else return;
 
   socket.on("createNewLobby", async (newLobbyInfo) => {
     const lobbyName = newLobbyInfo.lobbyName || generateLobbyName(rooms);

@@ -8,17 +8,24 @@ const DefaultComponent = ({
   joinExLobby,
   joinLobbyName,
   updateLobbyPassword
-}) => (
+
+}) => {
+  const handleInvalid = (e) => {
+    // Set a custom validity message when the input is invalid
+    e.target.setCustomValidity('Ett lobby namn krävs.');
+  };
+
+  return (
   <div className={styles.defaultDiv}>
     <button onClick={createNewLobby} className={styles.newLobbyButton}>
       Skapa nytt rum
     </button>
-    <div className={styles.joinLobbyDiv}>
-      <form onSubmit={(e) => joinExLobby(e, joinLobbyName)}>
+      <form className={styles.joinLobbyForm} onSubmit={(e) => joinExLobby(e, joinLobbyName)}>
         <input
           type="text"
           placeholder="Rumsnamn:"
           onChange={updateLobbyName}
+          onInvalid={handleInvalid}
           required
         />
         <input
@@ -28,8 +35,7 @@ const DefaultComponent = ({
         />
         <button type="submit">Anslut till rum</button>
       </form>
-    </div>
   </div>
-);
+)};
 
 export default DefaultComponent;

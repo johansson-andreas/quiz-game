@@ -9,17 +9,17 @@
     flex-wrap: wrap;
 }
 .gameModeButton {
-    background-color: rgb(196, 196, 196);
-    height:50%;
+    background-color: var(--main-gray-color);
+    height: 50%;
     width: 50%;
     min-width: 50%;
     min-height: 50%;
     text-wrap: auto;
-    border: 1px solid black;
+    border: var(--default-border);
     font-size: larger;
 }
 .gameModeButton:hover {
-    background-color: rgb(165, 153, 182);
+    background-color: var(--main-light-gray);
     transform: scale(1.05,1.05);
 }
 
