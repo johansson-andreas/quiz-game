@@ -12,11 +12,10 @@
   }
 }
 
-/* Transition for immediate color changes */
 .radioButtonLabels {
   display: flex;
   max-width: 100%;
-  border: 1px solid black;
+  border: var(--default-border);
   border-radius: 15px;
   padding: 5px;
 }
@@ -54,24 +53,27 @@
 
 .questionText {
   max-width: 75%;
-  border: 1px solid black;
+  border: var(--default-border);
   border-radius: 10px;
   padding: 15px;
-  background-color: #d8e8f3e5;
-  background-image: url('../../images/textureTest.png');
+  background-color: var(--main-light-gray);
   display: inline-flex;
   flex-direction: column;
   align-items: center;
 }
 
 .submitNextButton {
-  width: 400px;
-  height: 50px;
-  background-color: #6b6b6be5;
-  border-radius: 50px;
-  border: 1px solid black; /* Combined border style */
+  width: 30%;
+  height: 15%;
+  max-height: 50px;
+  min-height: fit-content;
+  background-color:var(--main-light-gray);
+  border-radius: 15px;
   font-size: 20px;
   color: rgb(0, 0, 0);
+  border: var(--default-border);
+  padding: 5px;
+
 }
 .submitNextButton:disabled {
   color: rgb(66, 66, 66);

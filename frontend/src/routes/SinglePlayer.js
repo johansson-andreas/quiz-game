@@ -7,6 +7,7 @@ import axios from "axios";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import Button from "react-bootstrap/Button";
 import QuestionComponent from "../components/QuestionComponent/QuestionComponent.js";
+import classNames from "classnames";
 
 const Controller = () => {
   const [questionText, setQuestionText] = useState(null);
@@ -29,7 +30,7 @@ const Controller = () => {
   const [hasMounted, setHasMounted] = useState(false);
   const [triggeredOption, setTriggeredOption] = useState(null);
   const [streakCounter, setStreakCounter] = useState(0);
-
+  const [fading, setFading] = useState(false);
 
   useEffect(() => {
     setTotalQuestionsScore([0, 0]);
@@ -74,8 +75,6 @@ const Controller = () => {
     setAnswer(e.target.value);
   };
 
-
-
   const handleOptionChangeWrapper = (event) => {
     handleOptionChange(event);
   };
@@ -87,20 +86,27 @@ const Controller = () => {
     setOptions(questionData.choices);
   };
 
-  const nextQuestion = () => {
+  const nextQuestion = async () => {
     console.log("Next question");
 
-    axios
-      .get("/api/question-routes/request-question")
-      .then((response) => {
-        setActive(true);
+    try {
+      const response = await axios.get("/api/question-routes/request-question");
+      console.log("GET request successful:", response.data);
 
-        console.log("GET request successful:", response.data);
+      setFading(true);
+      setTimeout(() => {
+        setFading(false);
+        console.log("fading out");
+      }, 2000);
+      setTimeout(() => {
+        setActive(true);
         assignQuestion(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+      }, 600);
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+
   };
 
   const handleCheckboxChange = (category) => {
@@ -131,7 +137,7 @@ const Controller = () => {
           setCorrectAnswer(response.data.correctAnswer);
           // Added streakCounter
           if (response.data.correctAnswer === submittedAnswer) {
-            setStreakCounter((prevStreak) => prevStreak +1);
+            setStreakCounter((prevStreak) => prevStreak + 1);
           } else {
             setStreakCounter(0); // Reset streak on incorrect answer
           }
@@ -186,7 +192,7 @@ const Controller = () => {
 
   return (
     <div className="mainBody">
-      <div className="questionBody">
+      <div className={classNames("questionBody", fading ? "fadePulse" : "")}>
         <QuestionComponent
           handleOptionChangeWrapper={handleOptionChangeWrapper}
           answer={answer}

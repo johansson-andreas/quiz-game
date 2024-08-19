@@ -8,7 +8,7 @@
    margin: 2%;
   border-radius: 15px;
   height: 70%;
-  border: 1px solid black;
+  border: 2px solid rgb(245, 133, 133);
 }
 
 .topText {
@@ -26,7 +26,8 @@
 .entryScoreDiv {
   justify-content: center;
   display: flex;
-  width: 33%
+  width: 33%;
+
 }
 .entryDateDiv
 {

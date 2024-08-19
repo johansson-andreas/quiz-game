@@ -1,26 +1,25 @@
 #categoriesDiv
 {
-  margin-top: 3%;
-  align-items:flex-start;
-  margin-left: 1%;
-  width: 1%;
-  padding-right: 40px;
+  margin-right: 0;
 }
 .questionBody > * {
   margin-bottom: 10px; /* Adjust the spacing as per your design */
 }
 .mainBody
 {
-  display: flex;
-  flex-direction:row; /* Ensures vertical stacking */
-  width: 100%;
-  justify-content: space-between;
+  grid-template-areas: "question score catButton";
+  grid-template-columns: 1fr auto min-content;
+  display: grid;
+}
+.mainBody > * {
+  margin-left:2vh;
+  margin-top:2vh;
 }
 .radioButtonLabels
 {
   display: flex;
     max-width: 100%;
-  border: 1px solid black;
+    border: var(--default-border);
   border-radius: 15px;
   padding: 5px;
 }
@@ -34,13 +33,13 @@
   display: flex;
   flex-direction: column;
   max-width: 100%;
-  border: 1px solid black;
+  border: var(--default-border);
   padding: 3px;
   margin: 4px;
   border-radius: 5px;
   font-size: larger;
   align-items: center;
-  background-color: rgb(218, 211, 211);
+  background-color:var(--main-gray-color);;
 }
 
 .iconCompDiv > .icon-container > .icon-image {
@@ -91,13 +90,10 @@
 }
 .scoreDiv{
   background-color: wheat;
-  background-image: url('../../images/textureTest.png');
-
-  margin-top: 3%;
+  margin-left:4vh;
   padding:20px;
   border-radius: 15px;
-  height:70%;
-  border:1px solid black;
+  border: var(--default-border);
 }
 #scorePanelTitle
 {
@@ -107,18 +103,28 @@
 .questionBody {
   display: flex;
   flex-direction: column; /* Ensures vertical stacking */
-  margin-left: 5%;
-  margin-top: 3%;
-  height: 70%; 
   min-height: fit-content;
   font-size: 18px;
-  border: 1px solid black;
-  padding: 20px;
+  border: var(--default-border);
   border-radius: 20px;
   align-items: center;
-  background-image: url('../../images/cardBG.png');
-  background-repeat: no-repeat;
-  background-size: auto;
-  width: 50%;
+  width: 100%;
   overflow:auto;
+  background-color: var(--main-gray-color);
+
+}
+.fadePulse {
+  animation: fadeIn 2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 100%;
+  }
+  30% {
+    opacity: 50%;
+  }
+  100% {
+    opacity: 100%;
+  }
 }
