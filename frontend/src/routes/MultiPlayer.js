@@ -25,7 +25,6 @@ const MultiPlayer = ({ lobbyName }) => {
   });
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [correctAnswer, setCorrectAnswer] = useState(null);
-  const [questionIcons, setQuestionIcons] = useState([]);
   const [answer, setAnswer] = useState("");
   const [submittedAnswer, setSubmittedAnswer] = useState("");
   const [activeQuestion, setActive] = useState(true);
@@ -270,7 +269,7 @@ const MultiPlayer = ({ lobbyName }) => {
   const selectCategory = (category) => {
     socket.emit("selectedCategory", { lobbyName, category });
   };
-
+ 
   const startTimer = useCallback(() => {
     setTimeLeft(questionTimer);
     startTimeRef.current = null;
@@ -304,7 +303,7 @@ const MultiPlayer = ({ lobbyName }) => {
 
   const preGameState = () => {
     return (
-      lobbyInfo.host == user && (
+      lobbyInfo.host === user && (
         <>
           <button onClick={() => startGame()} className="startGameButton">
             Start
@@ -336,7 +335,6 @@ const MultiPlayer = ({ lobbyName }) => {
               handleOptionChangeWrapper={handleOptionChange}
               answer={answer}
               question={currentQuestion}
-              questionIcons={questionIcons}
               activeQuestion={activeQuestion}
               nextQuestion={nextQuestion}
               submitAnswer={submitAnswer}
@@ -363,7 +361,7 @@ const MultiPlayer = ({ lobbyName }) => {
   const categoryChoosingState = () => {
     return (
       <>
-        {lobbyInfo.currentChooser.currentChooser == user ? (
+        {lobbyInfo.currentChooser.currentChooser === user ? (
           <>
             <div className="categoryChoicesDiv">
             <p className="categoryChoicesDivTitle">Din tur att välja kategori.</p>
@@ -392,7 +390,7 @@ const MultiPlayer = ({ lobbyName }) => {
   };
 
   const renderContent = () => {
-    if (lobbyInfo.active == false) return preGameState();
+    if (lobbyInfo.active === false) return preGameState();
     else if (winners.length > 0) return winnersState();
     else if (lobbyInfo.currentChooser.active) return categoryChoosingState();
     else return mainGameState();

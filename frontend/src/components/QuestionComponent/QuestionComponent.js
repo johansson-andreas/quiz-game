@@ -57,7 +57,7 @@ const QuestionComponent = ({
           <div className={styles.questionText}>
             {question.text}
             <div className={styles.tagIcons}>
-              {questionIcons.map((index) => (
+              {questionIcons && questionIcons.map((index) => (
                 <IconComponent
                   key={index}
                   imageName={index}
@@ -78,7 +78,7 @@ const QuestionComponent = ({
                     key={index}
                     className={classNames(
                       styles.radioButtonLabels,
-                      styles[baseClass], // Base class (correct, incorrect, neutral)
+                      styles[baseClass], 
                       pulseClass // Apply pulse effect conditionally
                     )}
                   >
@@ -121,7 +121,8 @@ QuestionComponent.defaultProps = {
   hostname: "",
   username: "",
   isLocked: false,
-  canProgress: true
+  canProgress: true,
+  questionIcons: []
 };
 
 export default QuestionComponent;

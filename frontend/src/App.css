@@ -1,7 +1,11 @@
 :root {
   --main-gray-color: rgb(192, 200, 206);
   --main-light-gray: #d8e8f3e5;
-  --default-border: 2px solid rgb(192, 192, 192);
+  --default-border: 2px solid  rgba(255, 255, 255, 0.2);
+  --main-dark-gray: rgb(148, 148, 148);
+  --main-red-color: #ff7070;
+  --main-green-color: rgb(80, 215, 80);
+
 }
 
 .App {

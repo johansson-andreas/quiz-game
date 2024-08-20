@@ -8,6 +8,7 @@
   background-color: red;
   border-radius: 15px;
   width: 100%;
+  
 }
 
 .neutral {
@@ -28,16 +29,16 @@
 
 .questionBody {
   display: flex;
-  flex-direction: column;
-  margin-left: 5%;
-  margin-top: 3%;
+  flex-direction: column; 
+  min-height: fit-content;
   font-size: 18px;
   border: var(--default-border);
-  padding: 20px;
   border-radius: 20px;
   align-items: center;
+  width: 100%;
+  overflow:auto;
   background-color: var(--main-gray-color);
-  width: 50%;
+
 }
 
 .questionBody>* {
@@ -160,22 +161,28 @@
   width: 100%;
   left: auto;
   height: 100%;
+  grid-area: question;
+
 }
 
 .loggedInPanel {
-  display: inline-flex;
-  flex-direction: row;
-  width: 100%;
+    grid-template-areas: "question historyPanel";
+    grid-template-columns: 1fr min-content;
+    display: grid;
+    width: 100%;
+    padding: 1%;
+    gap:15px;
 }
 
 .scorePanel {
   display: flex;
-  background-color: rgb(224, 250, 255);
   width: 100%;
-  margin: 2%;
   border-radius: 15px;
   border: var(--default-border);
-;
+  background-color: var(--main-gray-color);
+  grid-area:question;
+
+
 }
 
 .scoreSection {
@@ -183,10 +190,11 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  background-color: var(--main-gray-color);
 }
 
 .historySection {
-  background-color: rgb(134, 134, 134);
+  background-color: var(--main-dark-gray);
   padding: 5px;
   border-radius: 15px;
   display: flex;
@@ -194,6 +202,8 @@
   margin:2%;
   min-width: 15%;
   height: fit-content;
+  border: var(--default-border);
+
 }
 
 #dailyBestTitle {
@@ -201,6 +211,7 @@
   border-bottom: 0;
   display: flex;
   justify-content: space-evenly;
+  
 }
 
 #dailyBestHeader {
@@ -221,23 +232,29 @@
 .correctAnswer {
   width:20%;
   max-width: 20%;
-  background-color: rgb(36, 209, 36);
+  background-color: var(--main-green-color);
   border-radius: 15px;
   padding:5px;
+  border: var(--default-border);
+
 }
 .incorrectAnswer {
   width:20%;
   max-width: 20%;
-  background-color: red;
+  background-color: var(--main-red-color);
   border-radius: 15px;
   padding:5px;
+  border: var(--default-border);
+
 }
 
 .keyDiv {
   display: flex;
-  background-color: rgb(161, 161, 161);
+  background-color: var(--main-dark-gray);
   border-radius: 15px;
   padding: 5px;
+  border: var(--default-border);
+
 }
 #scoreHeaders
 {
@@ -248,9 +265,11 @@
 {
   width:20%;
   margin-left:2%;
-  background-color: rgb(148, 148, 148);
+  background-color: var(--main-gray-color);
   border-radius: 15px;
   padding: 5px;
+  border: var(--default-border);
+
 }
 .keyCorrectAnswerTitle
 {

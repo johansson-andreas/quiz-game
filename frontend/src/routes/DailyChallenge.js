@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useContext, useMemo } from "react";
-import IconComponent from "../IconComponent";
 import axios from "axios";
-import { UserContext } from "../../contexts/UserContext";
-import styles from "./DailyChallenge.module.css";
-import LoginPanel from "../LoginPanel/LoginPanel.js";
-import DailyHistoryPanel from "../DailyHistoryPanel/DailyHistoryPanel.js";
-import QuestionComponent from "../QuestionComponent/QuestionComponent.js";
+import { UserContext } from "../contexts/UserContext.js";
+import styles from "./styles/DailyChallenge.module.css";
+import LoginPanel from "../components/LoginPanel/LoginPanel.js";
+import DailyHistoryPanel from "../components/DailyHistoryPanel/DailyHistoryPanel.js";
+import QuestionComponent from "../components/QuestionComponent/QuestionComponent.js";
 
 const DailyChallenge = () => {
-  const [currentQuestion, setCurrentQuestion] = useState([]);
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const [question, setQuestion] = useState({
     text: "",
@@ -18,15 +16,11 @@ const DailyChallenge = () => {
   });
   const [answer, setAnswer] = useState("");
   const [submittedAnswer, setSubmittedAnswer] = useState("");
-  const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
   const [activeQuestion, setActive] = useState(true);
   const [questionCategories, setQuestionCategories] = useState([]);
-  const [activeCategories, setActiveCategories] = useState([]);
-  const [previouslyUsedCategories, setPreviouslyUsedCategories] = useState({});
-  const { user, setUser } = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const [currentScore, setCurrentScore] = useState(0);
   const [questionsRemaining, setQuestionsRemaining] = useState(0);
-  const [currentUser, setCurrentUser] = useState("");
   const [activeQuiz, setActiveQuiz] = useState(true);
   const [dailyBestList, setDailyBestList] = useState([]);
   const [submittedAnswers, setSubmittedAnswers] = useState({});
@@ -101,7 +95,7 @@ const DailyChallenge = () => {
 
   useEffect(() => {
     const getDailyBest = async () => {
-      if (activeQuiz == false) {
+      if (activeQuiz === false) {
         try {
           const dailyBestResponse = await axios.get(
             "/api/daily-challenge-routes/get-daily-best"
@@ -138,7 +132,7 @@ const DailyChallenge = () => {
 
   useEffect(() => {
     console.log("Submitted answer:", submittedAnswer);
-    if (submittedAnswer != "") {
+    if (submittedAnswer !== "") {
       axios
         .post("/api/daily-challenge-routes/submit-answer", { submittedAnswer })
         .then((response) => {
@@ -159,18 +153,6 @@ const DailyChallenge = () => {
         });
     }
   }, [submittedAnswer]);
-
-  const getDivClassName = (option) => {
-    if (!activeQuestion) {
-      if (submittedAnswer === option) {
-        return option === correctAnswer ? styles.correct : styles.incorrect;
-      } else if (correctAnswer === option) {
-        return styles.correct;
-      } else {
-        return styles.neutral;
-      }
-    } else return styles.neutral;
-  };
 
   const checkCorrect = (submittedAnswer, correctAnswer) => {
     if (submittedAnswer === correctAnswer) {

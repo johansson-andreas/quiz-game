@@ -81,6 +81,7 @@ flex-direction: column;
     display: flex;
   flex-direction: column;
   align-self: end;
+  gap: 2px;
 }
 .createLobbyForm{
     display: flex;
