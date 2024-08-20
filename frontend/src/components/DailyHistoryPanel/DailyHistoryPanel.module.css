@@ -1,43 +1,45 @@
 .mainbody {
   background-color: rgb(238, 116, 116);
-  display: flex;
+  display: grid;
   text-wrap: nowrap;
-  flex-direction: column;
-  padding: 2%;
-  padding-top: 0.1%;
-   margin: 2%;
-  border-radius: 15px;
-  height: 70%;
-  border: 2px solid rgb(245, 133, 133);
-}
+  grid-template-areas: 
 
-.topText {
-  display:flex;
-  flex-direction: column;
+  "title title";
+  grid-auto-rows: minmax(min-content, min-content);
+  grid-template-columns: 2fr 1fr;
+  border-radius: 15px;
+  border: 2px solid rgb(245, 133, 133);
+  grid-area:historyPanel;
+  width: max-content;
 }
 .dateScoreText {
   display:flex;
   font-weight: bold;
 }
 .scoreEntry {
-  display:flex;
+  display: contents;
   border-top: 1px solid black;
 }
 .entryScoreDiv {
   justify-content: center;
   display: flex;
-  width: 33%;
+  grid-column: 2;
 
 }
 .entryDateDiv
 {
   justify-content: center;
   display: flex;
-  width: 66%;
-  margin-right: 10%;
+  grid-column: 1;
+
+
 }
 
 .yourHistoryTitle {
   align-self: center;
   font-weight: bold;
+  margin:0;
+  justify-content: center;
+  display: flex;
+  grid-column: 1 / 3;
 }

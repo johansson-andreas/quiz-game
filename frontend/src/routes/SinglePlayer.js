@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./styles/singlePlayerStyle.css";
 import IconComponent from "../components/IconComponent";
 import ScorePanel from "../components/ScorePanel";
@@ -10,24 +10,19 @@ import QuestionComponent from "../components/QuestionComponent/QuestionComponent
 import classNames from "classnames";
 
 const Controller = () => {
-  const [questionText, setQuestionText] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const [questionIcons, setQuestionIcons] = useState([]);
   const [question, setQuestion] = useState({});
-  const [options, setOptions] = useState([]);
   const [answer, setAnswer] = useState("");
   const [submittedAnswer, setSubmittedAnswer] = useState("");
   const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
   const [activeQuestion, setActive] = useState(true);
-  const [currentQuestionCategories, setCurrentQuestionCategories] = useState(
-    []
-  );
+  const [currentQuestionCategories, setCurrentQuestionCategories] = useState([]);
   const [newQuestionCategories, setNewQuestionCategories] = useState([]);
   const [scoreArray, setScoreArray] = useState({});
   const [questionTags, setQuestionTags] = useState([]);
-  const { user, setUser } = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const [catCanvasShow, setCatCanvasShow] = useState(false);
-  const [hasMounted, setHasMounted] = useState(false);
   const [triggeredOption, setTriggeredOption] = useState(null);
   const [streakCounter, setStreakCounter] = useState(0);
   const [fading, setFading] = useState(false);
@@ -36,7 +31,7 @@ const Controller = () => {
     setTotalQuestionsScore([0, 0]);
     setScoreArray({});
     initialContact();
-  }, [user]);
+  }, [user]);   
 
   const initialContact = () => {
     axios
@@ -60,7 +55,6 @@ const Controller = () => {
           console.log("currentotals", currentTotals);
           setTotalQuestionsScore([currentTotals[0], currentTotals[1]]);
         }
-        setHasMounted(true);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -81,9 +75,7 @@ const Controller = () => {
 
   const assignQuestion = (questionData) => {
     setQuestion(questionData);
-    setQuestionText(questionData.text);
     setQuestionTags(questionData.tags);
-    setOptions(questionData.choices);
   };
 
   const nextQuestion = async () => {
@@ -97,11 +89,11 @@ const Controller = () => {
       setTimeout(() => {
         setFading(false);
         console.log("fading out");
-      }, 2000);
+      }, 1500);
       setTimeout(() => {
         setActive(true);
         assignQuestion(response.data);
-      }, 600);
+      }, 450);
 
     } catch (error) {
       console.error("Error fetching data:", error);

@@ -55,7 +55,6 @@
 }
 
 .userEntry {
-  display: grid;
   text-wrap: nowrap;
   display: contents;
 }
@@ -127,14 +126,18 @@ margin-right: auto;
 .startGameButton {
   grid-area: content;
 
-  width: 25%;
+  width: calc(50px + 7vw);
+  background-color: var(--main-light-gray);
+  height: calc(30px + 5vh);
   align-self: center;
   margin: auto;
+  border:var(--default-border);
+  border-radius:15px;
 }
 .mpScoreDiv {
   padding: 10%;
 
-  background: aliceblue;
+  background: var(--main-light-gray);
   grid-area: score;
   height: 80vh;
   margin-top: 30%;
@@ -155,8 +158,6 @@ margin-right: auto;
   align-content: center;
   border-radius: 15px;
   border: var(--default-border);
-  user-select: none;
-  grid-area: content;
 
 }
 .categoryChoice:hover {
@@ -170,6 +171,7 @@ margin-right: auto;
   grid-template-areas: "title title title" "content content content";
   grid-template-columns: auto;
   grid-template-rows: auto 1fr;
+  gap: 2px;
 }
 .categoryChoicesDiv > * {
   margin: 1%;
