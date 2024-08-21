@@ -1,25 +1,27 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useTable, usePagination } from "react-table";
+import { Tab, Tabs } from 'react-bootstrap';
 import "./styles/adminPageStyle.css";
 import { UserContext } from "../contexts/UserContext";
 import LoginPanel from "../components/LoginPanel/LoginPanel";
 
 const AdminPage = () => {
-  const [data, setData] = useState([]); // Storing fetched data
+  const [newQuestions, setNewQuestions] = useState([]); // Storing new questions
+  const [currentQuestions, setCurrentQuestions] = useState([]); // Storing current questions
   const [loading, setLoading] = useState(true); // Loading Status
   const [error, setError] = useState(null); // Error handling
   const [editingId, setEditingId] = useState(null); // Track the ID of the row being edited
   const { user, setUser } = useContext(UserContext);
 
-  // Lägg till felmeddelande som obehörig
+  // Fetch new questions
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchNewQuestions = async () => {
       try {
         const response = await axios.get(
           "/api/question-routes/request-new-questions"
         );
-        setData(response.data); // Store fetched data
+        setNewQuestions(response.data);
       } catch (err) {
         setError(err);
       } finally {
@@ -27,18 +29,17 @@ const AdminPage = () => {
       }
     };
 
-    fetchData(); // Call fetchData function
+    fetchNewQuestions(); // Call fetchNewQuestions function
   }, []);
 
+  // Fetch current questions
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCurrentQuestions = async () => {
       try {
         const response = await axios.get(
-          "/api/question-routes/request-new-questions"
+          "/api/question-routes/get-current-questions"
         );
-        setData(response.data); // Store fetched data
-        console.log(response);
-        setError(null);
+        setCurrentQuestions(response.data);
       } catch (err) {
         setError(err);
       } finally {
@@ -46,7 +47,7 @@ const AdminPage = () => {
       }
     };
 
-    fetchData(); // Call fetchData function
+    fetchCurrentQuestions(); // Call fetchCurrentQuestions function
   }, [user]);
 
   const columns = React.useMemo(
@@ -54,49 +55,64 @@ const AdminPage = () => {
       { Header: "ID", accessor: "_id" },
       { Header: "Text", accessor: "text" },
       { Header: "Correct Answer", accessor: "correctAnswer" },
-      { Header: "Incorrect Answers", accessor: "incorrectAnswers", Cell: ({ value }) => value.join(", ")},
+      { Header: "Incorrect Answers", accessor: "incorrectAnswers", Cell: ({ value }) => value.join(", ") },
       { Header: "Tags", accessor: "tags" },
       { Header: "Actions", accessor: "actions" },
     ],
     []
   );
 
-  const tableInstance = useTable({ columns, data }, usePagination);
+  const tableInstanceNew = useTable({ columns, data: newQuestions }, usePagination);
+  const tableInstanceCurrent = useTable({ columns, data: currentQuestions }, usePagination);
 
   const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    prepareRow,
-    page, // Instead of using 'rows', we use 'page'
-    nextPage,
-    previousPage,
-    canNextPage,
-    canPreviousPage,
-    pageOptions,
-    state: { pageIndex },
-  } = tableInstance;
+    getTableProps: getTablePropsNew,
+    getTableBodyProps: getTableBodyPropsNew,
+    headerGroups: headerGroupsNew,
+    prepareRow: prepareRowNew,
+    page: pageNew, // Instead of using 'rows', we use 'page'
+    nextPage: nextPageNew,
+    previousPage: previousPageNew,
+    canNextPage: canNextPageNew,
+    canPreviousPage: canPreviousPageNew,
+    pageOptions: pageOptionsNew,
+    state: { pageIndex: pageIndexNew },
+  } = tableInstanceNew;
+
+  const {
+    getTableProps: getTablePropsCurrent,
+    getTableBodyProps: getTableBodyPropsCurrent,
+    headerGroups: headerGroupsCurrent,
+    prepareRow: prepareRowCurrent,
+    page: pageCurrent,
+    nextPage: nextPageCurrent,
+    previousPage: previousPageCurrent,
+    canNextPage: canNextPageCurrent,
+    canPreviousPage: canPreviousPageCurrent,
+    pageOptions: pageOptionsCurrent,
+    state: { pageIndex: pageIndexCurrent },
+  } = tableInstanceCurrent;
 
   const handleEditChange = (id, field, value) => {
-    const updatedData = data.map((item) =>
+    const updatedData = newQuestions.map((item) =>
       item._id === id ? { ...item, [field]: value } : item
     );
 
-    setData(updatedData);
+    setNewQuestions(updatedData);
   };
 
   const saveEdits = async (id) => {
-    const editedItem = data.find((item) => item._id === id);
+    const editedItem = newQuestions.find((item) => item._id === id);
     try {
       const response = await axios.put(
         `/api/question-routes/update-question/${id}`,
         editedItem
       );
       const updatedItem = response.data;
-      const updatedData = data.map((item) =>
+      const updatedData = newQuestions.map((item) =>
         item._id === id ? updatedItem : item
       );
-      setData(updatedData);
+      setNewQuestions(updatedData);
     } catch (error) {
       console.error("Failed to update question:", error);
     }
@@ -106,7 +122,7 @@ const AdminPage = () => {
   const acceptQuestion = async (id) => {
     try {
       await axios.post(`/api/question-routes/accept-question/${id}`);
-      setData((prevData) => prevData.filter((item) => item._id !== id));
+      setNewQuestions((prevData) => prevData.filter((item) => item._id !== id));
       console.log(`Accepted question: ${id}`);
     } catch (error) {
       console.error("Failed to accept question:", error);
@@ -116,7 +132,7 @@ const AdminPage = () => {
   const deleteQuestion = async (id) => {
     try {
       await axios.delete(`/api/question-routes/delete-question/${id}`);
-      setData((prevData) => prevData.filter((item) => item._id !== id));
+      setCurrentQuestions((prevData) => prevData.filter((item) => item._id !== id));
       console.log(`Deleted question: ${id}`);
     } catch (error) {
       console.error("Failed to delete:", error);
@@ -126,108 +142,151 @@ const AdminPage = () => {
   if (!user) return <LoginPanel />;
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
-  if (!data.length) return <p>No Data available</p>;
+  if (!newQuestions.length && !currentQuestions.length) return <p>No Data available</p>;
 
   return (
     <div className="main-div">
-      <h1>Admin Page</h1>
-      <table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+      <h1>Administrationspanel</h1>
+      <Tabs defaultActiveKey="newQuestions" id="admin-tabs" className="mb-3">
+        <Tab eventKey="newQuestions" title="Nya Frågor">
+          <table {...getTablePropsNew()}>
+            <thead>
+              {headerGroupsNew.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {page.map((row) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => {
-                  if (cell.column.id === "actions") {
-                    return (
-                      <td {...cell.getCellProps()}>
-                      <div className="main-button-container">
-                        <button
-                          onClick={() => acceptQuestion(row.original._id)}
-                        >
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => deleteQuestion(row.original._id)}
-                          className="delete"
-                        >
-                          Delete
-                        </button>
-                        {editingId === row.original._id ? (
-                          <button
-                            onClick={() => saveEdits(row.original._id)}
-                            className="save"
-                          >
-                            Save
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => setEditingId(row.original._id)}
-                          >
-                            Edit
-                          </button>
-                        )}
-                      </div>
-                      </td>
-                    );
-                  }
+            </thead>
+            <tbody {...getTableBodyPropsNew()}>
+              {pageNew.map((row) => {
+                prepareRowNew(row);
+                return (
+                  <tr {...row.getRowProps()}>
+                    {row.cells.map((cell) => {
+                      if (cell.column.id === "actions") {
+                        return (
+                          <td {...cell.getCellProps()}>
+                            <div className="main-button-container">
+                              <button
+                                onClick={() => acceptQuestion(row.original._id)}
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => deleteQuestion(row.original._id)}
+                                className="delete"
+                              >
+                                Delete
+                              </button>
+                              {editingId === row.original._id ? (
+                                <button
+                                  onClick={() => saveEdits(row.original._id)}
+                                  className="save"
+                                >
+                                  Save
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => setEditingId(row.original._id)}
+                                >
+                                  Edit
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        );
+                      }
 
-                  if (
-                    editingId === row.original._id &&
-                    [
-                      "text",
-                      "correctAnswer",
-                      "incorrectAnswers",
-                      "tags",
-                    ].includes(cell.column.id)
-                  ) {
-                    return (
-                      <td {...cell.getCellProps()}>
-                        <input
-                          value={cell.value}
-                          onChange={(e) =>
-                            handleEditChange(
-                              row.original._id,
-                              cell.column.id,
-                              e.target.value
-                            )
-                          }
-                        />
-                      </td>
-                    );
-                  }
-                  return (
-                    <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <div className="pagination">
-        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          Previous
-        </button>
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          Next
-        </button>
-        <span>
-          Page{" "}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{" "}
-        </span>
-      </div>
+                      if (
+                        editingId === row.original._id &&
+                        [
+                          "text",
+                          "correctAnswer",
+                          "incorrectAnswers",
+                          "tags",
+                        ].includes(cell.column.id)
+                      ) {
+                        return (
+                          <td {...cell.getCellProps()}>
+                            <input
+                              value={cell.value}
+                              onChange={(e) =>
+                                handleEditChange(
+                                  row.original._id,
+                                  cell.column.id,
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </td>
+                        );
+                      }
+                      return (
+                        <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div className="pagination">
+            <button onClick={() => previousPageNew()} disabled={!canPreviousPageNew}>
+              Previous
+            </button>
+            <button onClick={() => nextPageNew()} disabled={!canNextPageNew}>
+              Next
+            </button>
+            <span>
+              Page{" "}
+              <strong>
+                {pageIndexNew + 1} of {pageOptionsNew.length}
+              </strong>{" "}
+            </span>
+          </div>
+        </Tab>
+        <Tab eventKey="currentQuestions" title="Befintliga Frågor">
+          <table {...getTablePropsCurrent()}>
+            <thead>
+              {headerGroupsCurrent.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody {...getTableBodyPropsCurrent()}>
+              {pageCurrent.map((row) => {
+                prepareRowCurrent(row);
+                return (
+                  <tr {...row.getRowProps()}>
+                    {row.cells.map((cell) => (
+                      <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div className="pagination">
+            <button onClick={() => previousPageCurrent()} disabled={!canPreviousPageCurrent}>
+              Previous
+            </button>
+            <button onClick={() => nextPageCurrent()} disabled={!canNextPageCurrent}>
+              Next
+            </button>
+            <span>
+              Page{" "}
+              <strong>
+                {pageIndexCurrent + 1} of {pageOptionsCurrent.length}
+              </strong>{" "}
+            </span>
+          </div>
+        </Tab>
+      </Tabs>
     </div>
   );
 };
