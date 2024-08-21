@@ -24,8 +24,9 @@ const Controller = () => {
   const { user } = useContext(UserContext);
   const [catCanvasShow, setCatCanvasShow] = useState(false);
   const [triggeredOption, setTriggeredOption] = useState(null);
-  const [streakCounter, setStreakCounter] = useState(0);
   const [fading, setFading] = useState(false);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [streakRecord, setStreakRecord] = useState(0);
 
   useEffect(() => {
     setTotalQuestionsScore([0, 0]);
@@ -119,6 +120,24 @@ const Controller = () => {
         .post("/api/question-routes/submit-answer", { submittedAnswer })
         .then((response) => {
           setActive(false);
+
+          const isCorrect = response.data.correctAnswer === submittedAnswer;
+
+          if (isCorrect) {
+          // Update current streak
+          setCurrentStreak((prevStreak) => {
+            const newStreak = prevStreak + 1;
+            if (newStreak > streakRecord) {
+              setStreakRecord(newStreak);
+            }
+            return newStreak;
+          });
+          } else {
+            // Reset current streak, but keep the record unchanged
+            setCurrentStreak(0);
+          }
+
+
           console.log(
             "ScoreArray:",
             response.data.scoreArray,
@@ -127,13 +146,6 @@ const Controller = () => {
           );
           setScoreArray(response.data.scoreArray);
           setCorrectAnswer(response.data.correctAnswer);
-          // Added streakCounter
-          if (response.data.correctAnswer === submittedAnswer) {
-            setStreakCounter((prevStreak) => prevStreak + 1);
-          } else {
-            setStreakCounter(0); // Reset streak on incorrect answer
-          }
-
           setTotalQuestionsScore((prevCount) => {
             const newCount = [...prevCount];
             if (response.data.correctAnswer === submittedAnswer)
@@ -204,7 +216,8 @@ const Controller = () => {
           scoreArray={scoreArray}
           totalQuestionsScore={totalQuestionsScore}
           questionCategories={currentQuestionCategories}
-          streakCounter={streakCounter} // Pass streakcounter to Panel
+          currentStreak={currentStreak} // pass current streak
+          streakRecord={streakRecord} // pass streak record
         />
       </div>
       <div id="categoriesDiv">
