@@ -204,6 +204,17 @@ router.delete("/delete-question/:id", async (req, res) => {
   }
 });
 
+// Hämta aktuella frågor
+router.get("/get-current-questions", async (req, res) => {
+  try {
+    // Hämta alla frågor från databasen
+    const questions = await Question.find({});
+    res.json(questions); // Skicka tillbaka som JSON
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;
 
 
