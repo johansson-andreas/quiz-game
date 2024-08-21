@@ -12,7 +12,7 @@ const sockets = (io) => {
     
 
     socket.on('disconnect', () => {
-      console.log('Client', socket.request.session.passport.user, 'disconnected from the server');
+      if(socket.request.session.passport) console.log('Client', socket.request.session.passport.user, 'disconnected from the server');
     });
   });
 };

@@ -28,7 +28,7 @@ const ScorePanel = ({scoreArray, totalQuestionsScore, questionCategories, streak
         <div id="scorePanel">
             <p id='scorePanelTitle'>Statistik denna session</p>
             <p id='answerTally'>Korrekta svar: {correctAnswers} / Totala frågor: {totalQuestions} </p>
-            <p id='streakDisplay'>Nuvarande rekordsvar: {currentStreak} (Rekord: {streakRecord})</p>
+            <p id='streakDisplay'>Nuvarnde rekordsvaar: {currentStreak} (Rekord: {streakRecord})</p>
             <div id="scoreCatPanel">
                 {groupedEntries.length > 0 ? (
                 groupedEntries.map((group, index) => (

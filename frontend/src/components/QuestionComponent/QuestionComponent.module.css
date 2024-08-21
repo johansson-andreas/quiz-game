@@ -60,12 +60,12 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
+  margin-top:10px
 }
 
 .submitNextButton {
   width: 30%;
-  height: 15%;
-  max-height: 50px;
+  min-width: fit-content;
   min-height: fit-content;
   background-color:var(--main-light-gray);
   border-radius: 15px;
@@ -73,10 +73,12 @@
   color: rgb(0, 0, 0);
   border: var(--default-border);
   padding: 5px;
+  height: fit-content;
 
 }
 .submitNextButton:disabled {
-  color: rgb(66, 66, 66);
+  background-color:var(--main-gray-color);
+  color: gray
 
 
 }
@@ -106,4 +108,15 @@
 .radioButtonLabels > input {
   margin-right: 5px;
   margin-left: 5px;
+}
+
+@media (max-width: 600px) {
+    .questionText{
+      width: 95%;
+      max-width: 95%;
+    }
+    .radioButtonsDiv{
+      width: 95%;
+      max-width: 95%;
+    }
 }
