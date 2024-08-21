@@ -35,27 +35,27 @@ const CreateLobbyComponent = ({
           <input type="number" value={newLobbyTimer} onChange={(e) => setNewLobbyTimer(Number(e.target.value))}/>
           Vinstvillkor:
           <div className={styles.winConDiv}>
-          <label>
+          <label  style={{display:'contents'}} >
             <input
               type="radio"
               value="correctCon"
               checked={chosenWinCon === 'correctCon'}
               onChange={updateChosenWinCon}
-              style={{gridArea: "text1"}} 
+              style={{gridColumn: 1, gridRow: 1}} 
               />
-            Först till # rätta svar:
-            <input   style={{gridArea: "number1"}} type="number" defaultValue={10} className={styles.winConText} onChange={(e) => setCorrectWinConNumber(Number(e.target.value))}/> 
-          </label>
-          <label>
+            <div style={{gridColumn: 2, gridRow: 1}}>Först till # rätta svar:</div>
+            <input   style={{gridColumn: 3, gridRow: 1}} type="number" defaultValue={10} className={styles.winConText} onChange={(e) => setCorrectWinConNumber(Number(e.target.value))}/> 
+            </label>
+            <label  style={{display:'contents'}} >
             <input
               type="radio"
               value="amountCon"
               checked={chosenWinCon === 'amountCon'}
               onChange={updateChosenWinCon}
-              style={{gridArea: "text2"}} 
+              style={{gridColumn: 1, gridRow: 2}} 
             />
-            Antal frågor: 
-            <input   style={{gridArea: "number2"}} 
+            <div style={{gridColumn: 2, gridRow: 2}}>Antal frågor: </div>
+            <input   style={{gridColumn: 3, gridRow: 2}} 
             type="number" defaultValue={15} className={styles.winConText} onChange={(e) => setAmountWinConNumber(Number(e.target.value))}/>
           </label>
           </div>

@@ -31,6 +31,7 @@ const QuestionForm = () => {
         { newQuestion }
       );
       console.log(response.data);
+      
 
       setQuizData([...quizData, newQuestion]);
       setSubmissionStatus("success");

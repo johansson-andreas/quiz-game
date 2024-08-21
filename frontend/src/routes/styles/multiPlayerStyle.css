@@ -33,7 +33,7 @@
     opacity: 100%;
   }
   50% {
-    opacity: 50%;
+    opacity: 0%;
   }
   100% {
     opacity: 0%;
@@ -44,19 +44,20 @@
     opacity: 100%;
   }
   30% {
-    opacity: 90%
+    opacity: 90%;
   }
   50% {
     opacity: 70%;
   }
   100% {
-    opacity: 30%;
+    opacity: 0%;
   }
 }
 
 .userEntry {
   text-wrap: nowrap;
   display: contents;
+  background-color: red;
 }
 
 .pulseGreen {
@@ -67,12 +68,12 @@
   animation: pulseRed 1s ease-in-out;
 }
 
-.fade {
-  animation: fadeOut 1s ease-out;
+.fadeFast {
+  animation: fadeOut 2s ease-out;
 }
 
 .slowFade {
-  animation: fadeOut 2.2s ease-out;
+  animation: slowFadeOut 2s ease-out;
 }
 
 .questionDiv {
@@ -82,7 +83,7 @@
   display: flex;
   flex-direction: column;
   background-color: var(--main-gray-color);
-  border-radius:15px;
+  border-radius: 15px;
   border: var(--default-border);
 }
 .questionDiv > * {
@@ -91,12 +92,12 @@
 .mpMainDiv {
   display: grid;
   grid-template-columns: 1fr min-content; /* 1fr for the left side, auto for the score */
-  grid-template-rows: auto 1fr; /* auto for the name row, 1fr for the content row */
+  grid-template-rows: 20px 1fr;
   grid-template-areas:
     "name score"
     "content score"; /* The score area spans across both rows */
-  padding-right: 3%;
-  padding-left: 3%;
+  padding-right: 2%;
+  padding-left: 2%;
   width: 100%;
 }
 
@@ -119,9 +120,9 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: 80%;
+  width: 95%;
   margin-left: auto;
-margin-right: auto;
+  margin-right: auto;
 }
 .startGameButton {
   grid-area: content;
@@ -131,23 +132,8 @@ margin-right: auto;
   height: calc(30px + 5vh);
   align-self: center;
   margin: auto;
-  border:var(--default-border);
-  border-radius:15px;
-}
-.mpScoreDiv {
-  padding: 10%;
-
-  background: var(--main-light-gray);
-  grid-area: score;
-  height: 80vh;
-  margin-top: 30%;
-  width: min-content;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px; 
-  grid-auto-rows: minmax(min-content, min-content);
-  border-radius: 15px;
   border: var(--default-border);
+  border-radius: 15px;
 }
 
 .categoryChoice {
@@ -158,7 +144,6 @@ margin-right: auto;
   align-content: center;
   border-radius: 15px;
   border: var(--default-border);
-
 }
 .categoryChoice:hover {
   background-color: var(--main-gray-color);
@@ -167,7 +152,7 @@ margin-right: auto;
   display: grid;
   margin: auto;
   margin-top: 0px;
-  grid-area:content;
+  grid-area: content;
   grid-template-areas: "title title title" "content content content";
   grid-template-columns: auto;
   grid-template-rows: auto 1fr;
@@ -176,12 +161,12 @@ margin-right: auto;
 .categoryChoicesDiv > * {
   margin: 1%;
 }
-.inactive > * > *{
+.inactive > * {
   background-color: rgba(163, 163, 163, 0.726);
   color: rgba(61, 61, 61, 0.63);
   border: 1px solid rgba(44, 44, 44, 0.548);
 }
-.inactive > *> *:hover {
+.inactive > *:hover {
   background-color: rgba(163, 163, 163, 0.726);
 }
 .roomTitle {
@@ -189,17 +174,14 @@ margin-right: auto;
   flex-direction: column;
   align-items: center;
 }
-.categoryChoicesDivTitle
-{
-  grid-area:title;
+.categoryChoicesDivTitle {
+  grid-area: title;
   text-align: center;
 }
 .inactive {
-  grid-area:content;
-
+  grid-area: content;
 }
-.timerProgressBarContainer
-{
+.timerProgressBarContainer {
   width: 75%;
   align-items: baseline;
   margin-top: 1%;
@@ -207,8 +189,6 @@ margin-right: auto;
   border-radius: 15px;
   border: var(--default-border);
   display: inline-flex;
-
-
 }
 .timerProgressBarBar {
   width: 100%;
@@ -216,9 +196,109 @@ margin-right: auto;
   border-radius: 15px;
   background: red;
 }
-.timerText
-{
+.timerText {
   position: fixed;
-  margin-left:25%;
+  margin-left: 25%;
   font-weight: 700;
+}
+.scorePanel
+{
+  background-color: var(--main-light-gray);
+  padding: 5%;
+  margin-bottom: 10px;
+  height: 80vh;
+  display: unset;
+  margin-top: 5vh;
+  width: 20vw;
+  margin-left: auto;
+  margin-right: auto;
+  grid-area: score;
+  border-radius: 15px;
+  border: var(--default-border);
+  gap:10px;
+  display: flex;
+  flex-direction: column;
+
+}
+.mpScoreDiv {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px;
+  grid-auto-rows: minmax(min-content, min-content);
+  border-radius: 15px;
+  background: var(--main-light-gray);
+padding: 5px;
+}
+.scorePanelTitle
+{
+  font-weight: 500;
+  text-align: center;
+
+}
+
+
+@media (max-width: 600px) {
+  .mpMainDiv {
+    height: calc(100vh - 20px);
+    flex-direction: column;
+    display: flex;
+  }
+  .categoryChoicesDiv {
+    max-width: 100vw;
+    display: flex;
+    flex-direction: column;
+    max-width: 100vw;
+    width: 100%;
+    height: 100%;
+  }
+  .categoryChoice {
+    width: 100%;
+    height: 100%;
+  }
+  .newLobbyButton {
+    width: 100%;
+  }
+  .joinLobbyForm {
+    width: 100%;
+    gap: 5px;
+  }
+  .createButtons {
+    padding: 5px;
+  }
+  .questionScoreDiv {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .timerProgressBarContainer {
+    margin: 5px;
+  }
+  .mpScoreDiv {
+
+    padding: 5px;
+    column-count: 3; 
+    column-gap: 2px;
+    gap: 10px;
+  }
+  .userEntry {
+    display: flex;
+    margin: 0;
+    gap: 7px;
+    justify-content: space-between;
+  }
+  .username{
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .categoryChoicesDivTitle
+  {
+    background-color: unset;
+    border: 0;
+  }
+  .categoryChoicesDivTitle:hover
+  {
+    background-color: unset;
+  }
+
 }

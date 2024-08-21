@@ -127,11 +127,15 @@ const MultiPlayer = ({ lobbyName }) => {
   };
 
   const setFade = (chosenCategory) => {
-    console.log(lobbyInfoRef)
-    const notChosenCategories = lobbyInfoRef.current.currentChooser.categoryChoices.reduce((acc, category) => {
-      acc[category] = category === chosenCategory ? "slowFade" : "fade";
-      return acc;
-    }, {});
+    console.log(lobbyInfoRef);
+    const notChosenCategories =
+      lobbyInfoRef.current.currentChooser.categoryChoices.reduce(
+        (acc, category) => {
+          acc[category] = category === chosenCategory ? "slowFade" : "fadeFast";
+          return acc;
+        },
+        {}
+      );
     setNotChosenCategories(notChosenCategories);
   };
 
@@ -193,8 +197,12 @@ const MultiPlayer = ({ lobbyName }) => {
         setCanProgress(false);
         setSubmittedAnswer("");
         setTimerRunning(true);
-      }, 2000)
+      }, 2000);
     };
+
+    socket.on('connect_error', (err) => {
+      console.error('Connection error:', err);
+    });
 
     socket.on("sendRoomInfo", handleRoomInfo);
     socket.on("currentUsersInRoom", handleCurrentUsers);
@@ -264,12 +272,16 @@ const MultiPlayer = ({ lobbyName }) => {
   }, [currentQuestion]);
 
   const categoryChoice = (category) => {
-    return <div className={`categoryChoice ${notChosenCategories[category] || ''}`}>{category}</div>;
+    return (
+      <div onClick={() => selectCategory(category)} className={`categoryChoice ${notChosenCategories[category] || ""}`}>
+        {category}
+      </div>
+    );
   };
   const selectCategory = (category) => {
     socket.emit("selectedCategory", { lobbyName, category });
   };
- 
+
   const startTimer = useCallback(() => {
     setTimeLeft(questionTimer);
     startTimeRef.current = null;
@@ -348,10 +360,11 @@ const MultiPlayer = ({ lobbyName }) => {
               canProgress={canProgress}
             />
             <div className="timerProgressBarContainer">
-                <div className="timerProgressBarBar" style={{width: (timeLeft/questionTimer)*100 + '%'}} /> 
-                <div className="timerText">{timeLeft > 0 && Math.ceil(timeLeft)}</div>
-            </div> 
-
+              <div
+                className="timerProgressBarBar"
+                style={{ width: (timeLeft / questionTimer) * 100 + "%" }}
+              />
+            </div>
           </div>
         </div>
       </>
@@ -364,23 +377,24 @@ const MultiPlayer = ({ lobbyName }) => {
         {lobbyInfo.currentChooser.currentChooser === user ? (
           <>
             <div className="categoryChoicesDiv">
-            <p className="categoryChoicesDivTitle">Din tur att välja kategori.</p>
+              <p className="categoryChoicesDivTitle">
+                Din tur att välja kategori.
+              </p>
 
               {lobbyInfo.currentChooser.categoryChoices.map((category) => (
-                <div onClick={() => selectCategory(category)}>
-                  {categoryChoice(category)}
-                </div>
+                <>{categoryChoice(category)}</>
               ))}
             </div>
           </>
         ) : (
           <>
-
             <div className="categoryChoicesDiv inactive">
-            <p className="categoryChoicesDivTitle">Väntar på att {lobbyInfo.currentChooser.currentChooser} väljer
-            kategori.</p>
+              <p className="categoryChoicesDivTitle">
+                Väntar på att {lobbyInfo.currentChooser.currentChooser} väljer
+                kategori.
+              </p>
               {lobbyInfo.currentChooser.categoryChoices.map((category) => (
-                <div>{categoryChoice(category)}</div>
+                <>{categoryChoice(category)}</>
               ))}
             </div>
           </>
@@ -403,13 +417,15 @@ const MultiPlayer = ({ lobbyName }) => {
       </p>
 
       {renderContent()}
-      <div className="mpScoreDiv">
-        {Object.keys(users).map((user) => (
+      <div className="scorePanel">
+        <div className="scorePanelTitle">Först till 10 korrekta svar!</div>
+        <div className="mpScoreDiv">{Object.keys(users).map((user) => (
           <div key={user} className={`userEntry ${animatedUsers[user] || ""}`}>
             <div className="username">{users[user].username}</div>
             <div className="score">{users[user].score}</div>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );

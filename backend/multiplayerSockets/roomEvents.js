@@ -16,6 +16,7 @@ export const roomEvents = (socket, rooms, io) => {
   else return;
 
   socket.on("createNewLobby", async (newLobbyInfo) => {
+    console.log("test");
     const lobbyName = newLobbyInfo.lobbyName || generateLobbyName(rooms);
     const allCategories = await getAllCategories();
 

@@ -116,11 +116,11 @@ const Controller = () => {
   useEffect(() => {
     console.log("Submitted answer:", submittedAnswer);
     if (submittedAnswer !== "") {
-      axios
-        .post("/api/question-routes/submit-answer", { submittedAnswer })
+      axios.post("/api/question-routes/submit-answer", { submittedAnswer })
         .then((response) => {
           setActive(false);
 
+          
           const isCorrect = response.data.correctAnswer === submittedAnswer;
 
           if (isCorrect) {
@@ -239,7 +239,6 @@ const Controller = () => {
           </Offcanvas.Header>
           <Offcanvas.Body>
             {currentQuestionCategories.map((category, index) => (
-              <div key={index}>
                 <label className="checkboxLabels">
                   <div className="topLineCheckbox">
                     <input
@@ -251,7 +250,6 @@ const Controller = () => {
                   </div>
                   ({category.count})
                 </label>
-              </div>
             ))}
           </Offcanvas.Body>
         </Offcanvas>

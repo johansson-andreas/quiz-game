@@ -35,3 +35,11 @@
 .gmbBottomLeft  {
     border-radius: 0px 0px 0px 15px;
 }
+
+
+
+@media (max-width: 600px) {
+    .gameModeButtonsContainer{
+        width: 75%;
+    }
+}

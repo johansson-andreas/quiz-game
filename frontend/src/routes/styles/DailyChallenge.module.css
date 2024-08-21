@@ -311,3 +311,37 @@
   width:70%;
   min-width:70%;
 }
+
+@media (max-width: 600px) {
+  .loggedInPanel
+  {
+    display: flex;
+    flex-direction: column;
+  }
+  .scorePanel
+  {
+    flex-direction: column;
+  }
+  .keyDiv
+  {
+    flex-direction: column;
+    gap:5px;
+  }
+  .keyQuestionText
+  {
+    width: 100%;
+    max-width: 100%;
+    text-wrap: balance;
+  }
+  .incorrectAnswer, .keyCorrectAnswer, .correctAnswer
+  {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0%;
+  }
+  .keyCorrectAnswerTitle, .submittedAnswersTitle
+  {
+    display: none;
+  }
+
+}
