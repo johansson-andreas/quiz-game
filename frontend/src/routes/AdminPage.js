@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useTable, usePagination } from "react-table";
 import { Tab, Tabs } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import "./styles/adminPageStyle.css";
 import { UserContext } from "../contexts/UserContext";
 import LoginPanel from "../components/LoginPanel/LoginPanel";
