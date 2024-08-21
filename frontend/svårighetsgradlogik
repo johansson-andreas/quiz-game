@@ -36,3 +36,7 @@ fördela svårighetsgradsfältet
 Question model -> Lägga till difficulty fält
 Admin frontend -> Lägg till knapp som säger åt backend
 QuestionRoutes -> Lägg till ny funktion som delar in
+
+
+React bootstrap tabs "Nya frågor" "??" högra hörnan
+Visar de första 30 frågorna. Knapp för att öka nästa 30
