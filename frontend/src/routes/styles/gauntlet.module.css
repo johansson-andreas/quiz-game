@@ -1,0 +1,4 @@
+.livesDiv{
+    display:flex;
+    flex-direction: row;
+}

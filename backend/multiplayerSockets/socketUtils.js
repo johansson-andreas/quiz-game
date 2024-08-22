@@ -82,7 +82,6 @@ export const getNewQuestion = async (questionQueue) => {
 
 export const getNextQuestion = async ({lobbyInfo, chosenCategory}) => {
   const currentLobby = {...lobbyInfo};
-  console.log('getnextquestion lobbyinfo', currentLobby);
   currentLobby.currentQuestion = await getRandomQuestionByTag(chosenCategory);
   currentLobby.questionAmount++;
 

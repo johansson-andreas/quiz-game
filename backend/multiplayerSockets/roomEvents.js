@@ -147,7 +147,6 @@ socket.on("getNextQuestion", async (lobbyName) => {
     socket.emit("winnerDetermined", winners);
   }
 
-  console.log('getnextquestion chooser', rooms[lobbyName].currentChooser)
   io.to(lobbyName).emit("currentChooser", rooms[lobbyName].currentChooser);
 });
 

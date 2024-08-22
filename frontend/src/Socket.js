@@ -17,7 +17,8 @@ const socket = io('localhost:4000', {
   reconnectionDelay: 1000,
   timeout: 20000,
   pingTimeout: 10000,
-  pingInterval: 5000
+  pingInterval: 5000,
+  autoConnect: false
 });  
 
 
