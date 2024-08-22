@@ -177,6 +177,8 @@
 .categoryChoicesDivTitle {
   grid-area: title;
   text-align: center;
+  background-color: unset;
+  border: unset;
 }
 .inactive {
   grid-area: content;

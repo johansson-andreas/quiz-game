@@ -10,7 +10,7 @@ const socket = io('localhost:4000', {
 
 
 
-const socket = io('192.168.50.95:4000', {
+const socket = io('localhost:4000', {
   transports: ["websocket"],
   reconnection: true,
   reconnectionAttempts: 10,

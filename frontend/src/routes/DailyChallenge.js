@@ -78,7 +78,6 @@ const DailyChallenge = () => {
         setActive(true);
         setQuestionsRemaining((prevCount) => prevCount - 1);
       } else if (response.data.status === "out of questions") {
-        //TODO: ADD SOMETHING WHEN UUT OF QUESTIONS. MAYBE REMOVE QUESTION PANEL AND ADD RESULT PANEL?
         setActiveQuiz(false);
       }
     } catch (error) {

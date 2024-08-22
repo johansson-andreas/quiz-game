@@ -1,4 +1,4 @@
-#categoriesDiv
+.categoriesDiv
 {
   margin-right: 0;
   width: min-content;
@@ -138,6 +138,7 @@
       grid-template-areas: 
       "question categories"
       "scorePanel .";
+      grid-template-columns: 1fr min-content;
     }
     .questionBody
     {

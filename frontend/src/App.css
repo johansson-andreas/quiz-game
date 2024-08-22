@@ -1,7 +1,7 @@
 :root {
   --main-gray-color: rgb(192, 200, 206);
   --main-light-gray: #d8e8f3e5;
-  --default-border: 2px solid  rgba(255, 255, 255, 0.2);
+  --default-border: 2px solid  rgba(0, 0, 0, 0.2);
   --main-dark-gray: rgb(148, 148, 148);
   --main-red-color: #ff7070;
   --main-green-color: rgb(80, 215, 80);
@@ -24,7 +24,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #979797;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
