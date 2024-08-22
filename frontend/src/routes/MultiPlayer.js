@@ -22,6 +22,7 @@ const MultiPlayer = ({ lobbyName }) => {
     host: "",
     currentQuestion: {},
     currentChooser: {},
+    questionAmount: 0
   });
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [correctAnswer, setCorrectAnswer] = useState(null);
@@ -101,7 +102,6 @@ const MultiPlayer = ({ lobbyName }) => {
     socket.emit("getNextQuestion", lobbyName);
   };
 
-  useEffect(() => {}, [lobbyInfo.currentChooser]);
 
   useEffect(() => {
     submittedAnswerRef.current = submittedAnswer;
@@ -180,6 +180,7 @@ const MultiPlayer = ({ lobbyName }) => {
         const updatedLobbyInfo = { ...prevLobbyInfo };
         updatedLobbyInfo.currentChooser = currentChooser;
         updatedLobbyInfo.active = currentChooser.active;
+        updatedLobbyInfo.questionAmount = currentChooser.questionAmount;
         return updatedLobbyInfo;
       });
     };
@@ -190,6 +191,7 @@ const MultiPlayer = ({ lobbyName }) => {
           const newInfo = { ...prevInfo };
           newInfo.currentChooser.active = false;
           newInfo.currentQuestion = question;
+
           return newInfo;
         });
         setIsLocked(false);
@@ -224,16 +226,6 @@ const MultiPlayer = ({ lobbyName }) => {
     };
   }, []);
 
-  const flashRed = (username) => {
-    setAnimatedUsers((prev) => ({ ...prev, [username]: "pulseRed" }));
-    setTimeout(() => {
-      setAnimatedUsers((prev) => {
-        const { [username]: _, ...rest } = prev;
-        return rest;
-      });
-    }, 1000); // Animation duration (milliseconds)
-  };
-
   const flashGreen = (username) => {
     setAnimatedUsers((prev) => ({ ...prev, [username]: "pulseGreen" }));
     setTimeout(() => {
@@ -255,10 +247,9 @@ const MultiPlayer = ({ lobbyName }) => {
         if (users[key]) {
           const score1 = newUsersInfo.newUsersInfo[key].score;
           const score2 = users[key].score;
-          if (score1 === score2) {
-            //TODO: HANDLE INCORRECT ANSWEER?
-            //flashRed(key);
-          } else flashGreen(key);
+          if (score1 !== score2) {
+            flashGreen(key);
+          }  
         }
       }
 
@@ -418,7 +409,7 @@ const MultiPlayer = ({ lobbyName }) => {
 
       {renderContent()}
       <div className="scorePanel">
-        <div className="scorePanelTitle">Först till 10 korrekta svar!</div>
+        <div className="scorePanelTitle">{lobbyInfo.chosenWinCon === "correctCon" ? (<>Först till {lobbyInfo.winConNumber} korrekta svar!</>) : (<>Fråga {lobbyInfo.questionAmount} / {lobbyInfo.winConNumber}</>)}</div>
         <div className="mpScoreDiv">{Object.keys(users).map((user) => (
           <div key={user} className={`userEntry ${animatedUsers[user] || ""}`}>
             <div className="username">{users[user].username}</div>

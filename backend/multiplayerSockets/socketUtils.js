@@ -33,8 +33,19 @@ export  const checkWinCon = (lobbyInfo) => {
     winners = Object.keys(usersData).filter((userData) => {
       return usersData[userData].score >= winConNumber;
     });
-  } else {
-    //TODO: ADD QUESTOON AMOUNT WINCON
+  } else if (chosenWinCon === "amountCon") {
+    let highestScore = -1;
+    if(lobbyInfo.questionAmount >= winConNumber)
+      Object.keys(usersData).forEach(userData => {
+        const userScore = usersData[userData].score;
+  
+        if (userScore > highestScore) {
+          highestScore = userScore;
+          winners = [userData];
+        } else if (userScore === highestScore) {
+          winners.push(userData);
+        }
+      });
   }
   return winners;
 };
@@ -78,12 +89,6 @@ export const getNextQuestion = async ({lobbyInfo, chosenCategory}) => {
   currentLobby.timer = new Date(
     Date.now() + (currentLobby.questionTimer + delayCompensation) * 1000
   );
-  setTimeout(() => {
-    const winConResult = checkWinCon(currentLobby);
-    if (winConResult.length > 0) {
-      socket.emit("winnerDetermined", winConResult);
-    }
-  }, (currentLobby.questionTimer + delayCompensation) * 1000);
 
   console.log('timeout timer', currentLobby.timer)
   return currentLobby;

@@ -93,6 +93,7 @@ socket.on("getRoomInfo", (lobbyName) => {
       host: rooms[lobbyName].host,
       currentQuestion: {},
       currentChooser: rooms[lobbyName].currentChooser,
+      questionAmount: rooms[lobbyName].questionAmount
     });
   }
 });
@@ -103,6 +104,7 @@ socket.on("startGame", (lobbyName) => {
     currentChooser: getRandomChooser(Object.keys(rooms[lobbyName].users)),
     categoryChoices: getCategoryChoices(rooms[lobbyName]),
     active: rooms[lobbyName].active,
+    questionAmount: rooms[lobbyName].questionAmount
   };
   console.log('start game chooser', rooms[lobbyName].currentChooser)
   io.to(lobbyName).emit("currentChooser", rooms[lobbyName].currentChooser);
@@ -132,11 +134,19 @@ socket.on("submitAnswer", (lobbyInfo) => {
 });
 
 socket.on("getNextQuestion", async (lobbyName) => {
+  console.log(rooms[lobbyName]);
   rooms[lobbyName].currentChooser = {
     currentChooser: getRandomChooser(Object.keys(rooms[lobbyName].users)),
     categoryChoices: getCategoryChoices(rooms[lobbyName]),
     active: rooms[lobbyName].active,
+    questionAmount: rooms[lobbyName].questionAmount
   };
+  const winners = checkWinCon(rooms[lobbyName]);
+
+  if (winners.length > 0) {
+    socket.emit("winnerDetermined", winners);
+  }
+
   console.log('getnextquestion chooser', rooms[lobbyName].currentChooser)
   io.to(lobbyName).emit("currentChooser", rooms[lobbyName].currentChooser);
 });

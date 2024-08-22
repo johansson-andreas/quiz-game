@@ -220,7 +220,7 @@ const Controller = () => {
           streakRecord={streakRecord} // pass streak record
         />
       </div>
-      <div id="categoriesDiv">
+      <div className="categoriesDiv">
         <Button
           variant="primary"
           onClick={handleCatCanvasShow}
