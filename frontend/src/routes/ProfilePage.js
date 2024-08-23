@@ -6,9 +6,6 @@ import './styles/profilePageStyle.css';
 const ProfilePage = () => {
 
     const [scoreArray, setScoreArray] = useState([]);
-    const [totalQuestionsScore, setTotalQuestionsScore] = useState([]);
-    const [userHistory, setUserHistory] = useState([]);
-    const [historyData, setHistoryData] = useState([]);
 
     useEffect(() => {
         initialLoad()

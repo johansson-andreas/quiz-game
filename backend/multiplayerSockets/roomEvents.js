@@ -43,7 +43,6 @@ export const roomEvents = (socket, rooms, io) => {
       newLobby.questionQueue = await getNewQuestionQueue();
 
       newLobby.currentQuestion = await getNewQuestion(newLobby.questionQueue);
-      newLobby.questionAmount++;
 
       rooms[lobbyName] = newLobby;
       console.log("Creating new room", newLobby.lobbyName);
@@ -115,6 +114,7 @@ socket.on("submitAnswer", (lobbyInfo) => {
   const lobbyName = lobbyInfo.lobbyName;
   console.log("received", submittedAnswer, "from", username);
   if (
+    rooms[lobbyName] && 
     checkTimer(rooms[lobbyName].timer) &&
     submittedAnswer == rooms[lobbyName].currentQuestion.correctAnswer
   ) {
@@ -135,17 +135,18 @@ socket.on("submitAnswer", (lobbyInfo) => {
 
 socket.on("getNextQuestion", async (lobbyName) => {
   console.log(rooms[lobbyName]);
+  const winners = checkWinCon(rooms[lobbyName]);
+
+  if (winners.length > 0) {
+    io.to(lobbyName).emit("winnerDetermined", winners);
+  }
+
   rooms[lobbyName].currentChooser = {
     currentChooser: getRandomChooser(Object.keys(rooms[lobbyName].users)),
     categoryChoices: getCategoryChoices(rooms[lobbyName]),
     active: rooms[lobbyName].active,
     questionAmount: rooms[lobbyName].questionAmount
   };
-  const winners = checkWinCon(rooms[lobbyName]);
-
-  if (winners.length > 0) {
-    socket.emit("winnerDetermined", winners);
-  }
 
   io.to(lobbyName).emit("currentChooser", rooms[lobbyName].currentChooser);
 });
@@ -155,6 +156,7 @@ socket.on("selectedCategory", async ({ lobbyName, category }) => {
   io.to(lobbyName).emit("categoryChosen", {
     category,
     question: obfQuestion(rooms[lobbyName].currentQuestion),
+    questionAmount: rooms[lobbyName].questionAmount
   });
 
 });
