@@ -184,14 +184,14 @@ const MultiPlayer = ({ lobbyName }) => {
         return updatedLobbyInfo;
       });
     };
-    const handleCategoryChosen = ({ category, question }) => {
+    const handleCategoryChosen = ({ category, question, questionAmount }) => {
       setFade(category);
       setTimeout(() => {
         setLobbyInfo((prevInfo) => {
           const newInfo = { ...prevInfo };
           newInfo.currentChooser.active = false;
           newInfo.currentQuestion = question;
-
+          newInfo.questionAmount = questionAmount;
           return newInfo;
         });
         setIsLocked(false);
@@ -262,12 +262,22 @@ const MultiPlayer = ({ lobbyName }) => {
     console.log("updated question", currentQuestion);
   }, [currentQuestion]);
 
-  const categoryChoice = (category) => {
-    return (
+  const categoryChoice = (category, active) => {
+    if(active) {
+      return (
       <div onClick={() => selectCategory(category)} className={`categoryChoice ${notChosenCategories[category] || ""}`}>
         {category}
       </div>
     );
+  }
+  else{
+    return (
+      <div className={`categoryChoice ${notChosenCategories[category] || ""}`}>
+      {category}
+    </div>
+    )
+  }
+
   };
   const selectCategory = (category) => {
     socket.emit("selectedCategory", { lobbyName, category });
@@ -373,7 +383,7 @@ const MultiPlayer = ({ lobbyName }) => {
               </p>
 
               {lobbyInfo.currentChooser.categoryChoices.map((category) => (
-                <>{categoryChoice(category)}</>
+                <>{categoryChoice(category, true)}</>
               ))}
             </div>
           </>
