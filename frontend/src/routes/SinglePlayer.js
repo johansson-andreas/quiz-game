@@ -17,7 +17,9 @@ const Controller = () => {
   const [submittedAnswer, setSubmittedAnswer] = useState("");
   const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
   const [activeQuestion, setActive] = useState(true);
-  const [currentQuestionCategories, setCurrentQuestionCategories] = useState([]);
+  const [currentQuestionCategories, setCurrentQuestionCategories] = useState(
+    []
+  );
   const [newQuestionCategories, setNewQuestionCategories] = useState([]);
   const [scoreArray, setScoreArray] = useState({});
   const [questionTags, setQuestionTags] = useState([]);
@@ -32,7 +34,7 @@ const Controller = () => {
     setTotalQuestionsScore([0, 0]);
     setScoreArray({});
     initialContact();
-  }, [user]);   
+  }, [user]);
 
   const initialContact = () => {
     axios
@@ -83,7 +85,7 @@ const Controller = () => {
     console.log("Next question");
 
     try {
-      const response = await axios.get("/api/question-routes/request-question");
+      const response = await axios.get("/api/question-routes/question");
       console.log("GET request successful:", response.data);
 
       setFading(true);
@@ -95,11 +97,9 @@ const Controller = () => {
         setActive(true);
         assignQuestion(response.data);
       }, 450);
-
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-
   };
 
   const handleCheckboxChange = (category) => {
@@ -116,27 +116,26 @@ const Controller = () => {
   useEffect(() => {
     console.log("Submitted answer:", submittedAnswer);
     if (submittedAnswer !== "") {
-      axios.post("/api/question-routes/submit-answer", { submittedAnswer })
+      axios
+        .post(`/api/question-routes/answer/${submittedAnswer}`)
         .then((response) => {
           setActive(false);
 
-          
           const isCorrect = response.data.correctAnswer === submittedAnswer;
 
           if (isCorrect) {
-          // Update current streak
-          setCurrentStreak((prevStreak) => {
-            const newStreak = prevStreak + 1;
-            if (newStreak > streakRecord) {
-              setStreakRecord(newStreak);
-            }
-            return newStreak;
-          });
+            // Update current streak
+            setCurrentStreak((prevStreak) => {
+              const newStreak = prevStreak + 1;
+              if (newStreak > streakRecord) {
+                setStreakRecord(newStreak);
+              }
+              return newStreak;
+            });
           } else {
             // Reset current streak, but keep the record unchanged
             setCurrentStreak(0);
           }
-
 
           console.log(
             "ScoreArray:",
@@ -174,24 +173,23 @@ const Controller = () => {
     );
   }, [questionTags]);
 
-  useEffect(() => {
-    if (
-      newQuestionCategories.length > 0 &&
-      newQuestionCategories !== currentQuestionCategories
+  const getNewQuestionQueue = async () => {
+    if (newQuestionCategories !== currentQuestionCategories && Object.keys(newQuestionCategories).length > 0
     ) {
       setCurrentQuestionCategories(newQuestionCategories);
       console.log("requestion new question queue");
-      axios
-        .post("/api/question-routes/get-new-question-queue-by-tags", {
-          questionCategories: newQuestionCategories,
-        })
-        .then((response) => {
-          console.log(response);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      try {
+        const response = await axios.patch('/api/question-routes/question-queue/', {newQuestionCategories});
+        console.log(response)
+      } catch (error) {
+        console.log(error);
+      }
     }
+
+  }
+
+  useEffect(() => {
+    getNewQuestionQueue();
   }, [newQuestionCategories]);
 
   return (
@@ -239,17 +237,17 @@ const Controller = () => {
           </Offcanvas.Header>
           <Offcanvas.Body>
             {currentQuestionCategories.map((category, index) => (
-                <label className="checkboxLabels">
-                  <div className="topLineCheckbox">
-                    <input
-                      type="checkbox"
-                      defaultChecked={category.enabled}
-                      onChange={() => handleCheckboxChange(category)}
-                    />
-                    {category._id} <IconComponent imageName={category.icon} />
-                  </div>
-                  ({category.count})
-                </label>
+              <label className="checkboxLabels">
+                <div className="topLineCheckbox">
+                  <input
+                    type="checkbox"
+                    defaultChecked={category.enabled}
+                    onChange={() => handleCheckboxChange(category)}
+                  />
+                  {category._id} <IconComponent imageName={category.icon} />
+                </div>
+                ({category.count})
+              </label>
             ))}
           </Offcanvas.Body>
         </Offcanvas>

@@ -1,8 +1,8 @@
 :root {
-  --main-gray-color: rgb(192, 200, 206);
-  --main-light-gray: #d8e8f3e5;
+  --main-gray-color: rgb(221, 226, 231);
+  --main-light-gray: #ffffff;
   --default-border: 2px solid  rgba(0, 0, 0, 0.2);
-  --main-dark-gray: rgb(148, 148, 148);
+  --main-dark-gray: rgb(189, 189, 189);
   --main-red-color: #ff7070;
   --main-green-color: rgb(80, 215, 80);
 

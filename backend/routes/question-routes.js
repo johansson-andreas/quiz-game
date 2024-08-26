@@ -24,7 +24,7 @@ const timeLog = async (req, res, next) => {
 };
 router.use(timeLog);
 
-router.get("/request-question", async (req, res, next) => {
+router.get("/question", async (req, res, next) => {
   const clientData = req.session.clientData;
 
   if (clientData.currentQuestion)
@@ -44,12 +44,11 @@ router.get("/initial-contact", async (req, res) => {
   });
 });
 
-router.post("/submit-answer", async (req, res) => {
-  console.log(req.body.submittedAnswer);
+router.post("/answer/:submittedAnswer", async (req, res) => {
   const clientData = req.session.clientData;
 
   if (clientData) {
-    const answer = req.body.submittedAnswer;
+    const answer = req.params.submittedAnswer;
     let correct = false;
     if (answer === clientData.currentQuestion.correctAnswer) correct = true;
 
@@ -76,11 +75,10 @@ router.post("/submit-answer", async (req, res) => {
   }
 });
 
-router.post("/get-new-question-queue-by-tags", async (req, res) => {
+router.patch("/question-queue/", async (req, res) => {
   const clientData = req.session.clientData;
-  console.log(clientData.clientId);
 
-  clientData.categories = req.body.questionCategories;
+  clientData.categories = req.body.newQuestionCategories;
 
   const enabledTags = clientData.categories
     .filter((category) => category.enabled)
@@ -104,7 +102,7 @@ router.post("/get-new-question-queue-by-tags", async (req, res) => {
   }
 });
 
-router.post("/add-question-to-db", async (req, res) => {
+router.post("/question", async (req, res) => {
   try {
     const questionToAdd = req.body.newQuestion;
 
@@ -123,7 +121,7 @@ router.post("/add-question-to-db", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-router.get("/request-new-questions", async (req, res) => {
+router.get("/new-questions", async (req, res) => {
   // Check if user is inlogged and has 'admin' role
   if (req.user && req.user.role === "admin") {
     try {
@@ -138,9 +136,8 @@ router.get("/request-new-questions", async (req, res) => {
     res.status(403).json({ message: "Access denied" }); // Forbidden
   }
 });
-
 // Route to update a question
-router.put("/update-question/:id", async (req, res) => {
+router.put("/question/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const updatedData = req.body;
@@ -160,9 +157,8 @@ router.put("/update-question/:id", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 // Route to accept a question (move from NewQuestion to Question)
-router.post("/accept-question/:id", async (req, res) => {
+router.post("/question/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const question = await NewQuestion.findById(id);
@@ -188,7 +184,7 @@ router.post("/accept-question/:id", async (req, res) => {
   }
 });
 // Route to delete a question
-router.delete("/delete-question/:id", async (req, res) => {
+router.delete("/question/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -205,7 +201,7 @@ router.delete("/delete-question/:id", async (req, res) => {
 });
 
 // Hämta aktuella frågor
-router.get("/get-current-questions", async (req, res) => {
+router.get("/questions", async (req, res) => {
   try {
     // Hämta alla frågor från databasen
     const questions = await Question.find({});

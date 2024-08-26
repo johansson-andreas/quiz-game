@@ -4,12 +4,12 @@ import { getTotalScoreArray } from './profileRouteUtils.js';
 const router = express.Router();
 
 
-router.get('/get-total-score-array', async (req,res) => {
+router.get('/total-score-array', async (req,res) => {
     try {
         const { statusCode, data } = await getTotalScoreArray(req);
         res.status(statusCode).json(data);
       } catch (error) {
-        console.error('Error in request-question:', error);
+        console.error('Error in question:', error);
         res.status(500).json({ status: "error", message: error.message });
       }
 });
