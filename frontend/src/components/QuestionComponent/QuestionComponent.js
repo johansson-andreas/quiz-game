@@ -21,13 +21,7 @@ const QuestionComponent = ({
   isLocked,
   canProgress,
 }) => {
-  const submitButtonStyle = {
-    display: activeQuestion ? "block" : "none",
-  };
 
-  const nextButtonStyle = {
-    display: activeQuestion ? "none" : "block",
-  };
   const getDivClassName = (option) => {
     let baseClass = "neutral";
     if (!activeQuestion) {
@@ -96,21 +90,11 @@ const QuestionComponent = ({
           </div>
           <button
             onClick={submitAnswer}
-            style={submitButtonStyle}
             className={styles.submitNextButton}
+            disabled={isLocked}
           >
             Submit Answer
           </button>
-          {(!hostname || hostname === username) && (
-            <button
-              onClick={nextQuestion}
-              style={nextButtonStyle}
-              className={styles.submitNextButton}
-              disabled={!canProgress}
-            >
-              Next question
-            </button>
-          )}
         </>
       )}
     </>
