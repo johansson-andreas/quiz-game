@@ -69,7 +69,7 @@ const DailyChallenge = () => {
   const nextQuestion = async () => {
     try {
       const response = await axios.get(
-        "/api/daily-challenge-routes/request-question"
+        "/api/daily-challenge-routes/question"
       );
       console.log("response:", response);
 
@@ -97,10 +97,10 @@ const DailyChallenge = () => {
       if (activeQuiz === false) {
         try {
           const dailyBestResponse = await axios.get(
-            "/api/daily-challenge-routes/get-daily-best"
+            "/api/daily-challenge-routes/daily-best"
           );
           const dailyQuestionKey = await axios.get(
-            "/api/daily-challenge-routes/get-daily-question-key"
+            "/api/daily-challenge-routes/daily-question-key"
           );
           console.log(dailyQuestionKey.data.submittedAnswers);
 
@@ -133,7 +133,7 @@ const DailyChallenge = () => {
     console.log("Submitted answer:", submittedAnswer);
     if (submittedAnswer !== "") {
       axios
-        .post("/api/daily-challenge-routes/submit-answer", { submittedAnswer })
+        .post(`/api/daily-challenge-routes/answer/${submittedAnswer}`)
         .then((response) => {
           setActive(false);
           console.log(

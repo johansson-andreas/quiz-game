@@ -45,7 +45,7 @@ const ProfilePage = () => {
     const loadTotalScores = async () => {
         try {
             // Make an API call to get the total score array
-            const response = await axios.get('/api/profile-routes/get-total-score-array');
+            const response = await axios.get('/api/profile-routes/total-score-array');
 
             // Extract categoryStats from the response
             const categoryStats = response.data.categoryStats;

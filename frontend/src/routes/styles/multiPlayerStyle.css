@@ -97,6 +97,8 @@
   padding-right: 2%;
   padding-left: 2%;
   width: 100%;
+  gap:10px;
+
 }
 
 .username {
@@ -109,9 +111,6 @@
   text-align: right; /* Align text to the right */
 }
 
-.mpMainDiv > p {
-  grid-area: name;
-}
 
 .questionScoreDiv {
   grid-area: content;
@@ -170,7 +169,10 @@
 .roomTitle {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  text-align: left;
+  grid-area: name;
+  color: rgba(233, 221, 221, 0.87);
+  font-weight: 500;
 }
 .categoryChoicesDivTitle {
   grid-area: title;

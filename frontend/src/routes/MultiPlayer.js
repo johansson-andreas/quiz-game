@@ -70,8 +70,9 @@ const MultiPlayer = ({ lobbyName }) => {
       else setSubmittedAnswer("pass");
       setIsLocked(true);
     }
-    setTimeout(() => setCanProgress(true), 1000);
+    if(lobbyInfoRef.current.host === user) setTimeout(() => nextQuestion(), 2000)
     setTimerRunning(false);
+
   };
 
   const updateTimer = (timestamp) => {
@@ -172,7 +173,6 @@ const MultiPlayer = ({ lobbyName }) => {
       setTriggeredOption(correctAnswer);
       console.log('received correct answer')
       console.log('lobbyInfo.host', lobbyInfo.host, 'user', user)
-      if(lobbyInfoRef.current.host === user) setTimeout(() => nextQuestion(), 2000)
 
 
     };

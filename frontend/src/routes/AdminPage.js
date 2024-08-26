@@ -19,7 +19,7 @@ const AdminPage = () => {
     const fetchNewQuestions = async () => {
       try {
         const response = await axios.get(
-          "/api/question-routes/request-new-questions"
+          "/api/question-routes/new-questions"
         );
         setNewQuestions(response.data);
       } catch (err) {
@@ -37,7 +37,7 @@ const AdminPage = () => {
     const fetchCurrentQuestions = async () => {
       try {
         const response = await axios.get(
-          "/api/question-routes/get-current-questions"
+          "/api/question-routes/questions"
         );
         setCurrentQuestions(response.data);
       } catch (err) {
@@ -56,7 +56,7 @@ const AdminPage = () => {
       { Header: "Text", accessor: "text" },
       { Header: "Correct Answer", accessor: "correctAnswer" },
       { Header: "Incorrect Answers", accessor: "incorrectAnswers", Cell: ({ value }) => value.join(", ") },
-      { Header: "Tags", accessor: "tags" },
+      { Header: "Tags", accessor: "tags", Cell: ({ value }) => value.join(", ") },
       { Header: "Actions", accessor: "actions" },
     ],
     []
@@ -105,7 +105,7 @@ const AdminPage = () => {
     const editedItem = newQuestions.find((item) => item._id === id);
     try {
       const response = await axios.put(
-        `/api/question-routes/update-question/${id}`,
+        `/api/question-routes/question/${id}`,
         editedItem
       );
       const updatedItem = response.data;
@@ -121,7 +121,7 @@ const AdminPage = () => {
 
   const acceptQuestion = async (id) => {
     try {
-      await axios.post(`/api/question-routes/accept-question/${id}`);
+      await axios.post(`/api/question-routes/question/${id}`);
       setNewQuestions((prevData) => prevData.filter((item) => item._id !== id));
       console.log(`Accepted question: ${id}`);
     } catch (error) {
@@ -131,7 +131,7 @@ const AdminPage = () => {
 
   const deleteQuestion = async (id) => {
     try {
-      await axios.delete(`/api/question-routes/delete-question/${id}`);
+      await axios.delete(`/api/question-routes/question/${id}`);
       setCurrentQuestions((prevData) => prevData.filter((item) => item._id !== id));
       console.log(`Deleted question: ${id}`);
     } catch (error) {

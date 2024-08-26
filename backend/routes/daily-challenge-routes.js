@@ -78,17 +78,17 @@ router.get('/initial-contact', async (req, res, next) => {
 });
 
 
-router.get('/request-question', async (req, res) => {
+router.get('/question', async (req, res) => {
   try {
     const { statusCode, data } = await getNewQuestion(req);
     res.status(statusCode).json(data);
   } catch (error) {
-    console.error('Error in request-question:', error);
+    console.error('Error in question:', error);
     res.status(500).json({ status: "error", message: error.message });
   }
 });
 
-router.get('/get-user-history', async (req, res) => {
+router.get('/user-history', async (req, res) => {
   try {
     const userHistory = await DailyScore.find({ userId: req.user._id}).select('date score').lean().exec();
     res.send(userHistory)
@@ -97,10 +97,10 @@ router.get('/get-user-history', async (req, res) => {
     console.error("Error getting user history:", error)
   }
 });
-router.post('/submit-answer', async (req, res) => {
+router.post('/answer/:submittedAnswer', async (req, res) => {
   const dailyChallengeData = req.session.dailyChallengeData;
   if (dailyChallengeData) {
-    const answer = req.body.submittedAnswer;
+    const answer = req.params.submittedAnswer;
     if (answer === dailyChallengeData.currentQuestion.correctAnswer) dailyChallengeData.todaysScore += 1;
     dailyChallengeData.submittedAnswers[dailyChallengeData.currentQuestion._id] = answer;
 
@@ -110,7 +110,7 @@ router.post('/submit-answer', async (req, res) => {
 
   }
 });
-router.get('/get-daily-best', async (req, res) => {
+router.get('/daily-best', async (req, res) => {
   try{
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
@@ -123,7 +123,7 @@ router.get('/get-daily-best', async (req, res) => {
   }
 
 })
-router.get('/get-daily-question-key', async (req, res) => {
+router.get('/daily-question-key', async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 

@@ -35,6 +35,14 @@ const QuestionComponent = ({
     return baseClass;
   };
 
+  const submitButtonStyle = {
+    display: hostname ? "block" : activeQuestion ? "block" : "none"
+  }
+
+  const nextButtonStyle = {
+    display: activeQuestion ? "none" : "block",
+  };
+
   useEffect(() => {
     if (triggeredOption !== null) {
       const timeout = setTimeout(() => {
@@ -91,10 +99,21 @@ const QuestionComponent = ({
           <button
             onClick={submitAnswer}
             className={styles.submitNextButton}
+            style={submitButtonStyle}
             disabled={isLocked}
           >
             Submit Answer
           </button>
+          {(!hostname) && (
+            <button
+              onClick={nextQuestion}
+              style={nextButtonStyle}
+              className={styles.submitNextButton}
+              disabled={!canProgress}
+            >
+              Next question
+            </button>
+          )}
         </>
       )}
     </>

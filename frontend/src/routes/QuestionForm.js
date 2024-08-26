@@ -15,19 +15,19 @@ const QuestionForm = () => {
     setSubmissionStatus("submitting");
     console.log("Submit button clicked");
 
-    const kategorierArray = categories
+    const categoryArray = categories
       .split(",")
-      .map((kategori) => kategori.trim());
+      .map((category) => category.trim());
     const newQuestion = {
       questions,
       answers: Object.values(answers),
       correctAnswer,
-      categories: kategorierArray,
+      categories: categoryArray,
     };
 
     try {
       const response = await axios.post(
-        "/api/question-routes/add-question-to-db",
+        "/api/question-routes/question",
         { newQuestion }
       );
       console.log(response.data);
