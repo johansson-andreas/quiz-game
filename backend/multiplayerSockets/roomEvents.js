@@ -17,7 +17,7 @@ export const roomEvents = (socket, rooms, io) => {
 
   socket.on("createNewLobby", async (newLobbyInfo) => {
     console.log("test");
-    const lobbyName = newLobbyInfo.lobbyName || generateLobbyName(rooms);
+    const lobbyName = newLobbyInfo.lobbyName.toUpperCase() || generateLobbyName(rooms);
     const allCategories = await getAllCategories();
 
     if (!rooms[lobbyName]) {
@@ -55,7 +55,7 @@ export const roomEvents = (socket, rooms, io) => {
 
 
 socket.on("joinLobby", (joinLobbyInfo) => {
-  const lobbyName = joinLobbyInfo.lobbyName;
+  const lobbyName = joinLobbyInfo.lobbyName.toUpperCase();
   const password = joinLobbyInfo.joinLobbyPassword;
   console.log(username, "is trying to join lobby", lobbyName);
 
@@ -98,15 +98,17 @@ socket.on("getRoomInfo", (lobbyName) => {
 });
 
 socket.on("startGame", (lobbyName) => {
-  rooms[lobbyName].active = true;
+  if(rooms[lobbyName]){
+    rooms[lobbyName].active = true;
   rooms[lobbyName].currentChooser = {
-    currentChooser: getRandomChooser(Object.keys(rooms[lobbyName].users)),
+    currentChooser: getRandomChooser((rooms[lobbyName])),
     categoryChoices: getCategoryChoices(rooms[lobbyName]),
     active: rooms[lobbyName].active,
     questionAmount: rooms[lobbyName].questionAmount
   };
   console.log('start game chooser', rooms[lobbyName].currentChooser)
   io.to(lobbyName).emit("currentChooser", rooms[lobbyName].currentChooser);
+  }
 });
 
 socket.on("submitAnswer", (lobbyInfo) => {
@@ -142,7 +144,7 @@ socket.on("getNextQuestion", async (lobbyName) => {
   }
 
   rooms[lobbyName].currentChooser = {
-    currentChooser: getRandomChooser(Object.keys(rooms[lobbyName].users)),
+    currentChooser: getRandomChooser((rooms[lobbyName])),
     categoryChoices: getCategoryChoices(rooms[lobbyName]),
     active: rooms[lobbyName].active,
     questionAmount: rooms[lobbyName].questionAmount

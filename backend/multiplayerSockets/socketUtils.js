@@ -93,6 +93,21 @@ export const getNextQuestion = async ({lobbyInfo, chosenCategory}) => {
   return currentLobby;
 };
 
-export const getRandomChooser = (usersArray) => {
-  return usersArray[randomizeArrayIndex(usersArray)];
-}
+export const getRandomChooser = (lobbyInfo) => {
+  let newChooser = "";
+  const oldChooser = lobbyInfo.currentChooser.currentChooser;
+
+  const userKeys = Object.keys(lobbyInfo.users);  // Create the array of keys once
+  const maxAttempts = 4;
+
+  for (let i = 0; i < maxAttempts; i++) { 
+    newChooser = userKeys[randomizeArrayIndex(userKeys)];
+    console.log(newChooser);
+
+    if (newChooser !== oldChooser) {
+      return newChooser;
+    }
+  }
+  
+  return newChooser; // If all attempts fail, return the old chooser
+};

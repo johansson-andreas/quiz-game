@@ -170,6 +170,11 @@ const MultiPlayer = ({ lobbyName }) => {
     const handleCorrectAnswer = (correctAnswer) => {
       setCorrectAnswer(correctAnswer);
       setTriggeredOption(correctAnswer);
+      console.log('received correct answer')
+      console.log('lobbyInfo.host', lobbyInfo.host, 'user', user)
+      if(lobbyInfoRef.current.host === user) setTimeout(() => nextQuestion(), 2000)
+
+
     };
     const handleWinnerDetermined = (winnerList) => {
       setWinners(winnerList);
@@ -349,7 +354,6 @@ const MultiPlayer = ({ lobbyName }) => {
               answer={answer}
               question={currentQuestion}
               activeQuestion={activeQuestion}
-              nextQuestion={nextQuestion}
               submitAnswer={submitAnswer}
               submittedAnswer={submittedAnswer}
               correctAnswer={correctAnswer}
@@ -360,12 +364,14 @@ const MultiPlayer = ({ lobbyName }) => {
               isLocked={isLocked}
               canProgress={canProgress}
             />
+            {!lobbyInfo.currentChooser.active && (
             <div className="timerProgressBarContainer">
               <div
                 className="timerProgressBarBar"
                 style={{ width: (timeLeft / questionTimer) * 100 + "%" }}
               />
             </div>
+            )}
           </div>
         </div>
       </>
@@ -407,8 +413,8 @@ const MultiPlayer = ({ lobbyName }) => {
   const renderContent = () => {
     if (lobbyInfo.active === false) return preGameState();
     else if (winners.length > 0) return winnersState();
-    else if (lobbyInfo.currentChooser.active) return categoryChoosingState();
     else return mainGameState();
+   
   };
 
   return (
@@ -416,8 +422,10 @@ const MultiPlayer = ({ lobbyName }) => {
       <p className="roomTitle">
         Rumsnamn: {lobbyName} <br />
       </p>
-
+      <div className="mpMainContent">
       {renderContent()}
+      {(lobbyInfo.currentChooser.active && categoryChoosingState())}
+      </div>
       <div className="scorePanel">
         <div className="scorePanelTitle">{lobbyInfo.chosenWinCon === "correctCon" ? (<>Först till {lobbyInfo.winConNumber} korrekta svar!</>) : (<>Fråga {lobbyInfo.questionAmount} / {lobbyInfo.winConNumber}</>)}</div>
         <div className="mpScoreDiv">{Object.keys(users).map((user) => (
