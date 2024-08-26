@@ -36,32 +36,29 @@ const Controller = () => {
     initialContact();
   }, [user]);
 
-  const initialContact = () => {
-    axios
-      .get("/api/question-routes/initial-contact")
-      .then((response) => {
-        console.log("Received initial data:", response.data);
-        const { question, categories, scoreArray, currentTotals } =
-          response.data;
-        assignQuestion(question);
-        const newCategories = categories.map((category) => ({
-          _id: category._id,
-          count: category.count,
-          icon: category.icon,
-          enabled: category.enabled,
-        }));
-        setCurrentQuestionCategories(newCategories);
-        setNewQuestionCategories(newCategories);
+  const initialContact = async () => {
+    try {
+      const response = await axios.get("/api/question-routes/initial-contact");
+      console.log("Received initial data:", response.data);
+      const { question, categories, scoreArray, currentTotals } = response.data;
+      assignQuestion(question);
+      const newCategories = categories.map((category) => ({
+        _id: category._id,
+        count: category.count,
+        icon: category.icon,
+        enabled: category.enabled,
+      }));
+      setCurrentQuestionCategories(newCategories);
+      setNewQuestionCategories(newCategories);
 
-        if (scoreArray) setScoreArray(scoreArray);
-        if (currentTotals) {
-          console.log("currentotals", currentTotals);
-          setTotalQuestionsScore([currentTotals[0], currentTotals[1]]);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+      if (scoreArray) setScoreArray(scoreArray);
+      if (currentTotals) {
+        console.log("currentotals", currentTotals);
+        setTotalQuestionsScore([currentTotals[0], currentTotals[1]]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const submitAnswer = (e) => {
@@ -91,7 +88,6 @@ const Controller = () => {
       setFading(true);
       setTimeout(() => {
         setFading(false);
-        console.log("fading out");
       }, 1500);
       setTimeout(() => {
         setActive(true);
@@ -113,50 +109,51 @@ const Controller = () => {
   const handleCatCanvasClose = () => setCatCanvasShow(false);
   const handleCatCanvasShow = () => setCatCanvasShow(true);
 
+  const postAnswer = async () => {
+    try{
+      const response = await axios.post(`/api/question-routes/answer/${submittedAnswer}`);
+    
+      setActive(false);
+      const isCorrect = response.data.correctAnswer === submittedAnswer;
+      if (isCorrect) {
+        // Update current streak
+        setCurrentStreak((prevStreak) => {
+          const newStreak = prevStreak + 1;
+          if (newStreak > streakRecord) {
+            setStreakRecord(newStreak);
+          }
+          return newStreak;
+        });
+      } else {
+        // Reset current streak, but keep the record unchanged
+        setCurrentStreak(0);
+      }
+
+      console.log(
+        "ScoreArray:",
+        response.data.scoreArray,
+        "Correct answer:",
+        response.data.correctAnswer
+      );
+      setScoreArray(response.data.scoreArray);
+      setCorrectAnswer(response.data.correctAnswer);
+      setTotalQuestionsScore((prevCount) => {
+        const newCount = [...prevCount];
+        if (response.data.correctAnswer === submittedAnswer)
+          newCount[0] += 1;
+        newCount[1] += 1;
+        return newCount;
+      });
+      setTriggeredOption(response.data.correctAnswer);
+  } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
   useEffect(() => {
     console.log("Submitted answer:", submittedAnswer);
     if (submittedAnswer !== "") {
-      axios
-        .post(`/api/question-routes/answer/${submittedAnswer}`)
-        .then((response) => {
-          setActive(false);
-
-          const isCorrect = response.data.correctAnswer === submittedAnswer;
-
-          if (isCorrect) {
-            // Update current streak
-            setCurrentStreak((prevStreak) => {
-              const newStreak = prevStreak + 1;
-              if (newStreak > streakRecord) {
-                setStreakRecord(newStreak);
-              }
-              return newStreak;
-            });
-          } else {
-            // Reset current streak, but keep the record unchanged
-            setCurrentStreak(0);
-          }
-
-          console.log(
-            "ScoreArray:",
-            response.data.scoreArray,
-            "Correct answer:",
-            response.data.correctAnswer
-          );
-          setScoreArray(response.data.scoreArray);
-          setCorrectAnswer(response.data.correctAnswer);
-          setTotalQuestionsScore((prevCount) => {
-            const newCount = [...prevCount];
-            if (response.data.correctAnswer === submittedAnswer)
-              newCount[0] += 1;
-            newCount[1] += 1;
-            return newCount;
-          });
-          setTriggeredOption(response.data.correctAnswer);
-        })
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-        });
+      postAnswer();
     }
   }, [submittedAnswer]);
 
@@ -174,19 +171,23 @@ const Controller = () => {
   }, [questionTags]);
 
   const getNewQuestionQueue = async () => {
-    if (newQuestionCategories !== currentQuestionCategories && Object.keys(newQuestionCategories).length > 0
+    if (
+      newQuestionCategories !== currentQuestionCategories &&
+      Object.keys(newQuestionCategories).length > 0
     ) {
       setCurrentQuestionCategories(newQuestionCategories);
       console.log("requestion new question queue");
       try {
-        const response = await axios.patch('/api/question-routes/question-queue/', {newQuestionCategories});
-        console.log(response)
+        const response = await axios.patch(
+          "/api/question-routes/question-queue/",
+          { newQuestionCategories }
+        );
+        console.log(response);
       } catch (error) {
         console.log(error);
       }
     }
-
-  }
+  };
 
   useEffect(() => {
     getNewQuestionQueue();

@@ -129,29 +129,32 @@ const DailyChallenge = () => {
     getDailyBest();
   }, [activeQuiz]);
 
+  const postAnswer = async () => {
+    try{
+      const response = await axios.post(`/api/daily-challenge-routes/answer/${submittedAnswer}`)
+
+      setActive(false);
+      console.log(
+        "todaysscore:",
+        response.data.todaysScore,
+        "Correct answer:",
+        response.data.correctAnswer
+      );
+      setCurrentScore(response.data.todaysScore);
+      setCorrectAnswer(response.data.correctAnswer);
+      setTriggeredOption(response.data.correctAnswer);
+  } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
   useEffect(() => {
     console.log("Submitted answer:", submittedAnswer);
     if (submittedAnswer !== "") {
-      axios
-        .post(`/api/daily-challenge-routes/answer/${submittedAnswer}`)
-        .then((response) => {
-          setActive(false);
-          console.log(
-            "todaysscore:",
-            response.data.todaysScore,
-            "Correct answer:",
-            response.data.correctAnswer
-          );
-          setCurrentScore(response.data.todaysScore);
-          setCorrectAnswer(response.data.correctAnswer);
-          setTriggeredOption(response.data.correctAnswer);
-
-        })
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-        });
+      postAnswer();
     }
   }, [submittedAnswer]);
+
 
   const checkCorrect = (submittedAnswer, correctAnswer) => {
     if (submittedAnswer === correctAnswer) {
