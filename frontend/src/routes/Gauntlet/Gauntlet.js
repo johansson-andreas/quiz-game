@@ -10,10 +10,11 @@ const Gauntlet = () => {
     lives: 3,
     currentQuestion: 1,
     lifeLines: [],
-    currentQuestions: {}
+    currentQuestions: {},
   });
   const [gameState, setGameState] = useState("preGameState");
   const [question, setQuestion] = useState({});
+  const [activeQuestion, setActiveQuestion] = useState(false);
 
   const initialData = async () => {
     try {
@@ -27,6 +28,10 @@ const Gauntlet = () => {
       console.log(error);
     }
   };
+  useEffect(() => {
+    console.log("Player data updated to", playerData);
+    if (playerData.lives <= 0) setGameState("endState");
+  }, [playerData]);
 
   useEffect(() => {
     initialData();
@@ -56,10 +61,37 @@ const Gauntlet = () => {
   };
 
   const inGameState = () => {
-    if(Object.keys(playerData.currentQuestions) < 1) return(QuestionChoice({questionCategories, setPlayerData}))
-    else if (Object.keys(playerData.currentQuestions) > 0) return(QuestionPrompt({playerData, setPlayerData}))
+    if (
+      Object.keys(playerData.currentQuestions).length < 1 &&
+      !activeQuestion
+    ) {
+      return (
+        <QuestionChoice
+          questionCategories={questionCategories}
+          setPlayerData={setPlayerData}
+          className={styles.questionChoiceMain}
+        />
+      );
+    } else if (
+      Object.keys(playerData.currentQuestions).length > 0 ||
+      activeQuestion
+    ) {
+      console.log("Cats chosen. Getting questions");
+      return (
+        <QuestionPrompt
+          playerData={playerData}
+          setPlayerData={setPlayerData}
+          setActiveQuestion={setActiveQuestion}
+          activeQuestion={activeQuestion}
+          
+        />
+      );
+    }
   };
-  
+
+  const endGameState = () => {
+    return <div>It's game over man, it's game over</div>;
+  };
 
   const renderContent = () => {
     switch (gameState) {
@@ -67,14 +99,16 @@ const Gauntlet = () => {
         return inGameState();
       case "preGameState":
         return preGameState();
+      case "endState":
+        return endGameState();
     }
   };
 
   return (
-    <>
+    <div className={styles.mainContent}>
       {renderLives()}
       {renderContent()}
-    </>
+    </div>
   );
 };
 

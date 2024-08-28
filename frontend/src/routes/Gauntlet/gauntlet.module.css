@@ -2,3 +2,38 @@
     display:flex;
     flex-direction: row;
 }
+
+.mainContent
+{
+    display: grid;
+
+}
+.questionPromptMain
+{
+
+    align-self: center;
+    background-color: var(--main-light-gray);
+    margin-left: auto;
+    margin-right: auto;
+
+}
+.questionChoiceMain
+{
+    width: 500px;
+    height: 500px;
+    background-color: var(--main-light-gray);
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    gap:10px;
+
+}
+.categoryChoicesLabel
+{
+    width: 40%;
+    height: 40%;
+    aspect-ratio: 1;
+    background-color: var(--main-gray-color);
+    align-content: center;
+  text-align: center;
+}
