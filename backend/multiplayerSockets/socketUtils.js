@@ -102,7 +102,6 @@ export const getRandomChooser = (lobbyInfo) => {
 
   for (let i = 0; i < maxAttempts; i++) { 
     newChooser = userKeys[randomizeArrayIndex(userKeys)];
-    console.log(newChooser);
 
     if (newChooser !== oldChooser) {
       return newChooser;

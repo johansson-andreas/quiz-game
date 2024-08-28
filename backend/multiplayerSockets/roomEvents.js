@@ -9,6 +9,7 @@ import {
   getNextQuestion,
   getRandomChooser
 } from "./socketUtils.js";
+import { updateQuestionCounts } from "../routes/questionRouteUtils.js";
 
 export const roomEvents = (socket, rooms, io) => {
   let username = "";
@@ -112,14 +113,17 @@ socket.on("startGame", (lobbyName) => {
 });
 
 socket.on("submitAnswer", (lobbyInfo) => {
+
   const submittedAnswer = lobbyInfo.submittedAnswer;
   const lobbyName = lobbyInfo.lobbyName;
+ 
   console.log("received", submittedAnswer, "from", username);
   if (
     rooms[lobbyName] && 
     checkTimer(rooms[lobbyName].timer) &&
     submittedAnswer == rooms[lobbyName].currentQuestion.correctAnswer
   ) {
+    updateQuestionCounts(rooms[lobbyName].currentQuestion._id, true);
     rooms[lobbyName].users[username].score += 1;
     io.to(lobbyName).emit("updatedScore", {
       newUsersInfo: rooms[lobbyName].users,
@@ -128,6 +132,7 @@ socket.on("submitAnswer", (lobbyInfo) => {
     socket.emit("timedOut");
     console.log("timed out answer");
   } else {
+    updateQuestionCounts(rooms[lobbyName].currentQuestion._id, false);
     io.to(lobbyName).emit("updatedScore", {
       newUsersInfo: rooms[lobbyName].users,
     });
