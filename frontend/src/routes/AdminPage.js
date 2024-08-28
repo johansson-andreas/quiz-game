@@ -105,7 +105,7 @@ const AdminPage = () => {
     const editedItem = newQuestions.find((item) => item._id === id);
     try {
       const response = await axios.put(
-        `/api/question-routes/question/${id}`,
+        `/api/question-routes/new-question/${id}`,
         editedItem
       );
       const updatedItem = response.data;
@@ -121,7 +121,7 @@ const AdminPage = () => {
 
   const acceptQuestion = async (id) => {
     try {
-      await axios.post(`/api/question-routes/question/${id}`);
+      await axios.patch(`/api/question-routes/new-question/${id}`);
       setNewQuestions((prevData) => prevData.filter((item) => item._id !== id));
       console.log(`Accepted question: ${id}`);
     } catch (error) {
@@ -131,7 +131,7 @@ const AdminPage = () => {
 
   const deleteQuestion = async (id) => {
     try {
-      await axios.delete(`/api/question-routes/question/${id}`);
+      await axios.delete(`/api/question-routes/new-question/${id}`);
       setCurrentQuestions((prevData) => prevData.filter((item) => item._id !== id));
       console.log(`Deleted question: ${id}`);
     } catch (error) {
