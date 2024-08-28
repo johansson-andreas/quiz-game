@@ -1,3 +1,5 @@
+import styles from './gauntlet.module.css'
+
 const QuestionChoice = ({ questionCategories, setPlayerData }) => {
   if (questionCategories) {
     const getRandomAmount = () => Math.floor(Math.random() * 3) + 2;
@@ -70,18 +72,15 @@ const QuestionChoice = ({ questionCategories, setPlayerData }) => {
     };
 
     return (
-      <div>
+      <div className={styles.questionChoiceMain}>
         {Object.keys(catOptions).map((optionKey) => (
-          <div key={optionKey}>
-            <label onClick={() => pickChoice(catOptions[optionKey])}>
-              {optionKey}
+            <label key={optionKey} onClick={() => pickChoice(catOptions[optionKey])} className={styles.categoryChoicesLabel}>
               {Object.keys(catOptions[optionKey]).map((cat) => (
                 <div key={cat}>
                   {cat}: {catOptions[optionKey][cat]}
                 </div>
               ))}
             </label>
-          </div>
         ))}
       </div>
     );
