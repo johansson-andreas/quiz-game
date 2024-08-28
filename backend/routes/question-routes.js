@@ -31,6 +31,19 @@ router.get("/question", async (req, res, next) => {
     res.send(obfQuestion(await getNewQuestion(clientData)));
 });
 
+router.get("/question/:tag", async (req, res, next) => {
+  const tag = req.params.tag;
+  try{
+    const tagQuestion = await Question.aggregate([{ $match: { tags: tag } },{ $sample: { size: 1 } }]);  
+    console.log(tagQuestion);
+    res.send(obfQuestion((tagQuestion)[0]));
+  }
+  catch (error) 
+  {
+    console.log(error);
+  }
+});
+
 router.get("/initial-contact", async (req, res) => {
   // Access session data
   await createClientData(req);
@@ -44,7 +57,7 @@ router.get("/initial-contact", async (req, res) => {
   });
 });
 
-router.post("/answer/:submittedAnswer", async (req, res) => {
+router.post("/answer/:submittedAnswer", async (req, res) => { 
   const clientData = req.session.clientData;
 
   if (clientData) {
@@ -137,7 +150,7 @@ router.get("/new-questions", async (req, res) => {
   }
 });
 // Route to update a question
-router.put("/question/:id", async (req, res) => {
+router.put("/new-question/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const updatedData = req.body;
@@ -158,7 +171,7 @@ router.put("/question/:id", async (req, res) => {
   }
 });
 // Route to accept a question (move from NewQuestion to Question)
-router.post("/question/:id", async (req, res) => {
+router.patch("/new-question/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const question = await NewQuestion.findById(id);
@@ -184,7 +197,7 @@ router.post("/question/:id", async (req, res) => {
   }
 });
 // Route to delete a question
-router.delete("/question/:id", async (req, res) => {
+router.delete("/new-question/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
