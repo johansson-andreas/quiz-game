@@ -65,14 +65,6 @@ const Controller = () => {
     setSubmittedAnswer(answer);
   };
 
-  const handleOptionChange = (e) => {
-    setAnswer(e.target.value);
-  };
-
-  const handleOptionChangeWrapper = (event) => {
-    handleOptionChange(event);
-  };
-
   const assignQuestion = (questionData) => {
     setQuestion(questionData);
     setQuestionTags(questionData.tags);
@@ -111,7 +103,7 @@ const Controller = () => {
 
   const postAnswer = async () => {
     try{
-      const response = await axios.post(`/api/question-routes/answer/${submittedAnswer}`);
+      const response = await axios.post(`/api/question-routes/question/answers`);
     
       setActive(false);
       const isCorrect = response.data.correctAnswer === submittedAnswer;
@@ -197,8 +189,8 @@ const Controller = () => {
     <div className="mainBody">
       <div className={classNames("questionBody", fading ? "fadePulse" : "")}>
         <QuestionComponent
-          handleOptionChangeWrapper={handleOptionChangeWrapper}
           answer={answer}
+          setAnswer={setAnswer}
           question={question}
           questionIcons={questionIcons}
           activeQuestion={activeQuestion}
