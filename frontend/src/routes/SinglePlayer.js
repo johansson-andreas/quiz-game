@@ -230,7 +230,7 @@ const Controller = () => {
           </Offcanvas.Header>
           <Offcanvas.Body>
             {currentQuestionCategories.map((category, index) => (
-              <label className="checkboxLabels">
+              <label key={category._id} className="checkboxLabels">
                 <div className="topLineCheckbox">
                   <input
                     type="checkbox"

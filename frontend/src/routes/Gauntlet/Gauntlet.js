@@ -22,10 +22,10 @@ const Gauntlet = () => {
     try {
       console.log("getting data");
       const categoriesResponse = await axios.get(
-        "/api/gauntlet-routes/categories"
+        "/api/question-routes/categories"
       );
       console.log("categories response", categoriesResponse);
-      setQuestionCategories(categoriesResponse.data.categories);
+      setQuestionCategories(categoriesResponse.data);
     } catch (error) {
       console.log(error);
     }
@@ -43,8 +43,8 @@ const Gauntlet = () => {
   const renderLives = () => {
     return (
       <div className={styles.livesDiv}>
-        {[...Array(playerData.lives)].map((life) => (
-          <div><IconComponent imageName="heartIcon"/></div>
+        {[...Array(playerData.lives)].map((life, index) => (
+          <div key={index}><IconComponent imageName="heartIcon"/></div>
         ))}
       </div>
     );

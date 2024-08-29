@@ -6,17 +6,9 @@ import {
   updateScoreArray,
 } from "./questionRouteUtils.js";
 import express from "express";
+import redis from "../redisClient.js";
 
 const router = express.Router();
-
-router.get("/categories", async (req, res, next) => {
-  try {
-    const categories = await getAllCategories();
-    res.status(200).json({ categories });
-  } catch (error) {
-    console.log(error);
-  }
-});
 
 router.post("/questions/answer", async (req, res, next) => {
   const { questionData, submittedAnswer: submittedAnswer } = req.body;

@@ -1,9 +1,7 @@
 import { Account } from "../models/Account.js";
 import { Question } from "../models/Question.js";
 import { DailyScore } from "../models/DailyScore.js";
-import { Redis } from "ioredis";
-
-const redis = new Redis();
+import redis from '../redisClient.js';
 
 
 export const generateNewQuestions = async () => {
