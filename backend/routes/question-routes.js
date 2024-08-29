@@ -6,11 +6,13 @@ import {
   getNewQuestionQueueByTags,
   updateCurrentTotals,
   updateScoresInDatabase,
-  updateQuestionCounts
+  updateQuestionCounts,
+  obfRankQuestion
 } from "./questionRouteUtils.js";
 import { createClientData } from "./loginRouteUtils.js";
 import { Question } from "../models/Question.js";
 import { NewQuestion } from "../models/NewQuestion.js";
+import { RankQuestion } from "../models/RankQuestion.js";
 
 const router = express.Router();
 
@@ -29,6 +31,11 @@ router.get("/question", async (req, res, next) => {
 
   if (clientData.currentQuestion)
     res.send(obfQuestion(await getNewQuestion(clientData)));
+});
+
+router.get("/question/rank", async (req,res,next) => {
+  const rankQuestion = await RankQuestion.aggregate([{ $sample: { size: 1 } }]);  
+  res.send(obfRankQuestion(rankQuestion[0]));
 });
 
 router.get("/question/:tag", async (req, res, next) => {
@@ -57,7 +64,7 @@ router.get("/initial-contact", async (req, res) => {
   });
 });
 
-router.post("/answer/:submittedAnswer", async (req, res) => { 
+router.post("/question/answers", async (req, res) => { 
   const clientData = req.session.clientData;
 
   if (clientData) {

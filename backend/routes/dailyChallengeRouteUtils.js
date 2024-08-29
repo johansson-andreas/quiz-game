@@ -78,6 +78,7 @@ export const obfQuestion = (question) => {
       text: question.text,
       tags: question.tags,
       choices: shuffleArray([...question.incorrectAnswers, question.correctAnswer]),
+      questionType: question.questionType,
     }
     return obfQuestion
   }

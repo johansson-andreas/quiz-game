@@ -75,28 +75,6 @@ const MultiPlayer = ({ lobbyName }) => {
 
   };
 
-  const updateTimer = (timestamp) => {
-    if (!startTimeRef.current) {
-      startTimeRef.current = timestamp;
-      rafRef.current = requestAnimationFrame(updateTimer);
-      return;
-    }
-
-    const elapsed = timestamp - startTimeRef.current;
-    startTimeRef.current = timestamp;
-
-    const decrement = elapsed / 1000; // Convert milliseconds to seconds
-    setTimeLeft((prevTimeLeft) => {
-      const newTimeLeft = Math.max(prevTimeLeft - decrement, 0);
-      if (newTimeLeft <= 0) {
-        cancelAnimationFrame(rafRef.current);
-        timerFinished();
-      }
-      return newTimeLeft;
-    });
-
-    rafRef.current = requestAnimationFrame(updateTimer);
-  };
 
   const nextQuestion = () => {
     console.log("next question");
@@ -145,12 +123,6 @@ const MultiPlayer = ({ lobbyName }) => {
     lobbyInfoRef.current = lobbyInfo;
     setCurrentQuestion(lobbyInfo.currentQuestion);
   }, [lobbyInfo]);
-
-  useEffect(() => {}, [users]);
-
-  const handleOptionChange = (e) => {
-    setAnswer(e.target.value);
-  };
 
   //Socket.on handlers
   useEffect(() => {
@@ -288,11 +260,35 @@ const MultiPlayer = ({ lobbyName }) => {
     socket.emit("selectedCategory", { lobbyName, category });
   };
 
+  const updateTimer = useCallback((timestamp) => {
+    if (!startTimeRef.current) {
+      startTimeRef.current = timestamp;
+      rafRef.current = requestAnimationFrame(updateTimer);
+      return;
+    }
+  
+    const elapsed = timestamp - startTimeRef.current;
+    startTimeRef.current = timestamp;
+  
+    const decrement = elapsed / 1000; // Convert milliseconds to seconds
+    setTimeLeft((prevTimeLeft) => {
+      const newTimeLeft = Math.max(prevTimeLeft - decrement, 0);
+      if (newTimeLeft <= 0) {
+        cancelAnimationFrame(rafRef.current);
+        timerFinished();
+      }
+      return newTimeLeft;
+    });
+  
+    rafRef.current = requestAnimationFrame(updateTimer);
+  }, [timerFinished]); 
+  
   const startTimer = useCallback(() => {
     setTimeLeft(questionTimer);
     startTimeRef.current = null;
     rafRef.current = requestAnimationFrame(updateTimer);
   }, [questionTimer, updateTimer]);
+
 
   useEffect(() => {
     if (timerRunning) {
@@ -350,8 +346,8 @@ const MultiPlayer = ({ lobbyName }) => {
         <div className="questionScoreDiv">
           <div className="questionDiv">
             <QuestionComponent
-              handleOptionChangeWrapper={handleOptionChange}
               answer={answer}
+              setAnswer={setAnswer}
               question={currentQuestion}
               activeQuestion={activeQuestion}
               submitAnswer={submitAnswer}

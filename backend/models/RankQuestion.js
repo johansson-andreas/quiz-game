@@ -2,25 +2,21 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-const questionSchema = new Schema({
+const rankQuestionSchema = new Schema({
   text: String,              // Question text
-  correctAnswer: String,     // Correct answer
-  incorrectAnswers: [String],// Array of incorrect answers
+  correctOrder: [String], 
   tags: [String],             // Array of tags
   correctAnswerCount: { type: Number, default: 0 },
   incorrectAnswerCount: { type: Number, default: 0 },
-  questionType: {
-    type: String,
-    default: 'oneOfThree'
-  },
+  questionType: {type: String, default: 'rank'}, 
 });
 
-export const Question = mongoose.model('Question', questionSchema);
+export const RankQuestion = mongoose.model('RankQuestion', rankQuestionSchema);
 
 
 export const getRandomQuestionByTag = async (tag) => {
   try {
-    const result = await Question.aggregate([
+    const result = await Question.RankQuestion([
       { $match: { tags: tag } }, // Match documents where category array contains the value
       { $sample: { size: 1 } } // Randomly sample 1 document
     ]);
