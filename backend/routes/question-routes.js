@@ -13,6 +13,7 @@ import { createClientData } from "./loginRouteUtils.js";
 import { Question } from "../models/Question.js";
 import { NewQuestion } from "../models/NewQuestion.js";
 import { RankQuestion } from "../models/RankQuestion.js";
+import redis from '../redisClient.js'
 
 const router = express.Router();
 
@@ -305,10 +306,21 @@ router.get("/questions", async (req, res) => {
  */
 router.get("/categories", async (req, res) => {
   try {
-    const categories = await getAllCategories();
-    res.status(200).json({ categories });
+    const cachedCategories = await redis.get('categories');
+    console.log(JSON.parse(await redis.get('questionCounts')));
+
+    if (cachedCategories) {
+      res.status(200).json(JSON.parse(cachedCategories));
+    } else {
+      const categories = await getAllCategories();
+
+      await redis.set('categories', JSON.stringify(categories));
+
+      res.status(200).json(categories);
+    }
   } catch (error) {
-    console.log(error);
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 

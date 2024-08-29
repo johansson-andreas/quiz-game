@@ -28,6 +28,7 @@ const GameModePanel = () => {
         <button
           className={styles.gameModeButton}
           onClick={gameModeButtons[gameMode]}
+          key={gameMode}
         >
           {gameMode}
         </button>

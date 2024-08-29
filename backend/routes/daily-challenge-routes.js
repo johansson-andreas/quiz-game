@@ -3,11 +3,11 @@ import { DailyChallengeQuestions, generateNewQuestions } from '../models/DailyCh
 import { getNewQuestion, obfQuestion, updateDatabaseDailyChallengeScore } from './dailyChallengeRouteUtils.js';
 import { getQuestionCategoriesWithCount } from './questionRouteUtils.js'
 import { DailyScore } from '../models/DailyScore.js';
-import Redis from 'ioredis';
 import { Question } from '../models/Question.js';
+import redis from '../redisClient.js';
 
 const router = express.Router();
-const redis = new Redis();
+
 
 router.get('/initial-contact', async (req, res, next) => {
   try {
