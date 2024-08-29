@@ -16,43 +16,26 @@ import { RankQuestion } from "../models/RankQuestion.js";
 
 const router = express.Router();
 
+/**
+ * Middleware to create client data if not present.
+ * Logs the session ID and creates new client data if necessary.
+ */
 const timeLog = async (req, res, next) => {
   if (!req.session.clientData) {
     console.log("Found no data for", req.sessionID, "creating new data");
     await createClientData(req);
     await getNewQuestion(req.session.clientData);
-    next();
-  } else next();
+  }
+  next();
 };
 router.use(timeLog);
 
-router.get("/question", async (req, res, next) => {
-  const clientData = req.session.clientData;
-
-  if (clientData.currentQuestion)
-    res.send(obfQuestion(await getNewQuestion(clientData)));
-});
-
-router.get("/question/rank", async (req,res,next) => {
-  const rankQuestion = await RankQuestion.aggregate([{ $sample: { size: 1 } }]);  
-  res.send(obfRankQuestion(rankQuestion[0]));
-});
-
-router.get("/question/:tag", async (req, res, next) => {
-  const tag = req.params.tag;
-  try{
-    const tagQuestion = await Question.aggregate([{ $match: { tags: tag } },{ $sample: { size: 1 } }]);  
-    console.log(tagQuestion);
-    res.send(obfQuestion((tagQuestion)[0]));
-  }
-  catch (error) 
-  {
-    console.log(error);
-  }
-});
-
+/**
+ * @route GET /initial-contact
+ * @description Initializes client session with a new question and session data.
+ * @returns {Object} JSON object containing the obfuscated question, categories, score array, and current totals.
+ */
 router.get("/initial-contact", async (req, res) => {
-  // Access session data
   await createClientData(req);
   const newQuestion = await getNewQuestion(req.session.clientData);
   console.log(req.session.clientData.unusedQuestions.length);
@@ -64,7 +47,55 @@ router.get("/initial-contact", async (req, res) => {
   });
 });
 
-router.post("/question/answers", async (req, res) => { 
+/**
+ * @route GET /question
+ * @description Retrieves the current question for the client session.
+ * @returns {Object} Obfuscated question object.
+ */
+router.get("/question", async (req, res) => {
+  const clientData = req.session.clientData;
+  if (clientData.currentQuestion) {
+    res.send(obfQuestion(await getNewQuestion(clientData)));
+  }
+});
+
+/**
+ * @route GET /question/rank
+ * @description Retrieves a random rank question.
+ * @returns {Object} Obfuscated rank question object.
+ */
+router.get("/question/rank", async (req, res) => {
+  const rankQuestion = await RankQuestion.aggregate([{ $sample: { size: 1 } }]);
+  res.send(obfRankQuestion(rankQuestion[0]));
+});
+
+/**
+ * @route GET /question/:tag
+ * @description Retrieves a random question filtered by a specific tag.
+ * @param {String} tag - The tag to filter questions by.
+ * @returns {Object} Obfuscated question object.
+ */
+router.get("/question/:tag", async (req, res) => {
+  const tag = req.params.tag;
+  try {
+    const tagQuestion = await Question.aggregate([
+      { $match: { tags: tag } },
+      { $sample: { size: 1 } }
+    ]);
+    console.log(tagQuestion);
+    res.send(obfQuestion(tagQuestion[0]));
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/**
+ * @route POST /question/answers
+ * @description Submits an answer and updates the client's score array and database records.
+ * @param {Object} req.body - The submitted answer object.
+ * @returns {Object} JSON object containing the updated score array and the correct answer.
+ */
+router.post("/question/answers", async (req, res) => {
   const clientData = req.session.clientData;
 
   if (clientData) {
@@ -73,13 +104,11 @@ router.post("/question/answers", async (req, res) => {
     if (answer === clientData.currentQuestion.correctAnswer) correct = true;
 
     clientData.scoreArray = updateScoreArray(clientData, correct);
-    //clientData.currentTotals = updateCurrentTotals(clientData, correct);
     res.send({
       scoreArray: clientData.scoreArray,
       correctAnswer: clientData.currentQuestion.correctAnswer,
     });
 
-    //Update database if user in logged in
     if (req.user && req.user._id) {
       console.log(clientData.currentQuestion);
 
@@ -95,6 +124,139 @@ router.post("/question/answers", async (req, res) => {
   }
 });
 
+/**
+ * @route POST /question
+ * @description Adds a new question to the database.
+ * @param {Object} req.body.newQuestion - The question data to add.
+ * @returns {String} Success message.
+ */
+router.post("/question", async (req, res) => {
+  try {
+    const questionToAdd = req.body.newQuestion;
+
+    const newQuestion = new NewQuestion({
+      text: questionToAdd.questions,
+      correctAnswer: questionToAdd.correctAnswer,
+      incorrectAnswers: questionToAdd.answers,
+      tags: questionToAdd.categories,
+    });
+
+    await newQuestion.save();
+    res.status(201).send("Question added successfully");
+  } catch (error) {
+    console.error("Failed to add question to database", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+/**
+ * @route GET /new-questions
+ * @description Retrieves all new questions. Only accessible by admin users.
+ * @returns {Array} Array of new questions.
+ */
+router.get("/new-questions", async (req, res) => {
+  if (req.user && req.user.role === "admin") {
+    try {
+      const newQuestions = await NewQuestion.find().exec();
+      console.log(newQuestions);
+      res.send(newQuestions);
+    } catch (error) {
+      console.error("Failed to fetch new question", error);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.status(403).json({ message: "Access denied" });
+  }
+});
+
+/**
+ * @route PUT /new-question/:id
+ * @description Updates a specific new question.
+ * @param {String} id - The ID of the question to update.
+ * @param {Object} req.body - The new data to update the question with.
+ * @returns {Object} The updated question object.
+ */
+router.put("/new-question/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedData = req.body;
+
+    const updatedQuestion = await NewQuestion.findByIdAndUpdate(
+      id,
+      updatedData,
+      { new: true }
+    );
+    if (!updatedQuestion) {
+      return res.status(404).send("Question not found");
+    }
+
+    res.send(updatedQuestion);
+  } catch (error) {
+    console.error("Failed to update question", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+/**
+ * @route PATCH /new-question/:id
+ * @description Accepts a new question, moving it from NewQuestion to Question collection.
+ * @param {String} id - The ID of the new question to accept.
+ * @returns {Object} The accepted question object.
+ */
+router.patch("/new-question/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const question = await NewQuestion.findById(id);
+
+    if (!question) {
+      return res.status(404).send("Question not found");
+    }
+
+    const newQuestion = new Question({
+      text: question.text,
+      correctAnswer: question.correctAnswer,
+      incorrectAnswers: question.incorrectAnswers,
+      tags: question.tags,
+    });
+
+    await newQuestion.save();
+    await NewQuestion.findByIdAndDelete(id);
+
+    res.send(newQuestion);
+  } catch (error) {
+    console.error("Failed to accept question", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+/**
+ * @route DELETE /new-question/:id
+ * @description Deletes a specific new question.
+ * @param {String} id - The ID of the question to delete.
+ * @returns {Object} The deleted question object.
+ */
+router.delete("/new-question/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedQuestion = await NewQuestion.findByIdAndDelete(id);
+    if (!deletedQuestion) {
+      return res.status(404).send("Question not found");
+    }
+
+    res.send(deletedQuestion);
+  } catch (error) {
+    console.error("Failed to delete question", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+/**
+ * @route PATCH /question-queue/
+ * @description Updates the client's question queue based on selected categories.
+ * @param {Array} req.body.newQuestionCategories - The new question categories.
+ * @returns {Object} Response object with a success message and the length of the new question queue.
+ */
 router.patch("/question-queue/", async (req, res) => {
   const clientData = req.session.clientData;
 
@@ -122,115 +284,32 @@ router.patch("/question-queue/", async (req, res) => {
   }
 });
 
-router.post("/question", async (req, res) => {
-  try {
-    const questionToAdd = req.body.newQuestion;
-
-    const newQuestion = new NewQuestion({
-      text: questionToAdd.questions,
-      correctAnswer: questionToAdd.correctAnswer,
-      incorrectAnswers: questionToAdd.answers,
-      tags: questionToAdd.categories,
-    });
-
-    // Save the new document
-    await newQuestion.save();
-    res.status(201).send("Question added successfully");
-  } catch (error) {
-    console.error("Failed to add question to database", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-router.get("/new-questions", async (req, res) => {
-  // Check if user is inlogged and has 'admin' role
-  if (req.user && req.user.role === "admin") {
-    try {
-      const newQuestions = await NewQuestion.find().exec();
-      console.log(newQuestions);
-      res.send(newQuestions);
-    } catch (error) {
-      console.error("Failed to fetch new question", error);
-      res.status(500).send("Internal Server Error");
-    }
-  } else {
-    res.status(403).json({ message: "Access denied" }); // Forbidden
-  }
-});
-// Route to update a question
-router.put("/new-question/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedData = req.body;
-
-    const updatedQuestion = await NewQuestion.findByIdAndUpdate(
-      id,
-      updatedData,
-      { new: true }
-    );
-    if (!updatedQuestion) {
-      return res.status(404).send("Question not found");
-    }
-
-    res.send(updatedQuestion);
-  } catch (error) {
-    console.error("Failed to update question", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-// Route to accept a question (move from NewQuestion to Question)
-router.patch("/new-question/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const question = await NewQuestion.findById(id);
-
-    if (!question) {
-      return res.status(404).send("Question not found");
-    }
-
-    const newQuestion = new Question({
-      text: question.text,
-      correctAnswer: question.correctAnswer,
-      incorrectAnswers: question.incorrectAnswers,
-      tags: question.tags,
-    });
-
-    await newQuestion.save();
-    await NewQuestion.findByIdAndDelete(id);
-
-    res.send(newQuestion);
-  } catch (error) {
-    console.error("Failed to accept question", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-// Route to delete a question
-router.delete("/new-question/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const deletedQuestion = await NewQuestion.findByIdAndDelete(id);
-    if (!deletedQuestion) {
-      return res.status(404).send("Question not found");
-    }
-
-    res.send(deletedQuestion);
-  } catch (error) {
-    console.error("Failed to delete question", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-// Hämta aktuella frågor
+/**
+ * @route GET /questions
+ * @description Retrieves all current questions.
+ * @returns {Array} Array of question objects.
+ */
 router.get("/questions", async (req, res) => {
   try {
-    // Hämta alla frågor från databasen
     const questions = await Question.find({});
-    res.json(questions); // Skicka tillbaka som JSON
+    res.json(questions);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
+/**
+ * @route GET /categories
+ * @description Retrieves all question categories.
+ * @returns {Object} JSON object containing an array of categories.
+ */
+router.get("/categories", async (req, res) => {
+  try {
+    const categories = await getAllCategories();
+    res.status(200).json({ categories });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 export default router;
-
-
