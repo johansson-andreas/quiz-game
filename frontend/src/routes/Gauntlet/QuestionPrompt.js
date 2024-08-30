@@ -33,7 +33,7 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
       try {
 
 
-        const rankQuestion = await axios.get(`/api/question-routes/question/rank`);
+        const rankQuestion = await axios.get(`/api/question-routes/question/connect`);
         console.log('rank question', rankQuestion.data)
         setCurrentQuestion(rankQuestion.data);
       } catch (error) {
