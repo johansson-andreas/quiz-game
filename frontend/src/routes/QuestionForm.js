@@ -1,28 +1,29 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import "./styles/questionFormStyle.css";
 
 const QuestionForm = () => {
-  const [questions, setQuestions] = useState("");
+  const [questions, setQuestions] = useState(0);
   const [answers, setAnswers] = useState({ svar1: "", svar2: "" });
   const [correctAnswer, setCorrectAnswer] = useState("");
-  const [categories, setCategories] = useState("");
+  const [categories, setCategories] = useState([]);
   const [quizData, setQuizData] = useState([]);
   const [submissionStatus, setSubmissionStatus] = useState("idle");
+  const [allCategories, setAllCategories] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmissionStatus("submitting");
     console.log("Submit button clicked");
 
-    const categoryArray = categories
-      .split(",")
-      .map((category) => category.trim());
+    
+
+
     const newQuestion = {
       questions,
       answers: Object.values(answers),
       correctAnswer,
-      categories: categoryArray,
+      categories: categories,
     };
 
     try {
@@ -48,6 +49,34 @@ const QuestionForm = () => {
     setCorrectAnswer("");
     setCategories("");
   };
+
+  const getData = async () => {
+    try{const catagoriesRes = await axios.get("/api/gauntlet-routes/categories")
+    console.log(catagoriesRes.data.categories)
+    setAllCategories(catagoriesRes.data.categories)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleUpdateCategory = (category) => {
+    setCategories(currentcategories => {const newCategories = [...currentcategories]
+      if (newCategories.includes(category))
+      {
+      const index = newCategories.indexOf(category)
+      newCategories.splice(index, 1)
+      }
+      else {
+        newCategories.push(category)
+      }
+      console.log(newCategories)
+      return newCategories
+    })
+  }
+  useEffect(() => {
+    getData();
+  }, [])
+
 
   return (
     <section className="questionForm">
@@ -93,16 +122,15 @@ const QuestionForm = () => {
           />
         </div>
 
+
         <div className="input-box">
           <label htmlFor="categories">Categories:</label>
-          <input
-            className="field"
-            id="categories"
-            type="text"
-            placeholder="Enter categories separated by commas"
-            value={categories}
-            onChange={(e) => setCategories(e.target.value)}
-          />
+          {allCategories.map(category => (
+            <div>
+              <input type="checkbox" id="scales" name="scales" onChange={() => handleUpdateCategory(category)}/>
+              {category}
+            </div>
+          ))}
         </div>
 
         <button type="submit">Submit</button>
