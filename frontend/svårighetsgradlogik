@@ -1,4 +1,4 @@
-Fråga 1:
+/* Fråga 1:
 Korrekt svar: 3
 Inkorrekta svar: 4
 3/4 = 33% 
@@ -37,6 +37,10 @@ Question model -> Lägga till difficulty fält
 Admin frontend -> Lägg till knapp som säger åt backend
 QuestionRoutes -> Lägg till ny funktion som delar in
 
+router.get begärnsa till 30 ev. ny knapp för att hämta mer
+mongodb get dokument count (25 sidor)
+men i bakgrunden så ska den begärnsa antal frågor som skickas lägg till logik i endpoint route
 
-React bootstrap tabs "Nya frågor" "??" högra hörnan
-Visar de första 30 frågorna. Knapp för att öka nästa 30
+Lägg till kolumn för currentquestions för antalet korrekta och inkorreka svar (samma kolumn)
+
+Skapa två olika columns ^ för att endast skapa nya kolumner i currentquestions
