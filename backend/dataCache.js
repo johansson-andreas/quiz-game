@@ -1,4 +1,3 @@
-import Redis from 'ioredis';
 import cron from 'node-cron';
 import { getAllCategories } from './routes/questionRouteUtils.js';
 import { Question } from './models/Question.js';
