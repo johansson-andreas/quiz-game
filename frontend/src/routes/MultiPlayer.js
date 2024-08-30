@@ -22,6 +22,7 @@ const MultiPlayer = ({ lobbyName }) => {
     host: "",
     currentQuestion: {},
     currentChooser: {},
+    questionAmount: 0
   });
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [correctAnswer, setCorrectAnswer] = useState(null);
@@ -69,39 +70,17 @@ const MultiPlayer = ({ lobbyName }) => {
       else setSubmittedAnswer("pass");
       setIsLocked(true);
     }
-    setTimeout(() => setCanProgress(true), 1000);
+    if(lobbyInfoRef.current.host === user) setTimeout(() => nextQuestion(), 2000)
     setTimerRunning(false);
+
   };
 
-  const updateTimer = (timestamp) => {
-    if (!startTimeRef.current) {
-      startTimeRef.current = timestamp;
-      rafRef.current = requestAnimationFrame(updateTimer);
-      return;
-    }
-
-    const elapsed = timestamp - startTimeRef.current;
-    startTimeRef.current = timestamp;
-
-    const decrement = elapsed / 1000; // Convert milliseconds to seconds
-    setTimeLeft((prevTimeLeft) => {
-      const newTimeLeft = Math.max(prevTimeLeft - decrement, 0);
-      if (newTimeLeft <= 0) {
-        cancelAnimationFrame(rafRef.current);
-        timerFinished();
-      }
-      return newTimeLeft;
-    });
-
-    rafRef.current = requestAnimationFrame(updateTimer);
-  };
 
   const nextQuestion = () => {
     console.log("next question");
     socket.emit("getNextQuestion", lobbyName);
   };
 
-  useEffect(() => {}, [lobbyInfo.currentChooser]);
 
   useEffect(() => {
     submittedAnswerRef.current = submittedAnswer;
@@ -127,11 +106,15 @@ const MultiPlayer = ({ lobbyName }) => {
   };
 
   const setFade = (chosenCategory) => {
-    console.log(lobbyInfoRef)
-    const notChosenCategories = lobbyInfoRef.current.currentChooser.categoryChoices.reduce((acc, category) => {
-      acc[category] = category === chosenCategory ? "slowFade" : "fade";
-      return acc;
-    }, {});
+    console.log(lobbyInfoRef);
+    const notChosenCategories =
+      lobbyInfoRef.current.currentChooser.categoryChoices.reduce(
+        (acc, category) => {
+          acc[category] = category === chosenCategory ? "slowFade" : "fadeFast";
+          return acc;
+        },
+        {}
+      );
     setNotChosenCategories(notChosenCategories);
   };
 
@@ -140,12 +123,6 @@ const MultiPlayer = ({ lobbyName }) => {
     lobbyInfoRef.current = lobbyInfo;
     setCurrentQuestion(lobbyInfo.currentQuestion);
   }, [lobbyInfo]);
-
-  useEffect(() => {}, [users]);
-
-  const handleOptionChange = (e) => {
-    setAnswer(e.target.value);
-  };
 
   //Socket.on handlers
   useEffect(() => {
@@ -166,6 +143,10 @@ const MultiPlayer = ({ lobbyName }) => {
     const handleCorrectAnswer = (correctAnswer) => {
       setCorrectAnswer(correctAnswer);
       setTriggeredOption(correctAnswer);
+      console.log('received correct answer')
+      console.log('lobbyInfo.host', lobbyInfo.host, 'user', user)
+
+
     };
     const handleWinnerDetermined = (winnerList) => {
       setWinners(winnerList);
@@ -176,16 +157,18 @@ const MultiPlayer = ({ lobbyName }) => {
         const updatedLobbyInfo = { ...prevLobbyInfo };
         updatedLobbyInfo.currentChooser = currentChooser;
         updatedLobbyInfo.active = currentChooser.active;
+        updatedLobbyInfo.questionAmount = currentChooser.questionAmount;
         return updatedLobbyInfo;
       });
     };
-    const handleCategoryChosen = ({ category, question }) => {
+    const handleCategoryChosen = ({ category, question, questionAmount }) => {
       setFade(category);
       setTimeout(() => {
         setLobbyInfo((prevInfo) => {
           const newInfo = { ...prevInfo };
           newInfo.currentChooser.active = false;
           newInfo.currentQuestion = question;
+          newInfo.questionAmount = questionAmount;
           return newInfo;
         });
         setIsLocked(false);
@@ -193,8 +176,12 @@ const MultiPlayer = ({ lobbyName }) => {
         setCanProgress(false);
         setSubmittedAnswer("");
         setTimerRunning(true);
-      }, 2000)
+      }, 2000);
     };
+
+    socket.on('connect_error', (err) => {
+      console.error('Connection error:', err);
+    });
 
     socket.on("sendRoomInfo", handleRoomInfo);
     socket.on("currentUsersInRoom", handleCurrentUsers);
@@ -215,16 +202,6 @@ const MultiPlayer = ({ lobbyName }) => {
       socket.off("categoryChosen", handleCategoryChosen);
     };
   }, []);
-
-  const flashRed = (username) => {
-    setAnimatedUsers((prev) => ({ ...prev, [username]: "pulseRed" }));
-    setTimeout(() => {
-      setAnimatedUsers((prev) => {
-        const { [username]: _, ...rest } = prev;
-        return rest;
-      });
-    }, 1000); // Animation duration (milliseconds)
-  };
 
   const flashGreen = (username) => {
     setAnimatedUsers((prev) => ({ ...prev, [username]: "pulseGreen" }));
@@ -247,10 +224,9 @@ const MultiPlayer = ({ lobbyName }) => {
         if (users[key]) {
           const score1 = newUsersInfo.newUsersInfo[key].score;
           const score2 = users[key].score;
-          if (score1 === score2) {
-            //TODO: HANDLE INCORRECT ANSWEER?
-            //flashRed(key);
-          } else flashGreen(key);
+          if (score1 !== score2) {
+            flashGreen(key);
+          }  
         }
       }
 
@@ -263,18 +239,56 @@ const MultiPlayer = ({ lobbyName }) => {
     console.log("updated question", currentQuestion);
   }, [currentQuestion]);
 
-  const categoryChoice = (category) => {
-    return <div className={`categoryChoice ${notChosenCategories[category] || ''}`}>{category}</div>;
+  const categoryChoice = (category, active) => {
+    if(active) {
+      return (
+      <div onClick={() => selectCategory(category)} className={`categoryChoice ${notChosenCategories[category] || ""}`}>
+        {category}
+      </div>
+    );
+  }
+  else{
+    return (
+      <div className={`categoryChoice ${notChosenCategories[category] || ""}`}>
+      {category}
+    </div>
+    )
+  }
+
   };
   const selectCategory = (category) => {
     socket.emit("selectedCategory", { lobbyName, category });
   };
- 
+
+  const updateTimer = useCallback((timestamp) => {
+    if (!startTimeRef.current) {
+      startTimeRef.current = timestamp;
+      rafRef.current = requestAnimationFrame(updateTimer);
+      return;
+    }
+  
+    const elapsed = timestamp - startTimeRef.current;
+    startTimeRef.current = timestamp;
+  
+    const decrement = elapsed / 1000; // Convert milliseconds to seconds
+    setTimeLeft((prevTimeLeft) => {
+      const newTimeLeft = Math.max(prevTimeLeft - decrement, 0);
+      if (newTimeLeft <= 0) {
+        cancelAnimationFrame(rafRef.current);
+        timerFinished();
+      }
+      return newTimeLeft;
+    });
+  
+    rafRef.current = requestAnimationFrame(updateTimer);
+  }, [timerFinished]); 
+  
   const startTimer = useCallback(() => {
     setTimeLeft(questionTimer);
     startTimeRef.current = null;
     rafRef.current = requestAnimationFrame(updateTimer);
   }, [questionTimer, updateTimer]);
+
 
   useEffect(() => {
     if (timerRunning) {
@@ -332,11 +346,10 @@ const MultiPlayer = ({ lobbyName }) => {
         <div className="questionScoreDiv">
           <div className="questionDiv">
             <QuestionComponent
-              handleOptionChangeWrapper={handleOptionChange}
               answer={answer}
+              setAnswer={setAnswer}
               question={currentQuestion}
               activeQuestion={activeQuestion}
-              nextQuestion={nextQuestion}
               submitAnswer={submitAnswer}
               submittedAnswer={submittedAnswer}
               correctAnswer={correctAnswer}
@@ -347,11 +360,14 @@ const MultiPlayer = ({ lobbyName }) => {
               isLocked={isLocked}
               canProgress={canProgress}
             />
+            {!lobbyInfo.currentChooser.active && (
             <div className="timerProgressBarContainer">
-                <div className="timerProgressBarBar" style={{width: (timeLeft/questionTimer)*100 + '%'}} /> 
-                <div className="timerText">{timeLeft > 0 && Math.ceil(timeLeft)}</div>
-            </div> 
-
+              <div
+                className="timerProgressBarBar"
+                style={{ width: (timeLeft / questionTimer) * 100 + "%" }}
+              />
+            </div>
+            )}
           </div>
         </div>
       </>
@@ -364,23 +380,24 @@ const MultiPlayer = ({ lobbyName }) => {
         {lobbyInfo.currentChooser.currentChooser === user ? (
           <>
             <div className="categoryChoicesDiv">
-            <p className="categoryChoicesDivTitle">Din tur att välja kategori.</p>
+              <p className="categoryChoicesDivTitle">
+                Din tur att välja kategori.
+              </p>
 
               {lobbyInfo.currentChooser.categoryChoices.map((category) => (
-                <div onClick={() => selectCategory(category)}>
-                  {categoryChoice(category)}
-                </div>
+                <>{categoryChoice(category, true)}</>
               ))}
             </div>
           </>
         ) : (
           <>
-
             <div className="categoryChoicesDiv inactive">
-            <p className="categoryChoicesDivTitle">Väntar på att {lobbyInfo.currentChooser.currentChooser} väljer
-            kategori.</p>
+              <p className="categoryChoicesDivTitle">
+                Väntar på att {lobbyInfo.currentChooser.currentChooser} väljer
+                kategori.
+              </p>
               {lobbyInfo.currentChooser.categoryChoices.map((category) => (
-                <div>{categoryChoice(category)}</div>
+                <>{categoryChoice(category)}</>
               ))}
             </div>
           </>
@@ -392,8 +409,8 @@ const MultiPlayer = ({ lobbyName }) => {
   const renderContent = () => {
     if (lobbyInfo.active === false) return preGameState();
     else if (winners.length > 0) return winnersState();
-    else if (lobbyInfo.currentChooser.active) return categoryChoosingState();
     else return mainGameState();
+   
   };
 
   return (
@@ -401,15 +418,19 @@ const MultiPlayer = ({ lobbyName }) => {
       <p className="roomTitle">
         Rumsnamn: {lobbyName} <br />
       </p>
-
+      <div className="mpMainContent">
       {renderContent()}
-      <div className="mpScoreDiv">
-        {Object.keys(users).map((user) => (
+      {(lobbyInfo.currentChooser.active && categoryChoosingState())}
+      </div>
+      <div className="scorePanel">
+        <div className="scorePanelTitle">{lobbyInfo.chosenWinCon === "correctCon" ? (<>Först till {lobbyInfo.winConNumber} korrekta svar!</>) : (<>Fråga {lobbyInfo.questionAmount} / {lobbyInfo.winConNumber}</>)}</div>
+        <div className="mpScoreDiv">{Object.keys(users).map((user) => (
           <div key={user} className={`userEntry ${animatedUsers[user] || ""}`}>
             <div className="username">{users[user].username}</div>
             <div className="score">{users[user].score}</div>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );

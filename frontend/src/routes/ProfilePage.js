@@ -6,9 +6,6 @@ import './styles/profilePageStyle.css';
 const ProfilePage = () => {
 
     const [scoreArray, setScoreArray] = useState([]);
-    const [totalQuestionsScore, setTotalQuestionsScore] = useState([]);
-    const [userHistory, setUserHistory] = useState([]);
-    const [historyData, setHistoryData] = useState([]);
 
     useEffect(() => {
         initialLoad()
@@ -48,7 +45,7 @@ const ProfilePage = () => {
     const loadTotalScores = async () => {
         try {
             // Make an API call to get the total score array
-            const response = await axios.get('/api/profile-routes/get-total-score-array');
+            const response = await axios.get('/api/profile-routes/total-score-array');
 
             // Extract categoryStats from the response
             const categoryStats = response.data.categoryStats;

@@ -82,6 +82,23 @@ export const obfQuestion = (question) => {
     text: question.text,
     tags: question.tags,
     choices: shuffleArray([...question.incorrectAnswers, question.correctAnswer]),
+    id: question._id,
+    questionType: question.questionType
+  };
+};
+
+/**
+ * Obfuscates a rank-question for the client.
+ * @param {Object} question - The question object.
+ * @return {Object} The obfuscated question object.
+ */
+export const obfRankQuestion = (question) => {
+  return {
+    text: question.text,
+    tags: question.tags,
+    choices: shuffleArray([...question.correctOrder]),
+    id: question._id,
+    questionType: question.questionType
   };
 };
 
@@ -102,19 +119,30 @@ export const updateScoreArray = (clientData, correct) => {
   });
   return tempScoreArray;
 };
-
+/**
+ * Updates the client's current totals based on their answer.
+ * @param {Object} clientData - The client's data object.
+ * @param {Boolean} correct - Whether the answer is correct.
+ * @returns {Object} Updated current totals.
+ */
 export const updateCurrentTotals = (clientData, correct) => {
-  const tempCurrentTotals = {...clientData.currentTotals}
-  if(correct) {
+  const tempCurrentTotals = { ...clientData.currentTotals };
+  if (correct) {
     tempCurrentTotals[0] += 1;
     tempCurrentTotals[1] += 1;
-  }
-  else
-  {
+  } else {
     tempCurrentTotals[1] += 1;
   }
   return tempCurrentTotals;
-}
+};
+
+/**
+ * Updates the user's category statistics in the database.
+ * @param {String} userID - The ID of the user.
+ * @param {Array<String>} categories - The categories to update.
+ * @param {Boolean} correct - Whether the answer was correct.
+ * @throws Will throw an error if updating the database fails.
+ */
 export const updateScoresInDatabase = async (userID, categories, correct) => {
   try {
     for (const tag of categories) {
@@ -138,6 +166,13 @@ export const updateScoresInDatabase = async (userID, categories, correct) => {
   }
 };
 
+/**
+ * Updates the user's statistics for a specific category.
+ * @param {String} userId - The ID of the user.
+ * @param {String} category - The category to update.
+ * @param {Number} correctIncrement - The amount to increment the correct count by.
+ * @param {Number} totalIncrement - The amount to increment the total count by.
+ */
 const updateCategoryStats = async (userId, category, correctIncrement, totalIncrement) => {
   const updates = {
     [`categoryStats.${category}.correct`]: correctIncrement,
@@ -150,20 +185,27 @@ const updateCategoryStats = async (userId, category, correctIncrement, totalIncr
   );
 };
 
+/**
+ * Retrieves all unique categories from the Question collection.
+ * @returns {Promise<Array<String>>} Array of unique category names.
+ */
 export const getAllCategories = async () => {
   const categories = await Question.aggregate([
     { $unwind: '$tags' },
-    { $group: { _id: '$tags'}},
+    { $group: { _id: '$tags'} },
   ]);
-  const categoriesArray = []
+  const categoriesArray = [];
   Object.keys(categories).forEach(category => {
     categoriesArray.push(categories[category]._id);
-  })
+  });
   return categoriesArray;
-}
+};
 
+/**
+ * Retrieves categories with their question counts, and matches them with corresponding icons.
+ * @returns {Promise<Array<Object>>} Array of category objects with counts and icons.
+ */
 export const getQuestionCategoriesWithCount = async () => {
-
   const tagsWithCounts = await Question.aggregate([
     { $unwind: '$tags' },
     { $group: { _id: '$tags', count: { $sum: 1 } } },
@@ -185,19 +227,23 @@ export const getQuestionCategoriesWithCount = async () => {
     return tempTag;
   });
 
-  return tagsWithIcons
-}
+  return tagsWithIcons;
+};
 
+/**
+ * Updates the question's correct or incorrect answer count based on the given answer.
+ * @param {String} questionId - The ID of the question to update.
+ * @param {Boolean} correct - Whether the given answer was correct.
+ */
 export const updateQuestionCounts = async (questionId, correct) => {
+  console.log('updating:', questionId)
   try {
     const update = correct
-    ? { $inc: { correctAnswerCount: 1 } }
-    : { $inc: { incorrectAnswerCount: 1 } };
+      ? { $inc: { correctAnswerCount: 1 } }
+      : { $inc: { incorrectAnswerCount: 1 } };
 
     await Question.findByIdAndUpdate(questionId, update, { new: true });
   } catch (error) {
     console.error("Failed to update question counts:", error);
   }
 };
-
-

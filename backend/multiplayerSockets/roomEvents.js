@@ -9,6 +9,7 @@ import {
   getNextQuestion,
   getRandomChooser
 } from "./socketUtils.js";
+import { updateQuestionCounts } from "../routes/questionRouteUtils.js";
 
 export const roomEvents = (socket, rooms, io) => {
   let username = "";
@@ -16,7 +17,8 @@ export const roomEvents = (socket, rooms, io) => {
   else return;
 
   socket.on("createNewLobby", async (newLobbyInfo) => {
-    const lobbyName = newLobbyInfo.lobbyName || generateLobbyName(rooms);
+    console.log("test");
+    const lobbyName = newLobbyInfo.lobbyName.toUpperCase() || generateLobbyName(rooms);
     const allCategories = await getAllCategories();
 
     if (!rooms[lobbyName]) {
@@ -42,7 +44,6 @@ export const roomEvents = (socket, rooms, io) => {
       newLobby.questionQueue = await getNewQuestionQueue();
 
       newLobby.currentQuestion = await getNewQuestion(newLobby.questionQueue);
-      newLobby.questionAmount++;
 
       rooms[lobbyName] = newLobby;
       console.log("Creating new room", newLobby.lobbyName);
@@ -55,7 +56,7 @@ export const roomEvents = (socket, rooms, io) => {
 
 
 socket.on("joinLobby", (joinLobbyInfo) => {
-  const lobbyName = joinLobbyInfo.lobbyName;
+  const lobbyName = joinLobbyInfo.lobbyName.toUpperCase();
   const password = joinLobbyInfo.joinLobbyPassword;
   console.log(username, "is trying to join lobby", lobbyName);
 
@@ -92,29 +93,37 @@ socket.on("getRoomInfo", (lobbyName) => {
       host: rooms[lobbyName].host,
       currentQuestion: {},
       currentChooser: rooms[lobbyName].currentChooser,
+      questionAmount: rooms[lobbyName].questionAmount
     });
   }
 });
 
 socket.on("startGame", (lobbyName) => {
-  rooms[lobbyName].active = true;
+  if(rooms[lobbyName]){
+    rooms[lobbyName].active = true;
   rooms[lobbyName].currentChooser = {
-    currentChooser: getRandomChooser(Object.keys(rooms[lobbyName].users)),
+    currentChooser: getRandomChooser((rooms[lobbyName])),
     categoryChoices: getCategoryChoices(rooms[lobbyName]),
     active: rooms[lobbyName].active,
+    questionAmount: rooms[lobbyName].questionAmount
   };
   console.log('start game chooser', rooms[lobbyName].currentChooser)
   io.to(lobbyName).emit("currentChooser", rooms[lobbyName].currentChooser);
+  }
 });
 
 socket.on("submitAnswer", (lobbyInfo) => {
+
   const submittedAnswer = lobbyInfo.submittedAnswer;
   const lobbyName = lobbyInfo.lobbyName;
+ 
   console.log("received", submittedAnswer, "from", username);
   if (
+    rooms[lobbyName] && 
     checkTimer(rooms[lobbyName].timer) &&
     submittedAnswer == rooms[lobbyName].currentQuestion.correctAnswer
   ) {
+    updateQuestionCounts(rooms[lobbyName].currentQuestion._id, true);
     rooms[lobbyName].users[username].score += 1;
     io.to(lobbyName).emit("updatedScore", {
       newUsersInfo: rooms[lobbyName].users,
@@ -123,6 +132,7 @@ socket.on("submitAnswer", (lobbyInfo) => {
     socket.emit("timedOut");
     console.log("timed out answer");
   } else {
+    updateQuestionCounts(rooms[lobbyName].currentQuestion._id, false);
     io.to(lobbyName).emit("updatedScore", {
       newUsersInfo: rooms[lobbyName].users,
     });
@@ -131,12 +141,20 @@ socket.on("submitAnswer", (lobbyInfo) => {
 });
 
 socket.on("getNextQuestion", async (lobbyName) => {
+  console.log(rooms[lobbyName]);
+  const winners = checkWinCon(rooms[lobbyName]);
+
+  if (winners.length > 0) {
+    io.to(lobbyName).emit("winnerDetermined", winners);
+  }
+
   rooms[lobbyName].currentChooser = {
-    currentChooser: getRandomChooser(Object.keys(rooms[lobbyName].users)),
+    currentChooser: getRandomChooser((rooms[lobbyName])),
     categoryChoices: getCategoryChoices(rooms[lobbyName]),
     active: rooms[lobbyName].active,
+    questionAmount: rooms[lobbyName].questionAmount
   };
-  console.log('getnextquestion chooser', rooms[lobbyName].currentChooser)
+
   io.to(lobbyName).emit("currentChooser", rooms[lobbyName].currentChooser);
 });
 
@@ -145,6 +163,7 @@ socket.on("selectedCategory", async ({ lobbyName, category }) => {
   io.to(lobbyName).emit("categoryChosen", {
     category,
     question: obfQuestion(rooms[lobbyName].currentQuestion),
+    questionAmount: rooms[lobbyName].questionAmount
   });
 
 });

@@ -9,6 +9,10 @@ const questionSchema = new Schema({
   tags: [String],             // Array of tags
   correctAnswerCount: { type: Number, default: 0 },
   incorrectAnswerCount: { type: Number, default: 0 },
+  questionType: {
+    type: String,
+    default: 'oneOfThree'
+  },
 });
 
 export const Question = mongoose.model('Question', questionSchema);
