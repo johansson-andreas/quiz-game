@@ -14,6 +14,7 @@ import { Question } from "../models/Question.js";
 import { NewQuestion } from "../models/NewQuestion.js";
 import { RankQuestion } from "../models/RankQuestion.js";
 import redis from '../redisClient.js'
+import { ConnectQuestion } from "../models/ConnectQuestion.js";
 
 const router = express.Router();
 
@@ -68,6 +69,15 @@ router.get("/question", async (req, res) => {
 router.get("/question/rank", async (req, res) => {
   const rankQuestion = await RankQuestion.aggregate([{ $sample: { size: 1 } }]);
   res.send(obfRankQuestion(rankQuestion[0]));
+});
+/**
+ * @route GET /question/conenct
+ * @description Retrieves a random connect question.
+ * @returns {Object} Obfuscated rank connect object.
+ */
+router.get("/question/connect", async (req, res) => {
+  const connectQuestion = await ConnectQuestion.aggregate([{ $sample: { size: 1 } }]);
+  res.send((connectQuestion[0]));
 });
 
 /**
