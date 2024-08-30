@@ -52,11 +52,12 @@ const AdminPage = () => {
 
   const columns = React.useMemo(
     () => [
-      { Header: "ID", accessor: "_id" },
       { Header: "Text", accessor: "text" },
       { Header: "Correct Answer", accessor: "correctAnswer" },
       { Header: "Incorrect Answers", accessor: "incorrectAnswers", Cell: ({ value }) => value.join(", ") },
       { Header: "Tags", accessor: "tags", Cell: ({ value }) => value.join(", ") },
+      { Header: "Correct #", accessor: "correctAnswerCount"},
+      { Header: "Incorrect #", accessor: "incorrectAnswerCount"},
       { Header: "Actions", accessor: "actions" },
     ],
     []
