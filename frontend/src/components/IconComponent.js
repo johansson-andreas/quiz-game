@@ -16,6 +16,7 @@ import artIcon from '../icons/artIcon.png';
 import cultureIcon from '../icons/cultureIcon.png';
 import gameIcon from '../icons/gameIcon.png';
 import economyIcon from '../icons/economyIcon.png';
+import heartIcon from '../icons/heartIcon.png';
 
 
 
@@ -39,6 +40,8 @@ iconList["artIcon"] = artIcon;
 iconList["cultureIcon"] = cultureIcon;
 iconList["gameIcon"] = gameIcon;
 iconList["economyIcon"] = economyIcon;
+iconList["heartIcon"] = heartIcon;
+
 
 
 

@@ -6,33 +6,37 @@ import {
   getNewQuestionQueueByTags,
   updateCurrentTotals,
   updateScoresInDatabase,
-  updateQuestionCounts
+  updateQuestionCounts,
+  obfRankQuestion
 } from "./questionRouteUtils.js";
 import { createClientData } from "./loginRouteUtils.js";
 import { Question } from "../models/Question.js";
 import { NewQuestion } from "../models/NewQuestion.js";
+import { RankQuestion } from "../models/RankQuestion.js";
+import redis from '../redisClient.js'
 
 const router = express.Router();
 
+/**
+ * Middleware to create client data if not present.
+ * Logs the session ID and creates new client data if necessary.
+ */
 const timeLog = async (req, res, next) => {
   if (!req.session.clientData) {
     console.log("Found no data for", req.sessionID, "creating new data");
     await createClientData(req);
     await getNewQuestion(req.session.clientData);
-    next();
-  } else next();
+  }
+  next();
 };
 router.use(timeLog);
 
-router.get("/request-question", async (req, res, next) => {
-  const clientData = req.session.clientData;
-
-  if (clientData.currentQuestion)
-    res.send(obfQuestion(await getNewQuestion(clientData)));
-});
-
+/**
+ * @route GET /initial-contact
+ * @description Initializes client session with a new question and session data.
+ * @returns {Object} JSON object containing the obfuscated question, categories, score array, and current totals.
+ */
 router.get("/initial-contact", async (req, res) => {
-  // Access session data
   await createClientData(req);
   const newQuestion = await getNewQuestion(req.session.clientData);
   console.log(req.session.clientData.unusedQuestions.length);
@@ -44,23 +48,68 @@ router.get("/initial-contact", async (req, res) => {
   });
 });
 
-router.post("/submit-answer", async (req, res) => {
-  console.log(req.body.submittedAnswer);
+/**
+ * @route GET /question
+ * @description Retrieves the current question for the client session.
+ * @returns {Object} Obfuscated question object.
+ */
+router.get("/question", async (req, res) => {
+  const clientData = req.session.clientData;
+  if (clientData.currentQuestion) {
+    res.send(obfQuestion(await getNewQuestion(clientData)));
+  }
+});
+
+/**
+ * @route GET /question/rank
+ * @description Retrieves a random rank question.
+ * @returns {Object} Obfuscated rank question object.
+ */
+router.get("/question/rank", async (req, res) => {
+  const rankQuestion = await RankQuestion.aggregate([{ $sample: { size: 1 } }]);
+  res.send(obfRankQuestion(rankQuestion[0]));
+});
+
+/**
+ * @route GET /question/:tag
+ * @description Retrieves a random question filtered by a specific tag.
+ * @param {String} tag - The tag to filter questions by.
+ * @returns {Object} Obfuscated question object.
+ */
+router.get("/question/:tag", async (req, res) => {
+  const tag = req.params.tag;
+  try {
+    const tagQuestion = await Question.aggregate([
+      { $match: { tags: tag } },
+      { $sample: { size: 1 } }
+    ]);
+    console.log(tagQuestion);
+    res.send(obfQuestion(tagQuestion[0]));
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/**
+ * @route POST /question/answers
+ * @description Submits an answer and updates the client's score array and database records.
+ * @param {Object} req.body - The submitted answer object.
+ * @returns {Object} JSON object containing the updated score array and the correct answer.
+ */
+router.post("/question/answers", async (req, res) => {
   const clientData = req.session.clientData;
 
   if (clientData) {
-    const answer = req.body.submittedAnswer;
+    const answer = req.params.submittedAnswer;
     let correct = false;
     if (answer === clientData.currentQuestion.correctAnswer) correct = true;
 
     clientData.scoreArray = updateScoreArray(clientData, correct);
-    //clientData.currentTotals = updateCurrentTotals(clientData, correct);
     res.send({
       scoreArray: clientData.scoreArray,
       correctAnswer: clientData.currentQuestion.correctAnswer,
     });
 
-    //Update database if user in logged in
     if (req.user && req.user._id) {
       console.log(clientData.currentQuestion);
 
@@ -76,35 +125,13 @@ router.post("/submit-answer", async (req, res) => {
   }
 });
 
-router.post("/get-new-question-queue-by-tags", async (req, res) => {
-  const clientData = req.session.clientData;
-  console.log(clientData.clientId);
-
-  clientData.categories = req.body.questionCategories;
-
-  const enabledTags = clientData.categories
-    .filter((category) => category.enabled)
-    .map((category) => category._id);
-
-  try {
-    clientData.cachedQuestions = await getNewQuestionQueueByTags(enabledTags);
-    clientData.unusedQuestions = [...clientData.cachedQuestions];
-    req.session.save();
-
-    res.status(200).json({
-      response: "Ok",
-      text: "New question length: ",
-      amount: clientData.unusedQuestions.length,
-    });
-  } catch (err) {
-    console.error("Failed to fetch questions by tags:", err);
-    res
-      .status(500)
-      .json({ errorMessage: "Failed to get new question queue", error: err });
-  }
-});
-
-router.post("/add-question-to-db", async (req, res) => {
+/**
+ * @route POST /question
+ * @description Adds a new question to the database.
+ * @param {Object} req.body.newQuestion - The question data to add.
+ * @returns {String} Success message.
+ */
+router.post("/question", async (req, res) => {
   try {
     const questionToAdd = req.body.newQuestion;
 
@@ -115,7 +142,6 @@ router.post("/add-question-to-db", async (req, res) => {
       tags: questionToAdd.categories,
     });
 
-    // Save the new document
     await newQuestion.save();
     res.status(201).send("Question added successfully");
   } catch (error) {
@@ -123,8 +149,13 @@ router.post("/add-question-to-db", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-router.get("/request-new-questions", async (req, res) => {
-  // Check if user is inlogged and has 'admin' role
+
+/**
+ * @route GET /new-questions
+ * @description Retrieves all new questions. Only accessible by admin users.
+ * @returns {Array} Array of new questions.
+ */
+router.get("/new-questions", async (req, res) => {
   if (req.user && req.user.role === "admin") {
     try {
       const newQuestions = await NewQuestion.find().exec();
@@ -135,12 +166,18 @@ router.get("/request-new-questions", async (req, res) => {
       res.status(500).send("Internal Server Error");
     }
   } else {
-    res.status(403).json({ message: "Access denied" }); // Forbidden
+    res.status(403).json({ message: "Access denied" });
   }
 });
 
-// Route to update a question
-router.put("/update-question/:id", async (req, res) => {
+/**
+ * @route PUT /new-question/:id
+ * @description Updates a specific new question.
+ * @param {String} id - The ID of the question to update.
+ * @param {Object} req.body - The new data to update the question with.
+ * @returns {Object} The updated question object.
+ */
+router.put("/new-question/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const updatedData = req.body;
@@ -161,8 +198,13 @@ router.put("/update-question/:id", async (req, res) => {
   }
 });
 
-// Route to accept a question (move from NewQuestion to Question)
-router.post("/accept-question/:id", async (req, res) => {
+/**
+ * @route PATCH /new-question/:id
+ * @description Accepts a new question, moving it from NewQuestion to Question collection.
+ * @param {String} id - The ID of the new question to accept.
+ * @returns {Object} The accepted question object.
+ */
+router.patch("/new-question/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const question = await NewQuestion.findById(id);
@@ -187,8 +229,14 @@ router.post("/accept-question/:id", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-// Route to delete a question
-router.delete("/delete-question/:id", async (req, res) => {
+
+/**
+ * @route DELETE /new-question/:id
+ * @description Deletes a specific new question.
+ * @param {String} id - The ID of the question to delete.
+ * @returns {Object} The deleted question object.
+ */
+router.delete("/new-question/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -204,17 +252,76 @@ router.delete("/delete-question/:id", async (req, res) => {
   }
 });
 
-// Hämta aktuella frågor
-router.get("/get-current-questions", async (req, res) => {
+/**
+ * @route PATCH /question-queue/
+ * @description Updates the client's question queue based on selected categories.
+ * @param {Array} req.body.newQuestionCategories - The new question categories.
+ * @returns {Object} Response object with a success message and the length of the new question queue.
+ */
+router.patch("/question-queue/", async (req, res) => {
+  const clientData = req.session.clientData;
+
+  clientData.categories = req.body.newQuestionCategories;
+
+  const enabledTags = clientData.categories
+    .filter((category) => category.enabled)
+    .map((category) => category._id);
+
   try {
-    // Hämta alla frågor från databasen
+    clientData.cachedQuestions = await getNewQuestionQueueByTags(enabledTags);
+    clientData.unusedQuestions = [...clientData.cachedQuestions];
+    req.session.save();
+
+    res.status(200).json({
+      response: "Ok",
+      text: "New question length: ",
+      amount: clientData.unusedQuestions.length,
+    });
+  } catch (err) {
+    console.error("Failed to fetch questions by tags:", err);
+    res
+      .status(500)
+      .json({ errorMessage: "Failed to get new question queue", error: err });
+  }
+});
+
+/**
+ * @route GET /questions
+ * @description Retrieves all current questions.
+ * @returns {Array} Array of question objects.
+ */
+router.get("/questions", async (req, res) => {
+  try {
     const questions = await Question.find({});
-    res.json(questions); // Skicka tillbaka som JSON
+    res.json(questions);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
+/**
+ * @route GET /categories
+ * @description Retrieves all question categories.
+ * @returns {Object} JSON object containing an array of categories.
+ */
+router.get("/categories", async (req, res) => {
+  try {
+    const cachedCategories = await redis.get('categories');
+    console.log(JSON.parse(await redis.get('questionCounts')));
+
+    if (cachedCategories) {
+      res.status(200).json(JSON.parse(cachedCategories));
+    } else {
+      const categories = await getAllCategories();
+
+      await redis.set('categories', JSON.stringify(categories));
+
+      res.status(200).json(categories);
+    }
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 export default router;
-
-

@@ -26,7 +26,7 @@ const DailyChallenge = () => {
   const [submittedAnswers, setSubmittedAnswers] = useState({});
   const [questionKey, setQuestionKey] = useState({});
   const [isLoginPanelVisible, setLoginPanelVisible] = useState(true);
-  const [triggeredOption, setTriggeredOption] = useState(null);
+
 
 
   const togglePanelVisibility = () => {
@@ -69,7 +69,7 @@ const DailyChallenge = () => {
   const nextQuestion = async () => {
     try {
       const response = await axios.get(
-        "/api/daily-challenge-routes/request-question"
+        "/api/daily-challenge-routes/question"
       );
       console.log("response:", response);
 
@@ -78,7 +78,6 @@ const DailyChallenge = () => {
         setActive(true);
         setQuestionsRemaining((prevCount) => prevCount - 1);
       } else if (response.data.status === "out of questions") {
-        //TODO: ADD SOMETHING WHEN UUT OF QUESTIONS. MAYBE REMOVE QUESTION PANEL AND ADD RESULT PANEL?
         setActiveQuiz(false);
       }
     } catch (error) {
@@ -89,19 +88,16 @@ const DailyChallenge = () => {
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
   };
-  const handleOptionChange = (e) => {
-    setAnswer(e.target.value);
-  };
 
   useEffect(() => {
     const getDailyBest = async () => {
       if (activeQuiz === false) {
         try {
           const dailyBestResponse = await axios.get(
-            "/api/daily-challenge-routes/get-daily-best"
+            "/api/daily-challenge-routes/daily-best"
           );
           const dailyQuestionKey = await axios.get(
-            "/api/daily-challenge-routes/get-daily-question-key"
+            "/api/daily-challenge-routes/daily-question-key"
           );
           console.log(dailyQuestionKey.data.submittedAnswers);
 
@@ -130,29 +126,32 @@ const DailyChallenge = () => {
     getDailyBest();
   }, [activeQuiz]);
 
+  const postAnswer = async () => {
+    try{
+      const response = await axios.post(`/api/daily-challenge-routes/answer/${submittedAnswer}`)
+
+      setActive(false);
+      console.log(
+        "todaysscore:",
+        response.data.todaysScore,
+        "Correct answer:",
+        response.data.correctAnswer
+      );
+      setCurrentScore(response.data.todaysScore);
+      setCorrectAnswer(response.data.correctAnswer);
+
+  } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
   useEffect(() => {
     console.log("Submitted answer:", submittedAnswer);
     if (submittedAnswer !== "") {
-      axios
-        .post("/api/daily-challenge-routes/submit-answer", { submittedAnswer })
-        .then((response) => {
-          setActive(false);
-          console.log(
-            "todaysscore:",
-            response.data.todaysScore,
-            "Correct answer:",
-            response.data.correctAnswer
-          );
-          setCurrentScore(response.data.todaysScore);
-          setCorrectAnswer(response.data.correctAnswer);
-          setTriggeredOption(response.data.correctAnswer);
-
-        })
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-        });
+      postAnswer();
     }
   }, [submittedAnswer]);
+
 
   const checkCorrect = (submittedAnswer, correctAnswer) => {
     if (submittedAnswer === correctAnswer) {
@@ -199,7 +198,7 @@ const DailyChallenge = () => {
                   Fråga {10 - questionsRemaining} av 10
                   <QuestionComponent
                     question={question}
-                    handleOptionChangeWrapper={handleOptionChange}
+                    setAnswer={setAnswer}
                     answer={answer}
                     questionIcons={memoizedQuestionIcons}
                     submitAnswer={submitAnswer}
@@ -207,8 +206,7 @@ const DailyChallenge = () => {
                     activeQuestion={activeQuestion}
                     submittedAnswer={submittedAnswer}
                   correctAnswer={correctAnswer}
-                  triggeredOption={triggeredOption}
-                  setTriggeredOption={setTriggeredOption}
+
 
                   />
 

@@ -58,7 +58,7 @@ router.get('/ping', (req, res) => {
   res.status(200).send("pong!");
 });
 
-router.get('/get-username', (req, res) => {
+router.get('/username', (req, res) => {
   if(req.user) res.json({ username: req.user.username, role:req.user.role });
   else res.json({ message: "Not logged in" })
 });

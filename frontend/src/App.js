@@ -10,6 +10,8 @@ import QuestionForm from './routes/QuestionForm.js';
 import ProfilePage from './routes/ProfilePage.js';
 import AdminPage from './routes/AdminPage.js';
 import MultiPlayer from './routes/MultiPlayer.js';
+import Gauntlet from './routes/Gauntlet/Gauntlet.js';
+
 import './App.css';
 
 import 'bootstrap/dist/css/bootstrap.css';
@@ -31,6 +33,7 @@ const App = () => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/Admin" element={<AdminPage />} />
         <Route path="/MultiPlayer" element={<MultiPlayer />} />
+        <Route path="/Gauntlet" element={<Gauntlet />} />
 
         </Route>
       </Routes>

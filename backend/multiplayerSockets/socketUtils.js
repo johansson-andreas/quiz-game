@@ -33,8 +33,19 @@ export  const checkWinCon = (lobbyInfo) => {
     winners = Object.keys(usersData).filter((userData) => {
       return usersData[userData].score >= winConNumber;
     });
-  } else {
-    //TODO: ADD QUESTOON AMOUNT WINCON
+  } else if (chosenWinCon === "amountCon") {
+    let highestScore = -1;
+    if(lobbyInfo.questionAmount >= winConNumber)
+      Object.keys(usersData).forEach(userData => {
+        const userScore = usersData[userData].score;
+  
+        if (userScore > highestScore) {
+          highestScore = userScore;
+          winners = [userData];
+        } else if (userScore === highestScore) {
+          winners.push(userData);
+        }
+      });
   }
   return winners;
 };
@@ -71,24 +82,31 @@ export const getNewQuestion = async (questionQueue) => {
 
 export const getNextQuestion = async ({lobbyInfo, chosenCategory}) => {
   const currentLobby = {...lobbyInfo};
-  console.log('getnextquestion lobbyinfo', currentLobby);
   currentLobby.currentQuestion = await getRandomQuestionByTag(chosenCategory);
   currentLobby.questionAmount++;
 
   currentLobby.timer = new Date(
     Date.now() + (currentLobby.questionTimer + delayCompensation) * 1000
   );
-  setTimeout(() => {
-    const winConResult = checkWinCon(currentLobby);
-    if (winConResult.length > 0) {
-      socket.emit("winnerDetermined", winConResult);
-    }
-  }, (currentLobby.questionTimer + delayCompensation) * 1000);
 
   console.log('timeout timer', currentLobby.timer)
   return currentLobby;
 };
 
-export const getRandomChooser = (usersArray) => {
-  return usersArray[randomizeArrayIndex(usersArray)];
-}
+export const getRandomChooser = (lobbyInfo) => {
+  let newChooser = "";
+  const oldChooser = lobbyInfo.currentChooser.currentChooser;
+
+  const userKeys = Object.keys(lobbyInfo.users);  // Create the array of keys once
+  const maxAttempts = 4;
+
+  for (let i = 0; i < maxAttempts; i++) { 
+    newChooser = userKeys[randomizeArrayIndex(userKeys)];
+
+    if (newChooser !== oldChooser) {
+      return newChooser;
+    }
+  }
+  
+  return newChooser; // If all attempts fail, return the old chooser
+};

@@ -13,14 +13,14 @@
 {
     display: flex;
     background-color:var(--main-gray-color);  
-    margin-top: 10%;
     margin-left:50%;
     transform: translate(-50%, -50%);
-    width:25vw;
     height:fit-content;
     padding: 0.5%;
   border-radius: 15px;
   border: var(--default-border);
+  margin-top: calc(25px + 10vw);
+    width: calc(fit-content + 10px);
 
 }
 .mainBody{
@@ -104,4 +104,41 @@ flex-direction: column;
 {
     width:50px;
     align-self: flex-end;
+}
+.winConDiv
+{
+    display: grid;
+    grid-template-areas: 
+    "radiobutton text number";
+    row-gap: 3px;
+}
+.createButtons
+{
+    gap: 10px;    
+    display: flex;
+}
+
+@media (max-width: 600px) {
+    .mainForm{
+        width:95%;
+        margin-left: auto;
+    margin-right: auto;
+    transform: none;
+    
+    }
+    .defaultDiv{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .newLobbyButton{
+        width: 100%;
+    }
+    .joinLobbyForm{
+        width: 100%;
+        gap: 5px;
+    }
+    .createButtons{
+        padding: 5px;
+    }
 }

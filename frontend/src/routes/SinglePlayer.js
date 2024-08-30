@@ -17,7 +17,9 @@ const Controller = () => {
   const [submittedAnswer, setSubmittedAnswer] = useState("");
   const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
   const [activeQuestion, setActive] = useState(true);
-  const [currentQuestionCategories, setCurrentQuestionCategories] = useState([]);
+  const [currentQuestionCategories, setCurrentQuestionCategories] = useState(
+    []
+  );
   const [newQuestionCategories, setNewQuestionCategories] = useState([]);
   const [scoreArray, setScoreArray] = useState({});
   const [questionTags, setQuestionTags] = useState([]);
@@ -32,46 +34,35 @@ const Controller = () => {
     setTotalQuestionsScore([0, 0]);
     setScoreArray({});
     initialContact();
-  }, [user]);   
+  }, [user]);
 
-  const initialContact = () => {
-    axios
-      .get("/api/question-routes/initial-contact")
-      .then((response) => {
-        console.log("Received initial data:", response.data);
-        const { question, categories, scoreArray, currentTotals } =
-          response.data;
-        assignQuestion(question);
-        const newCategories = categories.map((category) => ({
-          _id: category._id,
-          count: category.count,
-          icon: category.icon,
-          enabled: category.enabled,
-        }));
-        setCurrentQuestionCategories(newCategories);
-        setNewQuestionCategories(newCategories);
+  const initialContact = async () => {
+    try {
+      const response = await axios.get("/api/question-routes/initial-contact");
+      console.log("Received initial data:", response.data);
+      const { question, categories, scoreArray, currentTotals } = response.data;
+      assignQuestion(question);
+      const newCategories = categories.map((category) => ({
+        _id: category._id,
+        count: category.count,
+        icon: category.icon,
+        enabled: category.enabled,
+      }));
+      setCurrentQuestionCategories(newCategories);
+      setNewQuestionCategories(newCategories);
 
-        if (scoreArray) setScoreArray(scoreArray);
-        if (currentTotals) {
-          console.log("currentotals", currentTotals);
-          setTotalQuestionsScore([currentTotals[0], currentTotals[1]]);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+      if (scoreArray) setScoreArray(scoreArray);
+      if (currentTotals) {
+        console.log("currentotals", currentTotals);
+        setTotalQuestionsScore([currentTotals[0], currentTotals[1]]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
-  };
-
-  const handleOptionChange = (e) => {
-    setAnswer(e.target.value);
-  };
-
-  const handleOptionChangeWrapper = (event) => {
-    handleOptionChange(event);
   };
 
   const assignQuestion = (questionData) => {
@@ -83,23 +74,20 @@ const Controller = () => {
     console.log("Next question");
 
     try {
-      const response = await axios.get("/api/question-routes/request-question");
+      const response = await axios.get("/api/question-routes/question");
       console.log("GET request successful:", response.data);
 
       setFading(true);
       setTimeout(() => {
         setFading(false);
-        console.log("fading out");
       }, 1500);
       setTimeout(() => {
         setActive(true);
         assignQuestion(response.data);
       }, 450);
-
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-
   };
 
   const handleCheckboxChange = (category) => {
@@ -113,51 +101,51 @@ const Controller = () => {
   const handleCatCanvasClose = () => setCatCanvasShow(false);
   const handleCatCanvasShow = () => setCatCanvasShow(true);
 
+  const postAnswer = async () => {
+    try{
+      const response = await axios.post(`/api/question-routes/question/answers`);
+    
+      setActive(false);
+      const isCorrect = response.data.correctAnswer === submittedAnswer;
+      if (isCorrect) {
+        // Update current streak
+        setCurrentStreak((prevStreak) => {
+          const newStreak = prevStreak + 1;
+          if (newStreak > streakRecord) {
+            setStreakRecord(newStreak);
+          }
+          return newStreak;
+        });
+      } else {
+        // Reset current streak, but keep the record unchanged
+        setCurrentStreak(0);
+      }
+
+      console.log(
+        "ScoreArray:",
+        response.data.scoreArray,
+        "Correct answer:",
+        response.data.correctAnswer
+      );
+      setScoreArray(response.data.scoreArray);
+      setCorrectAnswer(response.data.correctAnswer);
+      setTotalQuestionsScore((prevCount) => {
+        const newCount = [...prevCount];
+        if (response.data.correctAnswer === submittedAnswer)
+          newCount[0] += 1;
+        newCount[1] += 1;
+        return newCount;
+      });
+      setTriggeredOption(response.data.correctAnswer);
+  } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
   useEffect(() => {
     console.log("Submitted answer:", submittedAnswer);
     if (submittedAnswer !== "") {
-      axios
-        .post("/api/question-routes/submit-answer", { submittedAnswer })
-        .then((response) => {
-          setActive(false);
-
-          const isCorrect = response.data.correctAnswer === submittedAnswer;
-
-          if (isCorrect) {
-          // Update current streak
-          setCurrentStreak((prevStreak) => {
-            const newStreak = prevStreak + 1;
-            if (newStreak > streakRecord) {
-              setStreakRecord(newStreak);
-            }
-            return newStreak;
-          });
-          } else {
-            // Reset current streak, but keep the record unchanged
-            setCurrentStreak(0);
-          }
-
-
-          console.log(
-            "ScoreArray:",
-            response.data.scoreArray,
-            "Correct answer:",
-            response.data.correctAnswer
-          );
-          setScoreArray(response.data.scoreArray);
-          setCorrectAnswer(response.data.correctAnswer);
-          setTotalQuestionsScore((prevCount) => {
-            const newCount = [...prevCount];
-            if (response.data.correctAnswer === submittedAnswer)
-              newCount[0] += 1;
-            newCount[1] += 1;
-            return newCount;
-          });
-          setTriggeredOption(response.data.correctAnswer);
-        })
-        .catch((error) => {
-          console.error("Error fetching data:", error);
-        });
+      postAnswer();
     }
   }, [submittedAnswer]);
 
@@ -174,32 +162,35 @@ const Controller = () => {
     );
   }, [questionTags]);
 
-  useEffect(() => {
+  const getNewQuestionQueue = async () => {
     if (
-      newQuestionCategories.length > 0 &&
-      newQuestionCategories !== currentQuestionCategories
+      newQuestionCategories !== currentQuestionCategories &&
+      Object.keys(newQuestionCategories).length > 0
     ) {
       setCurrentQuestionCategories(newQuestionCategories);
       console.log("requestion new question queue");
-      axios
-        .post("/api/question-routes/get-new-question-queue-by-tags", {
-          questionCategories: newQuestionCategories,
-        })
-        .then((response) => {
-          console.log(response);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      try {
+        const response = await axios.patch(
+          "/api/question-routes/question-queue/",
+          { newQuestionCategories }
+        );
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
     }
+  };
+
+  useEffect(() => {
+    getNewQuestionQueue();
   }, [newQuestionCategories]);
 
   return (
     <div className="mainBody">
       <div className={classNames("questionBody", fading ? "fadePulse" : "")}>
         <QuestionComponent
-          handleOptionChangeWrapper={handleOptionChangeWrapper}
           answer={answer}
+          setAnswer={setAnswer}
           question={question}
           questionIcons={questionIcons}
           activeQuestion={activeQuestion}
@@ -220,7 +211,7 @@ const Controller = () => {
           streakRecord={streakRecord} // pass streak record
         />
       </div>
-      <div id="categoriesDiv">
+      <div className="categoriesDiv">
         <Button
           variant="primary"
           onClick={handleCatCanvasShow}
@@ -239,19 +230,17 @@ const Controller = () => {
           </Offcanvas.Header>
           <Offcanvas.Body>
             {currentQuestionCategories.map((category, index) => (
-              <div key={index}>
-                <label className="checkboxLabels">
-                  <div className="topLineCheckbox">
-                    <input
-                      type="checkbox"
-                      defaultChecked={category.enabled}
-                      onChange={() => handleCheckboxChange(category)}
-                    />
-                    {category._id} <IconComponent imageName={category.icon} />
-                  </div>
-                  ({category.count})
-                </label>
-              </div>
+              <label key={category._id} className="checkboxLabels">
+                <div className="topLineCheckbox">
+                  <input
+                    type="checkbox"
+                    defaultChecked={category.enabled}
+                    onChange={() => handleCheckboxChange(category)}
+                  />
+                  {category._id} <IconComponent imageName={category.icon} />
+                </div>
+                ({category.count})
+              </label>
             ))}
           </Offcanvas.Body>
         </Offcanvas>

@@ -1,0 +1,74 @@
+.livesDiv{
+    display:flex;
+    flex-direction: row;
+}
+
+.mainContent
+{
+    display: grid;
+    grid-template-areas: 
+    "sidebar content"
+    "sidebar .";
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr;
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.questionPromptMain
+{
+
+    display: flex;
+    flex-direction: column;
+    min-height: -moz-fit-content;
+    min-height: fit-content;
+    font-size: 18px;
+    border: var(--default-border);
+    border-radius: 20px;
+    align-items: center;
+    width: 80%;
+    overflow: auto;
+    background-color: var(--main-gray-color);
+    margin-left: auto;
+    margin-right: auto;
+    grid-area: content;
+    padding:5px;
+
+}
+.questionChoiceMain
+{
+    background-color: var(--main-light-gray);
+    margin-left: auto;
+    margin-right: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "option1 option2";
+    grid-template-rows: 1fr;
+    gap:10px;
+    border-radius: 15px;
+    padding:10px;
+
+}
+.categoryChoicesLabel
+{
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1;
+    background-color: var(--main-gray-color);
+    align-content: center;
+  text-align: center;
+}
+.sideBarMain
+{
+    background-color: var(--main-light-gray);
+    padding: 5px;
+    height: 300px;
+    border-radius: 15px;
+    grid-area: sidebar;
+}
+.livesDiv {
+    display: flex;
+    flex-direction: column;
+
+}

@@ -43,8 +43,8 @@ const MultiPlayerLobby = ({ state, setState, joinedLobby }) => {
         questionTimer: newLobbyTimer
       }
       event.preventDefault();
-      socket.emit('createNewLobby', newLobby);
-      console.log('creating new lobby', newLobby)
+      const response = socket.emit('createNewLobby', newLobby);
+      console.log('creating new lobby', response)
     }
   const joinExLobby = (e, lobbyName) => 
     {
@@ -94,6 +94,7 @@ const MultiPlayerLobby = ({ state, setState, joinedLobby }) => {
         return <LoginPanelComponent />;
       case 'default':
         return (
+          <>
           <DefaultComponent
             createNewLobby={newLobbyCreator}
             updateLobbyName={updateLobbyName}
@@ -101,6 +102,7 @@ const MultiPlayerLobby = ({ state, setState, joinedLobby }) => {
             joinLobbyName={joinLobbyName}
             updateLobbyPassword={updateLobbyPassword}
           />
+          </>
         );
       case 'create':
         return (

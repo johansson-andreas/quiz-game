@@ -26,7 +26,7 @@ function LandingPage() {
     if (location.pathname === "/MultiplayerLobby") {
       if (user) {
         socket.connect();
-        console.log("connected to socketio");
+        console.log("socketio connection", socket.connect());
         setState('default')
         return () => {
           if (socket.connected) {
