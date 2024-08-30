@@ -26,7 +26,7 @@ const DailyChallenge = () => {
   const [submittedAnswers, setSubmittedAnswers] = useState({});
   const [questionKey, setQuestionKey] = useState({});
   const [isLoginPanelVisible, setLoginPanelVisible] = useState(true);
-  const [triggeredOption, setTriggeredOption] = useState(null);
+
 
 
   const togglePanelVisibility = () => {
@@ -88,9 +88,6 @@ const DailyChallenge = () => {
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
   };
-  const handleOptionChange = (e) => {
-    setAnswer(e.target.value);
-  };
 
   useEffect(() => {
     const getDailyBest = async () => {
@@ -142,7 +139,7 @@ const DailyChallenge = () => {
       );
       setCurrentScore(response.data.todaysScore);
       setCorrectAnswer(response.data.correctAnswer);
-      setTriggeredOption(response.data.correctAnswer);
+
   } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -201,7 +198,7 @@ const DailyChallenge = () => {
                   Fråga {10 - questionsRemaining} av 10
                   <QuestionComponent
                     question={question}
-                    handleOptionChangeWrapper={handleOptionChange}
+                    setAnswer={setAnswer}
                     answer={answer}
                     questionIcons={memoizedQuestionIcons}
                     submitAnswer={submitAnswer}
@@ -209,8 +206,7 @@ const DailyChallenge = () => {
                     activeQuestion={activeQuestion}
                     submittedAnswer={submittedAnswer}
                   correctAnswer={correctAnswer}
-                  triggeredOption={triggeredOption}
-                  setTriggeredOption={setTriggeredOption}
+
 
                   />
 

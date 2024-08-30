@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import classNames from "classnames";
 import styles from "./QuestionComponent.module.css";
 import IconComponent from "../IconComponent";
-
+import { RankQuestion } from "./QuestionTypes/RankQuestionComponent";
+import { OneOfThreeQuestion } from "./QuestionTypes/OneOfThreeQuestionComponent";
 
 const QuestionComponent = ({
   question,
-  handleOptionChangeWrapper,
   answer,
   questionIcons,
   submitAnswer,
@@ -14,43 +14,40 @@ const QuestionComponent = ({
   activeQuestion,
   submittedAnswer,
   correctAnswer,
-  triggeredOption,
-  setTriggeredOption,
   hostname,
-  username,
   isLocked,
   canProgress,
+  setAnswer,
 }) => {
-
-  const getDivClassName = (option) => {
-    let baseClass = "neutral";
-    if (!activeQuestion) {
-      if (submittedAnswer === option) {
-        baseClass = option === correctAnswer ? "correct" : "incorrect";
-      } else if (correctAnswer === option) {
-        baseClass = "correct";
-      }
-    }
-
-    return baseClass;
-  };
-
   const submitButtonStyle = {
-    display: hostname ? "block" : activeQuestion ? "block" : "none"
-  }
+    display: hostname ? "block" : activeQuestion ? "block" : "none",
+  };
 
   const nextButtonStyle = {
     display: activeQuestion ? "none" : "block",
   };
 
-  useEffect(() => {
-    if (triggeredOption !== null) {
-      const timeout = setTimeout(() => {
-        setTriggeredOption(null);
-      }, 1000); // Duration for the pulse effect
-      return () => clearTimeout(timeout);
+  const renderQuestionOptions = useMemo(() => {
+    switch (question.questionType) {
+      case "oneOfThree":
+        return (
+          <OneOfThreeQuestion
+            question={question}
+            setAnswer={setAnswer}
+            submittedAnswer={submittedAnswer}
+            activeQuestion={activeQuestion}
+            correctAnswer={correctAnswer}
+            isLocked={isLocked}
+            answer={answer}
+          />
+        );
+      case "rank":
+        return <RankQuestion question={question} setAnswer={setAnswer} correctAnswer={correctAnswer} answer={answer}/>;
+      default:
+        return null;
     }
-  }, [triggeredOption]);
+  }, [question.questionType, question.choices, answer, correctAnswer]);
+
 
   return (
     <>
@@ -59,43 +56,18 @@ const QuestionComponent = ({
           <div className={styles.questionText}>
             {question.text}
             <div className={styles.tagIcons}>
-              {questionIcons && questionIcons.map((index) => (
-                <IconComponent
-                  key={index}
-                  imageName={index}
-                  className={styles.tagIcon}
-                />
-              ))}
+              {questionIcons &&
+                questionIcons.map((index) => (
+                  <IconComponent
+                    key={index}
+                    imageName={index}
+                    className={styles.tagIcon}
+                  />
+                ))}
             </div>
           </div>
-          <div className={styles.radioButtonsDiv}>
-            {question.choices &&
-              question.choices.map((option, index) => {
-                const baseClass = getDivClassName(option);
-                const pulseClass =
-                  triggeredOption === option ? styles.pulse : "";
+          {renderQuestionOptions}
 
-                return (
-                  <label
-                    key={index}
-                    className={classNames(
-                      styles.radioButtonLabels,
-                      styles[baseClass], 
-                      pulseClass // Apply pulse effect conditionally
-                    )}
-                  >
-                    <input
-                      type="radio"
-                      value={option}
-                      checked={answer === option}
-                      onChange={handleOptionChangeWrapper}
-                      disabled={isLocked}
-                    />
-                    {option}
-                  </label>
-                );
-              })}
-          </div>
           <button
             onClick={submitAnswer}
             className={styles.submitNextButton}
@@ -104,7 +76,7 @@ const QuestionComponent = ({
           >
             Submit Answer
           </button>
-          {(!hostname) && (
+          {!hostname && (
             <button
               onClick={nextQuestion}
               style={nextButtonStyle}
@@ -125,7 +97,7 @@ QuestionComponent.defaultProps = {
   username: "",
   isLocked: false,
   canProgress: true,
-  questionIcons: []
+  questionIcons: [],
 };
 
 export default QuestionComponent;

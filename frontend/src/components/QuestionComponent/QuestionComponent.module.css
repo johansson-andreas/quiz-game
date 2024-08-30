@@ -109,6 +109,27 @@
   margin-right: 5px;
   margin-left: 5px;
 }
+.rankOption {
+  border-radius: 15px;
+  width: 200px;
+  background-color: var(--main-light-gray);
+  margin-top: 2px;
+  padding: 8px;
+}
+.rankListItem
+{
+  border-radius: 15px;
+  padding: 6px;
+  margin:2px;
+  border: var(--default-border)
+}
+.rankQuestionMain
+{
+  display: grid;
+  grid-template-areas: "question correctKey";
+  grid-template-rows: 1fr auto;
+}
+
 
 @media (max-width: 600px) {
     .questionText{
