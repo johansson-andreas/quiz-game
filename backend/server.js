@@ -13,6 +13,7 @@ import logger from 'morgan';
 import {Account} from './models/Account.js'; // Importing Account model
 import sockets from './multiplayerSockets/index.js';
 import { Server } from 'socket.io';
+import { dataCache } from './dataCache.js';
 
 // Configure dotenv for environment variables
 dotenv.config();

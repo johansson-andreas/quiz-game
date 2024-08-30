@@ -3,27 +3,29 @@ import axios from "axios";
 import styles from "./gauntlet.module.css";
 import QuestionChoice from "./QuestionChoice";
 import QuestionPrompt from "./QuestionPrompt";
+import IconComponent from "../../components/IconComponent";
 
 const Gauntlet = () => {
   const [questionCategories, setQuestionCategories] = useState([]);
   const [playerData, setPlayerData] = useState({
-    lives: 3,
-    currentQuestion: 1,
-    lifeLines: [],
+    lives: 10,
+    correctAnswers: 0,
+    lifelines: ["fifty", "skip"],
     currentQuestions: {},
   });
   const [gameState, setGameState] = useState("preGameState");
   const [question, setQuestion] = useState({});
   const [activeQuestion, setActiveQuestion] = useState(false);
+  const [activeGame, setActiveGame] = useState(false);
 
   const initialData = async () => {
     try {
       console.log("getting data");
       const categoriesResponse = await axios.get(
-        "/api/gauntlet-routes/categories"
+        "/api/question-routes/categories"
       );
       console.log("categories response", categoriesResponse);
-      setQuestionCategories(categoriesResponse.data.categories);
+      setQuestionCategories(categoriesResponse.data);
     } catch (error) {
       console.log(error);
     }
@@ -35,17 +37,36 @@ const Gauntlet = () => {
 
   useEffect(() => {
     initialData();
+    
   }, []);
 
   const renderLives = () => {
     return (
       <div className={styles.livesDiv}>
-        {[...Array(playerData.lives)].map((life) => (
-          <div>LifeIcon</div>
+        {[...Array(playerData.lives)].map((life, index) => (
+          <div key={index}><IconComponent imageName="heartIcon"/></div>
         ))}
       </div>
     );
   };
+  const renderLifelines = () => {
+
+    return (
+      <></>
+    )
+  }
+
+  const renderSideBar = () => {
+    return (
+      <div className={styles.sideBarMain}>
+      {renderLives()}
+      {renderLifelines()}
+      <div>{playerData.correctAnswers}</div>
+
+      </div>
+    )
+
+  }
 
   const preGameState = () => {
     return (
@@ -62,19 +83,8 @@ const Gauntlet = () => {
 
   const inGameState = () => {
     if (
-      Object.keys(playerData.currentQuestions).length < 1 &&
-      !activeQuestion
-    ) {
-      return (
-        <QuestionChoice
-          questionCategories={questionCategories}
-          setPlayerData={setPlayerData}
-          className={styles.questionChoiceMain}
-        />
-      );
-    } else if (
       Object.keys(playerData.currentQuestions).length > 0 ||
-      activeQuestion
+      activeGame
     ) {
       console.log("Cats chosen. Getting questions");
       return (
@@ -83,10 +93,22 @@ const Gauntlet = () => {
           setPlayerData={setPlayerData}
           setActiveQuestion={setActiveQuestion}
           activeQuestion={activeQuestion}
+          setActiveGame={setActiveGame}
           
         />
       );
     }
+    else if (
+      Object.keys(playerData.currentQuestions).length < 1
+    ) {
+      return (
+        <QuestionChoice
+          questionCategories={questionCategories}
+          setPlayerData={setPlayerData}
+          className={styles.questionChoiceMain}
+        />
+      );
+    } 
   };
 
   const endGameState = () => {
@@ -106,7 +128,7 @@ const Gauntlet = () => {
 
   return (
     <div className={styles.mainContent}>
-      {renderLives()}
+      {renderSideBar()}
       {renderContent()}
     </div>
   );

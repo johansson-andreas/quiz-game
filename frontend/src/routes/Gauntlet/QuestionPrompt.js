@@ -5,26 +5,12 @@ import { randomProperty, shuffleArray } from "./GauntletUtils.js";
 import axios from "axios";
 import { UserContext } from "../../contexts/UserContext.js";
 
-const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQuestion }) => {
+const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQuestion, setActiveGame }) => {
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [correctAnswer, setCorrectAnswer] = useState(null);
-  const [questionIcons, setQuestionIcons] = useState([]);
-  const [question, setQuestion] = useState({});
   const [answer, setAnswer] = useState("");
   const [submittedAnswer, setSubmittedAnswer] = useState("");
-  const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
-  const [currentQuestionCategories, setCurrentQuestionCategories] = useState(
-    []
-  );
-  const [newQuestionCategories, setNewQuestionCategories] = useState([]);
-  const [scoreArray, setScoreArray] = useState({});
-  const [questionTags, setQuestionTags] = useState([]);
-  const { user } = useContext(UserContext);
-  const [catCanvasShow, setCatCanvasShow] = useState(false);
-  const [triggeredOption, setTriggeredOption] = useState(null);
-  const [fading, setFading] = useState(false);
-  const [currentStreak, setCurrentStreak] = useState(0);
-  const [streakRecord, setStreakRecord] = useState(0);
+
 
   useState(() => {
     console.log(playerData.currentQuestions);
@@ -34,6 +20,8 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
     if (Object.keys(playerData.currentQuestions).length > 0) {
       const randomCat = randomProperty(playerData.currentQuestions);
       setActiveQuestion(true);
+      setActiveGame(true);
+
 
       setPlayerData((prevData) => {
         const newData = { ...prevData };
@@ -43,16 +31,17 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
         return newData;
       });
       try {
-        const response = await axios.get(
-          `/api/question-routes/question/${randomCat}`
-        );
-        console.log(response.data);
-        setCurrentQuestion(response.data);
+
+
+        const rankQuestion = await axios.get(`/api/question-routes/question/rank`);
+        console.log('rank question', rankQuestion.data)
+        setCurrentQuestion(rankQuestion.data);
       } catch (error) {
         console.log(error);
       }
       console.log("randomcat", randomCat);
     } else {
+      setActiveGame(false);
         console.log('Out of questions, showing new ')
     }
   };
@@ -63,10 +52,6 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
 
   const handleOptionChange = (e) => {
     setAnswer(e.target.value);
-  };
-
-  const handleOptionChangeWrapper = (event) => {
-    handleOptionChange(event);
   };
 
   useEffect(() => {
@@ -81,20 +66,19 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
       console.log("questionid", currentQuestion);
       const response = await axios.post(
         `/api/gauntlet-routes/questions/answer`,
-        { questionID: currentQuestion.id, submittedAnswer }
+        { questionData: currentQuestion, submittedAnswer }
       );
 
       setActiveQuestion(false);
-      const isCorrect = response.data.correctAnswer === submittedAnswer;
-
-      if(!isCorrect) setPlayerData(prevData => {
+      const isCorrect = response.data.correct;
+        setPlayerData(prevData => {
         const newData = {...prevData}
-        newData.lives--;
+        if(isCorrect) newData.correctAnswers++;
+        else newData.lives--;
         return newData;
-      })
+    })
       console.log("Correct answer:", response.data.correctAnswer);
       setCorrectAnswer(response.data.correctAnswer);
-      setTriggeredOption(response.data.correctAnswer);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -107,7 +91,7 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
   return (
     <div className={styles.questionPromptMain}>
       <QuestionComponent
-        handleOptionChangeWrapper={handleOptionChangeWrapper}
+        setAnswer={setAnswer}
         answer={answer}
         question={currentQuestion}
         activeQuestion={activeQuestion}
@@ -115,8 +99,7 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
         submitAnswer={submitAnswer}
         submittedAnswer={submittedAnswer}
         correctAnswer={correctAnswer}
-        triggeredOption={triggeredOption}
-        setTriggeredOption={setTriggeredOption}
+
       />
     </div>
   );

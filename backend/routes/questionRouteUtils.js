@@ -83,6 +83,22 @@ export const obfQuestion = (question) => {
     tags: question.tags,
     choices: shuffleArray([...question.incorrectAnswers, question.correctAnswer]),
     id: question._id,
+    questionType: question.questionType
+  };
+};
+
+/**
+ * Obfuscates a rank-question for the client.
+ * @param {Object} question - The question object.
+ * @return {Object} The obfuscated question object.
+ */
+export const obfRankQuestion = (question) => {
+  return {
+    text: question.text,
+    tags: question.tags,
+    choices: shuffleArray([...question.correctOrder]),
+    id: question._id,
+    questionType: question.questionType
   };
 };
 
