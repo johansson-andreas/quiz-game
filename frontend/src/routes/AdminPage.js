@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { useTable, usePagination } from "react-table";
+import { useTable, usePagination, useSortBy } from "react-table";
 import { Tab, Tabs } from 'react-bootstrap';
 import "./styles/adminPageStyle.css";
 import { UserContext } from "../contexts/UserContext";
@@ -63,8 +63,8 @@ const AdminPage = () => {
     []
   );
 
-  const tableInstanceNew = useTable({ columns, data: newQuestions }, usePagination);
-  const tableInstanceCurrent = useTable({ columns, data: currentQuestions }, usePagination);
+  const tableInstanceNew = useTable({ columns, data: newQuestions }, useSortBy, usePagination);
+  const tableInstanceCurrent = useTable({ columns, data: currentQuestions }, useSortBy, usePagination);
 
   const {
     getTableProps: getTablePropsNew,
@@ -155,7 +155,11 @@ const AdminPage = () => {
               {headerGroupsNew.map((headerGroup) => (
                 <tr {...headerGroup.getHeaderGroupProps()}>
                   {headerGroup.headers.map((column) => (
-                    <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+                    <th {...column.getHeaderProps(column.getSortByToggleProps())}>{column.render("Header")}
+                    <span>
+                    {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
+                    </span>
+                    </th>
                   ))}
                 </tr>
               ))}
@@ -254,7 +258,12 @@ const AdminPage = () => {
               {headerGroupsCurrent.map((headerGroup) => (
                 <tr {...headerGroup.getHeaderGroupProps()}>
                   {headerGroup.headers.map((column) => (
-                    <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+                   <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                   {column.render('Header')}
+                   <span>
+                     {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
+                   </span>
+                   </th>
                   ))}
                 </tr>
               ))}
