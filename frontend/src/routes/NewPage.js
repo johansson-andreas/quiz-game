@@ -14,4 +14,4 @@ function buttonPlusOne() {
     </div>
     )
 }
-export default NewPage;
+export default NewPage; 
