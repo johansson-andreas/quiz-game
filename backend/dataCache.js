@@ -3,6 +3,7 @@ import { getAllCategories } from './routes/questionRouteUtils.js';
 import { Question } from './models/Question.js';
 import { RankQuestion } from './models/RankQuestion.js';
 import { NewQuestion } from './models/NewQuestion.js';
+import { ConnectQuestion } from './models/ConnectQuestion.js';
 import redis from './redisClient.js';
 
 /**
@@ -14,12 +15,20 @@ export const dataCache = async () => {
     // Fetch categories
     const categories = await getAllCategories();
 
+    const QuestionCount = await Question.countDocuments({});
+    const RankCount = await RankQuestion.countDocuments({});
+    const NewQuestionCount = await NewQuestion.countDocuments({});
+    const ConnectQuestionCount = await ConnectQuestion.countDocuments({});
+
     // Fetch question counts
     const questionCounts = {
-    oneOfThreeQuestions: await Question.countDocuments({}),
-      rankQuestions: await RankQuestion.countDocuments({}),
-      newQuestions: await NewQuestion.countDocuments({}),
+      oneOfThreeQuestions: QuestionCount,
+      rankQuestions: RankCount,
+      newQuestions: NewQuestionCount,
+      connectQuestions: ConnectQuestionCount,
     };
+
+    
     
     questionCounts.totalQuestions = Object.values(questionCounts).reduce((sum, count) => sum + count, 0);
 
