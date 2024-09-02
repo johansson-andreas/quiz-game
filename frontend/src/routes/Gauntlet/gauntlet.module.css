@@ -2,6 +2,17 @@
     display:flex;
     flex-direction: row;
 }
+.startButton
+{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30vh;
+    border: var(--default-border);
+    width: 80px;
+    height: 80px;
+    background-color: var(--main-light-gray);
+    
+}
 
 .mainContent
 {
@@ -70,5 +81,20 @@
 .livesDiv {
     display: flex;
     flex-direction: column;
+    gap: 4px;  
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 2px;
 
+}
+.endGameDiv
+{
+    width: 500px;
+    height: 500px;
+    margin-left:auto;
+    margin-right: auto;
+    margin-top: 10vh;
+    background-color: var(--main-light-gray);
+    padding: 10px;
+    border-radius: 15px;
 }

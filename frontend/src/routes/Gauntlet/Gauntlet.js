@@ -8,7 +8,7 @@ import IconComponent from "../../components/IconComponent";
 const Gauntlet = () => {
   const [questionCategories, setQuestionCategories] = useState([]);
   const [playerData, setPlayerData] = useState({
-    lives: 10,
+    lives: 3,
     correctAnswers: 0,
     lifelines: ["fifty", "skip"],
     currentQuestions: {},
@@ -61,7 +61,6 @@ const Gauntlet = () => {
       <div className={styles.sideBarMain}>
       {renderLives()}
       {renderLifelines()}
-      <div>{playerData.correctAnswers}</div>
 
       </div>
     )
@@ -69,15 +68,13 @@ const Gauntlet = () => {
   }
 
   const preGameState = () => {
-    return (
-      <div>
+    return (<>
         <button
           onClick={() => setGameState("game")}
           className={styles.startButton}
         >
           Starta
-        </button>
-      </div>
+        </button></>
     );
   };
 
@@ -112,7 +109,7 @@ const Gauntlet = () => {
   };
 
   const endGameState = () => {
-    return <div>It's game over man, it's game over</div>;
+    return <div className={styles.endGameDiv}>It's game over man, it's game over. Poäng: {playerData.correctAnswers} </div>;
   };
 
   const renderContent = () => {
