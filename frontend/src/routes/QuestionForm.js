@@ -3,7 +3,7 @@ import axios from "axios";
 import "./styles/questionFormStyle.css";
 
 const QuestionForm = () => {
-  const [questions, setQuestions] = useState(0);
+  const [questions, setQuestions] = useState("");
   const [answers, setAnswers] = useState({ svar1: "", svar2: "" });
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [categories, setCategories] = useState([]);
@@ -51,9 +51,9 @@ const QuestionForm = () => {
   };
 
   const getData = async () => {
-    try{const catagoriesRes = await axios.get("/api/gauntlet-routes/categories")
-    console.log(catagoriesRes.data.categories)
-    setAllCategories(catagoriesRes.data.categories)
+    try{const catagoriesRes = await axios.get("/api/question-routes/categories")
+    console.log(catagoriesRes.data)
+    setAllCategories(catagoriesRes.data)
     } catch (error) {
       console.log(error)
     }
@@ -126,10 +126,10 @@ const QuestionForm = () => {
         <div className="input-box">
           <label htmlFor="categories">Categories:</label>
           {allCategories.map(category => (
-            <div>
+            <label>
               <input type="checkbox" id="scales" name="scales" onChange={() => handleUpdateCategory(category)}/>
               {category}
-            </div>
+            </label>
           ))}
         </div>
 
