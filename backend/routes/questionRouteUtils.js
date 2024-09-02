@@ -103,6 +103,28 @@ export const obfRankQuestion = (question) => {
 };
 
 /**
+ * Obfuscates a connect-question for the client.
+ * @param {Object} question - The question object.
+ * @return {Object} The obfuscated question object.
+ */
+export const obfConnectQuestion = (question) => {
+  console.log(question)
+  const columnA = shuffleArray(question.connectedPairs.map(pair => {return pair[0]}))
+  const columnB = shuffleArray(question.connectedPairs.map(pair => {return pair[1]}))
+
+  console.log(columnA)
+  return {
+    text: question.text,
+    tags: question.tags,
+    choices: [columnA, columnB],
+    id: question._id,
+    questionType: question.questionType
+  };
+};
+
+
+
+/**
  * Updates the client's score array based on their answer.
  * @param {Object} clientData - The client's data object.
  * @param {Boolean} correct - Whether the answer is correct.

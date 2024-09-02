@@ -100,6 +100,67 @@ router.get("/question/:tag", async (req, res) => {
   }
 });
 
+router.get("/question/:type/:tag", async (req, res, next) => {
+  let questionType = req.params.type;
+  const tag = req.params.tag;
+
+  try {
+    if (questionType === "random") {
+      let questionCounts = JSON.parse(await redis.get("questionCounts"));
+      delete questionCounts["newQuestions"];
+      delete questionCounts["totalQuestions"];
+
+      console.log(questionCounts);
+      const questionTypes = Object.keys(questionCounts);
+      console.log(questionTypes);
+      const weights = Object.values(questionCounts);
+
+      // Create a cumulative weights array
+      const cumulativeWeights = weights.reduce((acc, weight, index) => {
+        acc.push(weight + (acc[index - 1] || 0));
+        return acc;
+      }, []);
+
+      console.log("weight", cumulativeWeights);
+
+      // Function to pick a random index based on weights
+      const getRandomQuestionType = () => {
+        const totalWeight = cumulativeWeights[cumulativeWeights.length - 1];
+        const random = Math.random() * totalWeight;
+
+        console.log("random number", random);
+
+        // Find the index in the cumulative weights array
+        const index = cumulativeWeights.findIndex((weight) => random < weight);
+        console.log("index", index);
+
+        return questionTypes[index];
+      };
+
+      const randomQuestionType = getRandomQuestionType();
+      console.log(`Randomly selected question type: ${randomQuestionType}`);
+      questionType = randomQuestionType;
+    }
+    let question = {};
+    switch (questionType) {
+      case "connectQuestions":
+        question = (await ConnectQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0];
+        break;
+      case "rankQuestions":
+        question = obfRankQuestion((await RankQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        break;
+      case "oneOfThreeQuestions":
+        question = obfQuestion((await Question.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        break;
+    }
+
+    res.status(200).json(question)
+  } catch (error) {
+    res.status(500).json(error);
+    console.log(error);
+  }
+});
+
 /**
  * @route POST /question/answers
  * @description Submits an answer and updates the client's score array and database records.
