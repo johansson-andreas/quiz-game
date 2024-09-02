@@ -4,16 +4,76 @@ import {
   getAllCategories,
   updateQuestionCounts,
   updateScoreArray,
+  obfQuestion, 
+  obfRankQuestion,
+  obfConnectQuestion
 } from "./questionRouteUtils.js";
 import express from "express";
 import redis from "../redisClient.js";
+import { ConnectQuestion } from "../models/ConnectQuestion.js";
 
 const router = express.Router();
 
+router.get("/question/:type/:tag", async (req, res, next) => {
+  let questionType = req.params.type;
+  const tag = req.params.tag;
+
+  try {
+    if (questionType === "random") {
+      let questionCounts = JSON.parse(await redis.get("questionCounts"));
+      delete questionCounts["newQuestions"];
+      delete questionCounts["totalQuestions"];
+
+      const questionTypes = Object.keys(questionCounts);
+      const weights = Object.values(questionCounts);
+
+      // Create a cumulative weights array
+      const cumulativeWeights = weights.reduce((acc, weight, index) => {
+        acc.push(weight + (acc[index - 1] || 0));
+        return acc;
+      }, []);
+
+
+      // Function to pick a random index based on weights
+      const getRandomQuestionType = () => {
+        const totalWeight = cumulativeWeights[cumulativeWeights.length - 1];
+        const random = Math.random() * totalWeight;
+
+        // Find the index in the cumulative weights array
+        const index = cumulativeWeights.findIndex((weight) => random < weight);
+
+        return questionTypes[index];
+      };
+
+      // Example usage
+      const randomQuestionType = getRandomQuestionType();
+      console.log(`Randomly selected question type: ${randomQuestionType}`);
+      questionType = randomQuestionType;
+    }
+    let question = {};
+    console.log('questiontype', questionType)
+    switch (questionType) {
+      case "connectQuestions":
+        question = obfConnectQuestion((await ConnectQuestion.aggregate([{ $sample: { size: 1 } }]))[0]);
+        break;
+      case "rankQuestions":
+        question = obfRankQuestion((await RankQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        break;
+      case "oneOfThreeQuestions":
+        question = obfQuestion((await Question.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        break;
+    }
+
+    console.log("Question", question);
+    res.status(200).json(question)
+  } catch (error) {
+    res.status(500).json(error);
+    console.log(error);
+  }
+});
+
 router.post("/questions/answer", async (req, res, next) => {
-  const { questionData, submittedAnswer: submittedAnswer } = req.body;
-  console.log(req.body);
-  console.log(questionData);
+  const { questionData, submittedAnswer } = req.body;
   const questionID = questionData.id;
 
   let question = {};
@@ -24,15 +84,19 @@ router.post("/questions/answer", async (req, res, next) => {
     switch (questionData.questionType) {
       case "rank":
         question = await RankQuestion.findById(questionID);
-        if (!question) return res.status(404).send({ error: "Question not found" });
-        
-        correct = JSON.stringify(question.correctOrder) === JSON.stringify(submittedAnswer);
+        if (!question)
+          return res.status(404).send({ error: "Question not found" });
+
+        correct =
+          JSON.stringify(question.correctOrder) ===
+          JSON.stringify(submittedAnswer);
         correctAnswer = question.correctOrder;
         break;
       case "oneOfThree":
         question = await Question.findById(questionID);
-        if (!question) return res.status(404).send({ error: "Question not found" });
-        
+        if (!question)
+          return res.status(404).send({ error: "Question not found" });
+
         correct = question.correctAnswer === submittedAnswer;
         correctAnswer = question.correctAnswer;
 
@@ -44,7 +108,7 @@ router.post("/questions/answer", async (req, res, next) => {
     updateQuestionCounts(questionID, correct);
 
     res.status(200).json({ correctAnswer, correct });
-     } catch (error) {
+  } catch (error) {
     console.error("Error processing answer:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
