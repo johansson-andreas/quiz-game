@@ -33,9 +33,10 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
       try {
 
 
-        const rankQuestion = await axios.get(`/api/question-routes/question/connect`);
-        console.log('rank question', rankQuestion.data)
-        setCurrentQuestion(rankQuestion.data);
+        const randomQuestion = await axios.get(`/api/gauntlet-routes/question/random/${randomCat}`);
+        console.log('randomQuestion', randomQuestion.data)
+
+        setCurrentQuestion(randomQuestion.data);
       } catch (error) {
         console.log(error);
       }
@@ -48,10 +49,6 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
 
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
-  };
-
-  const handleOptionChange = (e) => {
-    setAnswer(e.target.value);
   };
 
   useEffect(() => {
