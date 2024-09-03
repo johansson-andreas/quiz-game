@@ -22,7 +22,7 @@
     "sidebar .";
     grid-template-columns: auto 1fr;
     grid-template-rows: auto 1fr;
-    margin-top: 10px;
+    margin-top: 60px;
     margin-left: 5px;
     margin-right: 5px;
 }
@@ -77,6 +77,9 @@
     height: 300px;
     border-radius: 15px;
     grid-area: sidebar;
+    height: min-content;
+    display: flex;
+    flex-direction: column;
 }
 .livesDiv {
     display: flex;
@@ -97,4 +100,10 @@
     background-color: var(--main-light-gray);
     padding: 10px;
     border-radius: 15px;
+}
+.lifelineIconDiv
+{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
 }

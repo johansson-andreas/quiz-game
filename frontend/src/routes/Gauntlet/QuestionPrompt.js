@@ -5,8 +5,7 @@ import { randomProperty, shuffleArray } from "./GauntletUtils.js";
 import axios from "axios";
 import { UserContext } from "../../contexts/UserContext.js";
 
-const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQuestion, setActiveGame }) => {
-  const [currentQuestion, setCurrentQuestion] = useState({});
+const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQuestion, setActiveGame, setCurrentQuestion, currentQuestion }) => {
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const [answer, setAnswer] = useState("");
   const [submittedAnswer, setSubmittedAnswer] = useState("");

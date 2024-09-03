@@ -1,6 +1,8 @@
 import {Question} from '../models/Question.js';
 import {CategoryIcon} from '../models/CategoryIcon.js';
 import { Account } from '../models/Account.js';
+import { ConnectQuestion } from '../models/ConnectQuestion.js';
+import { RankQuestion } from '../models/RankQuestion.js';
 
 
 
@@ -73,11 +75,11 @@ export const getNewQuestionQueueByTags = async (tags) => {
 };
 
 /**
- * Obfuscates a question for the client.
+ * Obfuscates a oneOfThree (OoT)-question for the client.
  * @param {Object} question - The question object.
  * @return {Object} The obfuscated question object.
  */
-export const obfQuestion = (question) => {
+export const obfOoTQuestion = (question) => {
   return {
     text: question.text,
     tags: question.tags,
@@ -269,3 +271,23 @@ export const updateQuestionCounts = async (questionId, correct) => {
     console.error("Failed to update question counts:", error);
   }
 };
+
+export const getQuestionByIDAndType = async (questionID, questionType) => {
+
+  let question;
+  switch (questionType) {
+    case "oneOfThree":
+      question = await Question.findById(questionID).lean().exec();
+      return question;
+    case "connect":
+      question = await ConnectQuestion.findById(questionID).lean().exec();
+      return question;
+    case "rank":
+      question = await RankQuestion.findById(questionID).lean().exec();
+      return question;
+    default:
+      throw error("Ineligible question type")
+      break;
+  }
+
+}

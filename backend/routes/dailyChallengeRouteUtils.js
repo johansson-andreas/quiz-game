@@ -55,7 +55,7 @@ export const getNewQuestion = async (req) => {
     
     return {
       statusCode: 200,
-      data: { status: "ok", question: obfQuestion(req.session.dailyChallengeData.currentQuestion) }
+      data: { status: "ok", question: obfOoTQuestion(req.session.dailyChallengeData.currentQuestion) }
     };
   } catch (error) {
     console.error('Error in getNewQuestion:', error);
@@ -70,7 +70,7 @@ export const getNewQuestion = async (req) => {
  * @param {Object} question - The question object.
  * @return {Object} The obfuscated question object.
  */
-export const obfQuestion = (question) => {
+export const obfOoTQuestion = (question) => {
   try {
     const obfQuestion = {
       text: question.text,

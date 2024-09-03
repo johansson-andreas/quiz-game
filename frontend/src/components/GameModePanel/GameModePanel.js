@@ -10,6 +10,7 @@ const GameModePanel = () => {
     "Spela mot andra": () => navigate("MultiplayerLobby"),
     "Lägg till Frågor": () => navigate("QuestionForm"),
     "Utmana dig själv": () => navigate("Gauntlet"),
+    "NewPage": () => navigate("NewPage"),
   };
 
   const gridSize = Math.ceil(Math.sqrt(Object.keys(gameModeButtons).length)); 

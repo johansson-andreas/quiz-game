@@ -4,9 +4,10 @@ import {
   getAllCategories,
   updateQuestionCounts,
   updateScoreArray,
-  obfQuestion, 
+  obfOoTQuestion as obfOoTQuestion, 
   obfRankQuestion,
-  obfConnectQuestion
+  obfConnectQuestion,
+  getQuestionByIDAndType
 } from "./questionRouteUtils.js";
 import express from "express";
 import redis from "../redisClient.js";
@@ -60,7 +61,7 @@ router.get("/question/:type/:tag", async (req, res, next) => {
         question = obfRankQuestion((await RankQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
         break;
       case "oneOfThreeQuestions":
-        question = obfQuestion((await Question.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        question = obfOoTQuestion((await Question.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
         break;
     }
 
@@ -112,6 +113,38 @@ router.post("/questions/answer", async (req, res, next) => {
     console.error("Error processing answer:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
+});
+
+router.get('/lifelines/:type/:id', async (req, res) => {
+  const { type: lifelineType, id: questionID } = req.params;
+  const { qtype: questionType } = req.query;
+
+  console.log(lifelineType, questionID, questionType)
+
+    const question = await getQuestionByIDAndType(questionID, questionType);
+
+    switch (lifelineType) {
+      case "fifty":
+        switch (questionType) {
+          case "oneOfThree":
+            //Fifty - One of three logic
+            question.incorrectAnswers = question.incorrectAnswers.splice(0,1);
+            res.status(200).json({question: obfOoTQuestion(question)})
+            break;
+          case "connect":
+            //Fifty - connect logic
+            break;
+          case "rank":
+            //Fifty - rank logic
+            break;
+        }
+        break;
+      case "pass":
+        res.status(200).json({question})
+        break;
+      default:
+        break;
+    }
 });
 
 export default router;
