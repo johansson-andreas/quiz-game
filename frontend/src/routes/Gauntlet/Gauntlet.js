@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, act } from "react";
 import axios from "axios";
 import styles from "./gauntlet.module.css";
 import QuestionChoice from "./QuestionChoice";
 import QuestionPrompt from "./QuestionPrompt";
 import IconComponent from "../../components/IconComponent";
+import LifelinesComponent from "./LifelinesComponent";
 
 const Gauntlet = () => {
   const [questionCategories, setQuestionCategories] = useState([]);
@@ -17,6 +18,7 @@ const Gauntlet = () => {
   const [question, setQuestion] = useState({});
   const [activeQuestion, setActiveQuestion] = useState(false);
   const [activeGame, setActiveGame] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState({});
 
   const initialData = async () => {
     try {
@@ -52,7 +54,7 @@ const Gauntlet = () => {
   const renderLifelines = () => {
 
     return (
-      <></>
+      <LifelinesComponent playerData={playerData} setPlayerData={setPlayerData} currentQuestion={currentQuestion}/>
     )
   }
 
@@ -91,7 +93,8 @@ const Gauntlet = () => {
           setActiveQuestion={setActiveQuestion}
           activeQuestion={activeQuestion}
           setActiveGame={setActiveGame}
-          
+          setCurrentQuestion={setCurrentQuestion}
+          currentQuestion={currentQuestion}
         />
       );
     }

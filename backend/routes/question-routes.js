@@ -1,13 +1,14 @@
 import express from "express";
 import {
   getNewQuestion,
-  obfQuestion,
+  obfOoTQuestion,
   updateScoreArray,
   getNewQuestionQueueByTags,
   updateCurrentTotals,
   updateScoresInDatabase,
   updateQuestionCounts,
-  obfRankQuestion
+  obfRankQuestion,
+  obfConnectQuestion
 } from "./questionRouteUtils.js";
 import { createClientData } from "./loginRouteUtils.js";
 import { Question } from "../models/Question.js";
@@ -42,7 +43,7 @@ router.get("/initial-contact", async (req, res) => {
   const newQuestion = await getNewQuestion(req.session.clientData);
   console.log(req.session.clientData.unusedQuestions.length);
   res.send({
-    question: obfQuestion(newQuestion),
+    question: obfOoTQuestion(newQuestion),
     categories: req.session.clientData.categories,
     scoreArray: req.session.clientData.scoreArray,
     currentTotals: req.session.clientData.currentTotals,
@@ -57,7 +58,7 @@ router.get("/initial-contact", async (req, res) => {
 router.get("/question", async (req, res) => {
   const clientData = req.session.clientData;
   if (clientData.currentQuestion) {
-    res.send(obfQuestion(await getNewQuestion(clientData)));
+    res.send(obfOoTQuestion(await getNewQuestion(clientData)));
   }
 });
 
@@ -71,7 +72,7 @@ router.get("/question/rank", async (req, res) => {
   res.send(obfRankQuestion(rankQuestion[0]));
 });
 /**
- * @route GET /question/conenct
+ * @route GET /question/connect
  * @description Retrieves a random connect question.
  * @returns {Object} Obfuscated rank connect object.
  */
@@ -100,6 +101,13 @@ router.get("/question/:tag", async (req, res) => {
   }
 });
 
+/**
+ * @route GET /question/:type/:tag
+ * @description Retrieves a question of a question type filtered by a specific tag.
+ * @param {String} tag - The tag to filter questions by. 
+ * @param {String} type - Question type to get or random to get a random but weighted type
+ * @returns {Object} Obfuscated question object.
+ */
 router.get("/question/:type/:tag", async (req, res, next) => {
   let questionType = req.params.type;
   const tag = req.params.tag;
@@ -144,7 +152,7 @@ router.get("/question/:type/:tag", async (req, res, next) => {
     let question = {};
     switch (questionType) {
       case "connectQuestions":
-        question = (await ConnectQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0];
+        question = obfConnectQuestion((await ConnectQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
         break;
       case "rankQuestions":
         question = obfRankQuestion((await RankQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);

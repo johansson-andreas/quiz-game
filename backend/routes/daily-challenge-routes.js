@@ -1,6 +1,6 @@
 import express from 'express';
 import { DailyChallengeQuestions, generateNewQuestions } from '../models/DailyChallengeQuestions.js';
-import { getNewQuestion, obfQuestion, updateDatabaseDailyChallengeScore } from './dailyChallengeRouteUtils.js';
+import { getNewQuestion, obfOoTQuestion, updateDatabaseDailyChallengeScore } from './dailyChallengeRouteUtils.js';
 import { getQuestionCategoriesWithCount } from './questionRouteUtils.js'
 import { DailyScore } from '../models/DailyScore.js';
 import { Question } from '../models/Question.js';
@@ -67,7 +67,7 @@ router.get('/initial-contact', async (req, res, next) => {
     const initialDataToSend = {
       questionsRemaining: req.session.dailyChallengeData.questionsRemaining,
       todaysScore: req.session.dailyChallengeData.todaysScore,
-      currentQuestion: obfQuestion(req.session.dailyChallengeData.currentQuestion)
+      currentQuestion: obfOoTQuestion(req.session.dailyChallengeData.currentQuestion)
     };
     const dailyChallengeData = { dcd: initialDataToSend, categories: categories };
     res.status(200).json(dailyChallengeData);
