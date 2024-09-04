@@ -69,3 +69,29 @@
   color: blue;
   margin-top: 20px;
 }
+.qfCategoriesDiv
+{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 2 columns of equal width */
+}
+.qfCategoryLabel
+{
+  display: flex;
+  justify-content: space-between;
+  padding-right: 10px;
+}
+
+
+@media (max-width: 600px) {
+  .qfCategoriesDiv
+  {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns of equal width */
+  }
+  .qfCategoryLabel
+  {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 10px;
+  }
+}

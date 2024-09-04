@@ -16,9 +16,6 @@ const QuestionForm = () => {
     setSubmissionStatus("submitting");
     console.log("Submit button clicked");
 
-    
-
-
     const newQuestion = {
       questions,
       answers: Object.values(answers),
@@ -27,12 +24,10 @@ const QuestionForm = () => {
     };
 
     try {
-      const response = await axios.post(
-        "/api/question-routes/question",
-        { newQuestion }
-      );
+      const response = await axios.post("/api/question-routes/question", {
+        newQuestion,
+      });
       console.log(response.data);
-      
 
       setQuizData([...quizData, newQuestion]);
       setSubmissionStatus("success");
@@ -51,32 +46,31 @@ const QuestionForm = () => {
   };
 
   const getData = async () => {
-    try{const catagoriesRes = await axios.get("/api/question-routes/categories")
-    console.log(catagoriesRes.data)
-    setAllCategories(catagoriesRes.data)
+    try {
+      const catagoriesRes = await axios.get("/api/question-routes/categories");
+      console.log(catagoriesRes.data);
+      setAllCategories(catagoriesRes.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const handleUpdateCategory = (category) => {
-    setCategories(currentcategories => {const newCategories = [...currentcategories]
-      if (newCategories.includes(category))
-      {
-      const index = newCategories.indexOf(category)
-      newCategories.splice(index, 1)
+    setCategories((currentcategories) => {
+      const newCategories = [...currentcategories];
+      if (newCategories.includes(category)) {
+        const index = newCategories.indexOf(category);
+        newCategories.splice(index, 1);
+      } else {
+        newCategories.push(category);
       }
-      else {
-        newCategories.push(category)
-      }
-      console.log(newCategories)
-      return newCategories
-    })
-  }
+      console.log(newCategories);
+      return newCategories;
+    });
+  };
   useEffect(() => {
     getData();
-  }, [])
-
+  }, []);
 
   return (
     <section className="questionForm">
@@ -121,32 +115,35 @@ const QuestionForm = () => {
             onChange={(e) => setCorrectAnswer(e.target.value)}
           />
         </div>
+        <label htmlFor="categories">Categories:</label>
 
-
-        <div className="input-box">
-          <label htmlFor="categories">Categories:</label>
-          {allCategories.map(category => (
-            <label>
-              <input type="checkbox" id="scales" name="scales" onChange={() => handleUpdateCategory(category)}/>
+        <div className="qfCategoriesDiv">
+          {allCategories.map((category) => (
+            <label className="qfCategoryLabel">
               {category}
+              <input
+                type="checkbox"
+                
+                onChange={() => handleUpdateCategory(category)}
+              />
             </label>
           ))}
         </div>
 
         <button type="submit">Submit</button>
-        
+
         {submissionStatus === "success" && (
-        <p className="success-message">Question submitted successfully!</p>
-      )}
-      {submissionStatus === "error" && (
-        <p className="error-message">Failed to submit question. Please try again.</p>
-      )}
-      {submissionStatus === "submitting" && (
-        <p className="submitting-message">Submitting your question...</p>
-      )}
+          <p className="success-message">Question submitted successfully!</p>
+        )}
+        {submissionStatus === "error" && (
+          <p className="error-message">
+            Failed to submit question. Please try again.
+          </p>
+        )}
+        {submissionStatus === "submitting" && (
+          <p className="submitting-message">Submitting your question...</p>
+        )}
       </form>
-
-
     </section>
   );
 };

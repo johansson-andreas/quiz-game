@@ -1,5 +1,5 @@
 .mainbody {
-  background-color: rgb(238, 116, 116);
+  background-color: var(--main-gray-color);
   display: grid;
   text-wrap: nowrap;
   grid-template-areas: 
@@ -8,9 +8,11 @@
   grid-auto-rows: minmax(min-content, min-content);
   grid-template-columns: 2fr 1fr;
   border-radius: 15px;
-  border: 2px solid rgb(245, 133, 133);
+  border: var(--default-border);
   grid-area:historyPanel;
   width: max-content;
+  padding-top:10px;
+  padding-bottom:10px;
 }
 .dateScoreText {
   display:flex;
