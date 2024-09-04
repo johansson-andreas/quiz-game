@@ -95,7 +95,7 @@ router.get("/question/:tag", async (req, res) => {
       { $sample: { size: 1 } }
     ]);
     console.log(tagQuestion);
-    res.send(obfQuestion(tagQuestion[0]));
+    res.send(obfOoTQuestion(tagQuestion[0]));
   } catch (error) {
     console.log(error);
   }
@@ -158,7 +158,7 @@ router.get("/question/:type/:tag", async (req, res, next) => {
         question = obfRankQuestion((await RankQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
         break;
       case "oneOfThreeQuestions":
-        question = obfQuestion((await Question.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        question = obfOoTQuestion((await Question.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
         break;
     }
 
