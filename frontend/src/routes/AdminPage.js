@@ -113,7 +113,10 @@ const AdminPage = () => {
 
   const handleEditChange = (id, field, value) => {
     const updatedData = newQuestions.map((item) =>
-      item._id === id ? { ...item, [field]: value } : item
+      item._id === id ? { ...item, [field]:
+        field === "incorrectAnswers" || field === "tags"
+        ? value.split(",").map((v) => v.trim())
+        : value } : item
     );
 
     setNewQuestions(updatedData);
@@ -121,8 +124,12 @@ const AdminPage = () => {
 
   const handleEditChangeCurrent = (id, field, value) => {
     const updatedData = currentQuestions.map((item) =>
-      item._id === id ? { ...item, [field]: value } : item
+      item._id === id ? { ...item, [field]:
+        field === "incorrectAnswers" || field === "tags"
+        ? value.split(",").map((v) => v.trim())
+        : value } : item
     );
+
 
     setCurrentQuestions(updatedData);
   };
@@ -274,7 +281,7 @@ const AdminPage = () => {
                         return (
                           <td {...cell.getCellProps()}>
                             <input
-                              value={cell.value}
+                              value={Array.isArray(cell.value) ? cell.value.join(", ") : cell.value}
                               onChange={(e) =>
                                 handleEditChange(
                                   row.original._id,
@@ -380,7 +387,7 @@ const AdminPage = () => {
                         return (
                           <td {...cell.getCellProps()}>
                             <input
-                              value={cell.value}
+                              value={Array.isArray(cell.value) ? cell.value.join(", ") : cell.value}
                               onChange={(e) =>
                                 handleEditChangeCurrent(
                                   row.original._id,
