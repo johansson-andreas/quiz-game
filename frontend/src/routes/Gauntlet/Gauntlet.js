@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, act } from "react";
 import axios from "axios";
 import styles from "./gauntlet.module.css";
 import QuestionChoice from "./QuestionChoice";
 import QuestionPrompt from "./QuestionPrompt";
 import IconComponent from "../../components/IconComponent";
+import LifelinesComponent from "./LifelinesComponent";
 
 const Gauntlet = () => {
   const [questionCategories, setQuestionCategories] = useState([]);
   const [playerData, setPlayerData] = useState({
-    lives: 10,
+    lives: 3,
     correctAnswers: 0,
     lifelines: ["fifty", "skip"],
     currentQuestions: {},
@@ -17,6 +18,7 @@ const Gauntlet = () => {
   const [question, setQuestion] = useState({});
   const [activeQuestion, setActiveQuestion] = useState(false);
   const [activeGame, setActiveGame] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState({});
 
   const initialData = async () => {
     try {
@@ -52,7 +54,7 @@ const Gauntlet = () => {
   const renderLifelines = () => {
 
     return (
-      <></>
+      <LifelinesComponent playerData={playerData} setPlayerData={setPlayerData} currentQuestion={currentQuestion}/>
     )
   }
 
@@ -61,7 +63,6 @@ const Gauntlet = () => {
       <div className={styles.sideBarMain}>
       {renderLives()}
       {renderLifelines()}
-      <div>{playerData.correctAnswers}</div>
 
       </div>
     )
@@ -69,15 +70,13 @@ const Gauntlet = () => {
   }
 
   const preGameState = () => {
-    return (
-      <div>
+    return (<>
         <button
           onClick={() => setGameState("game")}
           className={styles.startButton}
         >
           Starta
-        </button>
-      </div>
+        </button></>
     );
   };
 
@@ -94,7 +93,8 @@ const Gauntlet = () => {
           setActiveQuestion={setActiveQuestion}
           activeQuestion={activeQuestion}
           setActiveGame={setActiveGame}
-          
+          setCurrentQuestion={setCurrentQuestion}
+          currentQuestion={currentQuestion}
         />
       );
     }
@@ -112,7 +112,7 @@ const Gauntlet = () => {
   };
 
   const endGameState = () => {
-    return <div>It's game over man, it's game over</div>;
+    return <div className={styles.endGameDiv}>It's game over man, it's game over. Poäng: {playerData.correctAnswers} </div>;
   };
 
   const renderContent = () => {

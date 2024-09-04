@@ -1,5 +1,5 @@
 import { getNewQuestionQueue } from "../routes/questionRouteUtils.js";
-import { obfQuestion, getAllCategories } from "../routes/questionRouteUtils.js";
+import { obfOoTQuestion, getAllCategories } from "../routes/questionRouteUtils.js";
 import {
   getCategoryChoices,
   checkWinCon,
@@ -162,7 +162,7 @@ socket.on("selectedCategory", async ({ lobbyName, category }) => {
   rooms[lobbyName] = await getNextQuestion({lobbyInfo:rooms[lobbyName], chosenCategory:category});
   io.to(lobbyName).emit("categoryChosen", {
     category,
-    question: obfQuestion(rooms[lobbyName].currentQuestion),
+    question: obfOoTQuestion(rooms[lobbyName].currentQuestion),
     questionAmount: rooms[lobbyName].questionAmount
   });
 
