@@ -11,7 +11,8 @@ const AdminPage = () => {
   const [currentQuestions, setCurrentQuestions] = useState([]); // Storing current questions
   const [loading, setLoading] = useState(true); // Loading Status
   const [error, setError] = useState(null); // Error handling
-  const [editingId, setEditingId] = useState(null); // Track the ID of the row being edited
+  const [editingIdNew, setEditingIdNew] = useState(null); // Track the ID of the row being edited
+  const [editingIdCurrent, setEditingIdCurrent] = useState(null);
   const [activeTab, setActiveTab] = useState("newQuestion"); // Track the active tab
   const { user } = useContext(UserContext);
 
@@ -33,7 +34,7 @@ const AdminPage = () => {
 
   // Fetch current questions only when the "currentQuestion" tab is clicked
   useEffect(() => {
-    if (activeTab === "currentQuestions" && !currentQuestions.length ) {
+    if (activeTab === "currentQuestions" && !currentQuestions.length) {
       const fetchCurrentQuestions = async () => {
         setLoading(true);
         try {
@@ -118,6 +119,14 @@ const AdminPage = () => {
     setNewQuestions(updatedData);
   };
 
+  const handleEditChangeCurrent = (id, field, value) => {
+    const updatedData = currentQuestions.map((item) =>
+      item._id === id ? { ...item, [field]: value } : item
+    );
+
+    setCurrentQuestions(updatedData);
+  };
+
   const saveEdits = async (id) => {
     const editedItem = newQuestions.find((item) => item._id === id);
     try {
@@ -133,7 +142,25 @@ const AdminPage = () => {
     } catch (error) {
       console.error("Failed to update question:", error);
     }
-    setEditingId(null);
+    setEditingIdNew(null);
+  };
+
+  const saveEditsCurrent = async (id) => {
+    const editedItem = currentQuestions.find((item) => item._id === id);
+    try {
+      const response = await axios.put(
+        `/api/question-routes/question/${id}`,
+        editedItem
+      );
+      const updatedItem = response.data;
+      const updatedData = currentQuestions.map((item) =>
+        item._id === id ? updatedItem : item
+      );
+      setCurrentQuestions(updatedData);
+    } catch (error) {
+      console.error("Failed to update question:", error);
+    }
+    setEditingIdCurrent(null);
   };
 
   const acceptQuestion = async (id) => {
@@ -214,7 +241,7 @@ const AdminPage = () => {
                               >
                                 Delete
                               </button>
-                              {editingId === row.original._id ? (
+                              {editingIdNew === row.original._id ? (
                                 <button
                                   onClick={() => saveEdits(row.original._id)}
                                   className="save"
@@ -223,7 +250,9 @@ const AdminPage = () => {
                                 </button>
                               ) : (
                                 <button
-                                  onClick={() => setEditingId(row.original._id)}
+                                  onClick={() =>
+                                    setEditingIdNew(row.original._id)
+                                  }
                                 >
                                   Edit
                                 </button>
@@ -234,7 +263,7 @@ const AdminPage = () => {
                       }
 
                       if (
-                        editingId === row.original._id &&
+                        editingIdNew === row.original._id &&
                         [
                           "text",
                           "correctAnswer",
@@ -311,9 +340,63 @@ const AdminPage = () => {
                 prepareRowCurrent(row);
                 return (
                   <tr {...row.getRowProps()}>
-                    {row.cells.map((cell) => (
-                      <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                    ))}
+                    {row.cells.map((cell) => {
+                      if (cell.column.id === "actions") {
+                        return (
+                          <td {...cell.getCellProps()}>
+                            <div className="main-button-container">
+                              {editingIdCurrent === row.original._id ? (
+                                <button
+                                  onClick={() =>
+                                    saveEditsCurrent(row.original._id)
+                                  }
+                                  className="save"
+                                >
+                                  Save
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() =>
+                                    setEditingIdCurrent(row.original._id)
+                                  }
+                                >
+                                  Edit
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        );
+                      }
+
+                      if (
+                        editingIdCurrent === row.original._id &&
+                        [
+                          "text",
+                          "correctAnswer",
+                          "incorrectAnswers",
+                          "tags",
+                        ].includes(cell.column.id)
+                      ) {
+                        return (
+                          <td {...cell.getCellProps()}>
+                            <input
+                              value={cell.value}
+                              onChange={(e) =>
+                                handleEditChangeCurrent(
+                                  row.original._id,
+                                  cell.column.id,
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </td>
+                        );
+                      }
+
+                      return (
+                        <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                      );
+                    })}
                   </tr>
                 );
               })}
