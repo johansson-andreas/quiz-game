@@ -249,21 +249,6 @@ router.get("/new-questions", async (req, res) => {
   }
 });
 
-router.get("/questions", async (req, res) => {
-  if (req.user && req.user.role === "admin") {
-    try {
-      const currentQuestions = await CurrentQuestion.find().exec();
-      console.log(currentQuestions);
-      res.send(currentQuestions);
-    } catch (error) {
-      console.error("Failed to fetch current questions", error);
-      res.status(500).send("Internal Server Error");
-    }
-    } else {
-      res.status(403).json({ message: "Access denied" });
-    }
-});
-
 /**
  * @route PUT /new-question/:id
  * @description Updates a specific new question.
@@ -277,6 +262,27 @@ router.put("/new-question/:id", async (req, res) => {
     const updatedData = req.body;
 
     const updatedQuestion = await NewQuestion.findByIdAndUpdate(
+      id,
+      updatedData,
+      { new: true }
+    );
+    if (!updatedQuestion) {
+      return res.status(404).send("Question not found");
+    }
+
+    res.send(updatedQuestion);
+  } catch (error) {
+    console.error("Failed to update question", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+router.put("/question/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedData = req.body;
+
+    const updatedQuestion = await Question.findByIdAndUpdate(
       id,
       updatedData,
       { new: true }
