@@ -1,13 +1,14 @@
 import express from "express";
 import {
   getNewQuestion,
-  obfQuestion,
+  obfOoTQuestion,
   updateScoreArray,
   getNewQuestionQueueByTags,
   updateCurrentTotals,
   updateScoresInDatabase,
   updateQuestionCounts,
-  obfRankQuestion
+  obfRankQuestion,
+  obfConnectQuestion
 } from "./questionRouteUtils.js";
 import { createClientData } from "./loginRouteUtils.js";
 import { Question } from "../models/Question.js";
@@ -42,7 +43,7 @@ router.get("/initial-contact", async (req, res) => {
   const newQuestion = await getNewQuestion(req.session.clientData);
   console.log(req.session.clientData.unusedQuestions.length);
   res.send({
-    question: obfQuestion(newQuestion),
+    question: obfOoTQuestion(newQuestion),
     categories: req.session.clientData.categories,
     scoreArray: req.session.clientData.scoreArray,
     currentTotals: req.session.clientData.currentTotals,
@@ -57,7 +58,7 @@ router.get("/initial-contact", async (req, res) => {
 router.get("/question", async (req, res) => {
   const clientData = req.session.clientData;
   if (clientData.currentQuestion) {
-    res.send(obfQuestion(await getNewQuestion(clientData)));
+    res.send(obfOoTQuestion(await getNewQuestion(clientData)));
   }
 });
 
@@ -71,7 +72,7 @@ router.get("/question/rank", async (req, res) => {
   res.send(obfRankQuestion(rankQuestion[0]));
 });
 /**
- * @route GET /question/conenct
+ * @route GET /question/connect
  * @description Retrieves a random connect question.
  * @returns {Object} Obfuscated rank connect object.
  */
@@ -96,6 +97,74 @@ router.get("/question/:tag", async (req, res) => {
     console.log(tagQuestion);
     res.send(obfQuestion(tagQuestion[0]));
   } catch (error) {
+    console.log(error);
+  }
+});
+
+/**
+ * @route GET /question/:type/:tag
+ * @description Retrieves a question of a question type filtered by a specific tag.
+ * @param {String} tag - The tag to filter questions by. 
+ * @param {String} type - Question type to get or random to get a random but weighted type
+ * @returns {Object} Obfuscated question object.
+ */
+router.get("/question/:type/:tag", async (req, res, next) => {
+  let questionType = req.params.type;
+  const tag = req.params.tag;
+
+  try {
+    if (questionType === "random") {
+      let questionCounts = JSON.parse(await redis.get("questionCounts"));
+      delete questionCounts["newQuestions"];
+      delete questionCounts["totalQuestions"];
+
+      console.log(questionCounts);
+      const questionTypes = Object.keys(questionCounts);
+      console.log(questionTypes);
+      const weights = Object.values(questionCounts);
+
+      // Create a cumulative weights array
+      const cumulativeWeights = weights.reduce((acc, weight, index) => {
+        acc.push(weight + (acc[index - 1] || 0));
+        return acc;
+      }, []);
+
+      console.log("weight", cumulativeWeights);
+
+      // Function to pick a random index based on weights
+      const getRandomQuestionType = () => {
+        const totalWeight = cumulativeWeights[cumulativeWeights.length - 1];
+        const random = Math.random() * totalWeight;
+
+        console.log("random number", random);
+
+        // Find the index in the cumulative weights array
+        const index = cumulativeWeights.findIndex((weight) => random < weight);
+        console.log("index", index);
+
+        return questionTypes[index];
+      };
+
+      const randomQuestionType = getRandomQuestionType();
+      console.log(`Randomly selected question type: ${randomQuestionType}`);
+      questionType = randomQuestionType;
+    }
+    let question = {};
+    switch (questionType) {
+      case "connectQuestions":
+        question = obfConnectQuestion((await ConnectQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        break;
+      case "rankQuestions":
+        question = obfRankQuestion((await RankQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        break;
+      case "oneOfThreeQuestions":
+        question = obfQuestion((await Question.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        break;
+    }
+
+    res.status(200).json(question)
+  } catch (error) {
+    res.status(500).json(error);
     console.log(error);
   }
 });

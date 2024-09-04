@@ -30,6 +30,7 @@ const QuestionComponent = ({
   const renderQuestionOptions = useMemo(() => {
     switch (question.questionType) {
       case "oneOfThree":
+        console.log('oneofthree')
         return (
           <OneOfThreeQuestion
             question={question}
