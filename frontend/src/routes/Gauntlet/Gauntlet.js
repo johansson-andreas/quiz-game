@@ -24,7 +24,7 @@ const Gauntlet = () => {
     try {
       console.log("getting data");
       const categoriesResponse = await axios.get(
-        "/api/question-routes/categories"
+        "/api/gauntlet-routes/categories"
       );
       console.log("categories response", categoriesResponse);
       setQuestionCategories(categoriesResponse.data);
@@ -42,21 +42,33 @@ const Gauntlet = () => {
     
   }, []);
 
+  useEffect(() => {
+    console.log("Question data updated to", currentQuestion);
+  }, [currentQuestion]);
+
   const renderLives = () => {
     return (
       <div className={styles.livesDiv}>
         {[...Array(playerData.lives)].map((life, index) => (
-          <div key={index}><IconComponent imageName="heartIcon"/></div>
+          <div key={index}>
+            <IconComponent imageName="heartIcon" />
+          </div>
         ))}
       </div>
     );
   };
   const renderLifelines = () => {
-
     return (
-      <LifelinesComponent playerData={playerData} setPlayerData={setPlayerData} currentQuestion={currentQuestion}/>
-    )
-  }
+      <LifelinesComponent
+        playerData={playerData}
+        setPlayerData={setPlayerData}
+        currentQuestion={currentQuestion}
+        setCurrentQuestion={setCurrentQuestion}
+        setActiveGame={setActiveGame}
+        setActiveQuestion={setActiveQuestion}
+      />
+    );
+  };
 
   const renderSideBar = () => {
     return (

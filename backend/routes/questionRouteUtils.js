@@ -286,8 +286,7 @@ export const getQuestionByIDAndType = async (questionID, questionType) => {
       question = await RankQuestion.findById(questionID).lean().exec();
       return question;
     default:
-      throw error("Ineligible question type")
-      break;
+      throw new Error("Ineligible question type");     
   }
 
 }

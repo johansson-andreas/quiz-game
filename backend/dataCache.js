@@ -22,10 +22,10 @@ export const dataCache = async () => {
 
     // Fetch question counts
     const questionCounts = {
-      oneOfThreeQuestions: QuestionCount,
-      rankQuestions: RankCount,
+      oot: QuestionCount,
+      rank: RankCount,
       newQuestions: NewQuestionCount,
-      connectQuestions: ConnectQuestionCount,
+      connect: ConnectQuestionCount,
     };
 
     

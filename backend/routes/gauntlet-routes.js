@@ -4,14 +4,15 @@ import {
   getAllCategories,
   updateQuestionCounts,
   updateScoreArray,
-  obfOoTQuestion as obfOoTQuestion, 
+  obfOoTQuestion as obfOoTQuestion,
   obfRankQuestion,
   obfConnectQuestion,
-  getQuestionByIDAndType
+  getQuestionByIDAndType,
 } from "./questionRouteUtils.js";
 import express from "express";
 import redis from "../redisClient.js";
 import { ConnectQuestion } from "../models/ConnectQuestion.js";
+import { handleRankAnswer } from "./gauntletRoutesUtils.js";
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.get("/question/:type/:tag", async (req, res, next) => {
 
   try {
     if (questionType === "random") {
+      console.log('random question')
       let questionCounts = JSON.parse(await redis.get("questionCounts"));
       delete questionCounts["newQuestions"];
       delete questionCounts["totalQuestions"];
@@ -33,7 +35,6 @@ router.get("/question/:type/:tag", async (req, res, next) => {
         acc.push(weight + (acc[index - 1] || 0));
         return acc;
       }, []);
-
 
       // Function to pick a random index based on weights
       const getRandomQuestionType = () => {
@@ -52,21 +53,37 @@ router.get("/question/:type/:tag", async (req, res, next) => {
       questionType = randomQuestionType;
     }
     let question = {};
-    console.log('questiontype', questionType)
+    console.log("questiontype", questionType);
     switch (questionType) {
-      case "connectQuestions":
-        question = obfConnectQuestion((await ConnectQuestion.aggregate([{ $sample: { size: 1 } }]))[0]);
+      case "connect":
+        question = obfConnectQuestion(
+          (await ConnectQuestion.aggregate([{ $sample: { size: 1 } }]))[0]
+        );
         break;
-      case "rankQuestions":
-        question = obfRankQuestion((await RankQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+      case "rank":
+        question = obfRankQuestion(
+          (
+            await RankQuestion.aggregate([
+              { $match: { tags: tag } },
+              { $sample: { size: 1 } },
+            ])
+          )[0]
+        );
         break;
-      case "oneOfThreeQuestions":
-        question = obfOoTQuestion((await Question.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+      case "oot":
+        question = obfOoTQuestion(
+          (
+            await Question.aggregate([
+              { $match: { tags: tag } },
+              { $sample: { size: 1 } },
+            ])
+          )[0]
+        );
         break;
     }
 
     console.log("Question", question);
-    res.status(200).json(question)
+    res.status(200).json(question);
   } catch (error) {
     res.status(500).json(error);
     console.log(error);
@@ -84,14 +101,7 @@ router.post("/questions/answer", async (req, res, next) => {
   try {
     switch (questionData.questionType) {
       case "rank":
-        question = await RankQuestion.findById(questionID);
-        if (!question)
-          return res.status(404).send({ error: "Question not found" });
-
-        correct =
-          JSON.stringify(question.correctOrder) ===
-          JSON.stringify(submittedAnswer);
-        correctAnswer = question.correctOrder;
+        ({correct, correctAnswer} = await handleRankAnswer(questionData, submittedAnswer))
         break;
       case "oneOfThree":
         question = await Question.findById(questionID);
@@ -115,36 +125,61 @@ router.post("/questions/answer", async (req, res, next) => {
   }
 });
 
-router.get('/lifelines/:type/:id', async (req, res) => {
+router.get("/lifelines/:type/:id", async (req, res) => {
   const { type: lifelineType, id: questionID } = req.params;
   const { qtype: questionType } = req.query;
 
-  console.log(lifelineType, questionID, questionType)
+  console.log(lifelineType, questionID, questionType);
 
-    const question = await getQuestionByIDAndType(questionID, questionType);
+  const question = await getQuestionByIDAndType(questionID, questionType);
 
-    switch (lifelineType) {
-      case "fifty":
-        switch (questionType) {
-          case "oneOfThree":
-            //Fifty - One of three logic
-            question.incorrectAnswers = question.incorrectAnswers.splice(0,1);
-            res.status(200).json({question: obfOoTQuestion(question)})
-            break;
-          case "connect":
-            //Fifty - connect logic
-            break;
-          case "rank":
-            //Fifty - rank logic
-            break;
-        }
-        break;
-      case "pass":
-        res.status(200).json({question})
-        break;
-      default:
-        break;
+  switch (lifelineType) {
+    case "fifty":
+      switch (questionType) {
+        case "oneOfThree":
+          //Fifty - One of three logic
+          question.incorrectAnswers = question.incorrectAnswers.splice(0, 1);
+          res.status(200).json({ question: obfOoTQuestion(question) });
+          break;
+        case "connect":
+          //Fifty - connect logic
+
+          break;
+        case "rank":
+          question.correctOrder.splice(
+            0,
+            Math.floor(question.correctOrder.length / 2)
+          );
+          res.status(200).json({ question: obfRankQuestion(question) });
+          break;
+      }
+      break;
+    case "pass":
+      res.status(200).json({ question });
+      break;
+    default:
+      break;
+  }
+});
+
+router.get("/categories", async (req, res) => {
+  try {
+    const cachedCategories = await redis.get("categories");
+    console.log(JSON.parse(await redis.get("questionCounts")));
+
+    if (cachedCategories) {
+      res.status(200).json(JSON.parse(cachedCategories));
+    } else {
+      const categories = await getAllCategories();
+
+      await redis.set("categories", JSON.stringify(categories));
+
+      res.status(200).json(categories);
     }
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 export default router;
