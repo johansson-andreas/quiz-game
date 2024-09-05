@@ -13,6 +13,8 @@ import express from "express";
 import redis from "../redisClient.js";
 import { ConnectQuestion } from "../models/ConnectQuestion.js";
 import { handleRankAnswer } from "./gauntletRoutesUtils.js";
+import { addNewScoreToGauntletHistory } from "./gauntletRoutesUtils.js";
+import { Account } from "../models/Account.js";
 
 const router = express.Router();
 
@@ -156,9 +158,10 @@ router.get("/lifelines/:type/:id", async (req, res) => {
       break;
     case "pass":
       res.status(200).json({ question });
-      break;
-    default:
-      break;
+      {
+      
+      
+      }
   }
 });
 
@@ -181,5 +184,21 @@ router.get("/categories", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+router.post("/score", async (req,res, next) => {
+  const user = req.user.id;
+  const updatedData = await addNewScoreToGauntletHistory(user, req.body.newScore)
+  console.log('updated data', updatedData)
+  res.send(updatedData)
+
+})
+router.get("/score", async (req, res, next) => {
+  const user = req.user.id;
+  const gauntletHistory = await Account.findById(user, 'gauntletHistory').lean().exec();
+  console.log(gauntletHistory)
+  res.send(gauntletHistory)
+})
+
+
 
 export default router;
