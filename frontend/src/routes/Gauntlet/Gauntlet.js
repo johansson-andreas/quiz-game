@@ -5,11 +5,12 @@ import QuestionChoice from "./QuestionChoice";
 import QuestionPrompt from "./QuestionPrompt";
 import IconComponent from "../../components/IconComponent";
 import LifelinesComponent from "./LifelinesComponent";
+import GauntletHistory from "./GauntletHistory";
 
 const Gauntlet = () => {
   const [questionCategories, setQuestionCategories] = useState([]);
   const [playerData, setPlayerData] = useState({
-    lives: 3,
+    lives: 1,
     correctAnswers: 0,
     lifelines: ["fifty", "skip"],
     currentQuestions: {},
@@ -19,6 +20,7 @@ const Gauntlet = () => {
   const [activeQuestion, setActiveQuestion] = useState(false);
   const [activeGame, setActiveGame] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState({});
+  const [gauntletHistory, setGauntletHistory] = useState({});
 
   const initialData = async () => {
     try {
@@ -39,7 +41,6 @@ const Gauntlet = () => {
 
   useEffect(() => {
     initialData();
-    
   }, []);
 
   useEffect(() => {
@@ -73,30 +74,27 @@ const Gauntlet = () => {
   const renderSideBar = () => {
     return (
       <div className={styles.sideBarMain}>
-      {renderLives()}
-      {renderLifelines()}
-
+        {renderLives()}
+        {renderLifelines()}
       </div>
-    )
-
-  }
+    );
+  };
 
   const preGameState = () => {
-    return (<>
+    return (
+      <>
         <button
           onClick={() => setGameState("game")}
           className={styles.startButton}
         >
           Starta
-        </button></>
+        </button>
+      </>
     );
   };
 
   const inGameState = () => {
-    if (
-      Object.keys(playerData.currentQuestions).length > 0 ||
-      activeGame
-    ) {
+    if (Object.keys(playerData.currentQuestions).length > 0 || activeGame) {
       console.log("Cats chosen. Getting questions");
       return (
         <QuestionPrompt
@@ -109,10 +107,7 @@ const Gauntlet = () => {
           currentQuestion={currentQuestion}
         />
       );
-    }
-    else if (
-      Object.keys(playerData.currentQuestions).length < 1
-    ) {
+    } else if (Object.keys(playerData.currentQuestions).length < 1) {
       return (
         <QuestionChoice
           questionCategories={questionCategories}
@@ -120,12 +115,37 @@ const Gauntlet = () => {
           className={styles.questionChoiceMain}
         />
       );
-    } 
+    }
   };
 
   const endGameState = () => {
-    return <div className={styles.endGameDiv}>It's game over man, it's game over. Poäng: {playerData.correctAnswers} </div>;
+    return (
+      <>
+        <div className={styles.endGameDiv}>
+          It's game over man, it's game over. Poäng: {playerData.correctAnswers}{" "}
+        </div>
+        <GauntletHistory gauntletData={gauntletHistory} />
+      </>
+    );
   };
+
+  useEffect(() => {
+    console.log('new player lives', playerData.lives)
+    const updateScore = async () => {
+      try {
+        const scoreResponse = await axios.post("/api/gauntlet-routes/score", {
+          newScore: playerData.correctAnswers,
+        });
+        console.log('scoreresponse', scoreResponse)
+        setGauntletHistory(scoreResponse);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (playerData.lives <= 0) {
+      updateScore();
+    }
+  }, [playerData.lives]);
 
   const renderContent = () => {
     switch (gameState) {

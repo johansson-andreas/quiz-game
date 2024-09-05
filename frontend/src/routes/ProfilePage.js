@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import DailyHistoryPanel from "../components/DailyHistoryPanel/DailyHistoryPanel";
 import './styles/profilePageStyle.css';
+import GauntletHistory from "./Gauntlet/GauntletHistory.js";
 
 const ProfilePage = () => {
 
     const [scoreArray, setScoreArray] = useState([]);
+    const [gauntletHistory, setGauntletHistory] = useState({})
 
     useEffect(() => {
         initialLoad()
@@ -46,6 +48,8 @@ const ProfilePage = () => {
         try {
             // Make an API call to get the total score array
             const response = await axios.get('/api/profile-routes/total-score-array');
+            const gauntletResponse = await axios.get('/api/gauntlet-routes/score');
+            setGauntletHistory(gauntletResponse)
 
             // Extract categoryStats from the response
             const categoryStats = response.data.categoryStats;
@@ -56,6 +60,7 @@ const ProfilePage = () => {
             console.error(error);
         }
     }
+
 
     return (
         <div className='body'>
@@ -71,8 +76,8 @@ const ProfilePage = () => {
                     </div>
                 )) : (<div>Ingen statistik</div>)}
             </div>
-
             <DailyHistoryPanel historyPanelTitle="Historik för dagens frågor"/>
+            <GauntletHistory gauntletData={gauntletHistory} />
 
         </div>
 
