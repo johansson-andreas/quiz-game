@@ -10,7 +10,7 @@ import GauntletHistory from "./GauntletHistory";
 const Gauntlet = () => {
   const [questionCategories, setQuestionCategories] = useState([]);
   const [playerData, setPlayerData] = useState({
-    lives: 1,
+    lives: 3,
     correctAnswers: 0,
     lifelines: ["fifty", "skip"],
     currentQuestions: {},
@@ -123,8 +123,9 @@ const Gauntlet = () => {
       <>
         <div className={styles.endGameDiv}>
           It's game over man, it's game over. Poäng: {playerData.correctAnswers}{" "}
+          <GauntletHistory gauntletData={gauntletHistory} />
+
         </div>
-        <GauntletHistory gauntletData={gauntletHistory} />
       </>
     );
   };
