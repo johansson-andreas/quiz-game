@@ -1,18 +1,18 @@
 const GauntletHistory = ({ gauntletData }) => {
   console.log("gauntletData", gauntletData);
 
-  const renderGauntletHistory = (data) => {
-    if (data && data.gauntletHistory) {
-      console.log("gauntletData.gauntletHistory", data.gauntletHistory);
+  const renderGauntletHistory = (gauntletData) => {
+    if (gauntletData.data) {
+      console.log("renderGauntletHistory", gauntletData.data);
 
       return (
         <div className="gauntletHistoryMainDiv">
           <div>
-            Din högsta gauntlet poäng: {data.gauntletHistory.best}
+            Din högsta gauntlet poäng: {gauntletData.data.gauntletHistory.best}
           </div>
           <div>
             Din senaste 5 rundor:
-            {data.gauntletHistory.lastFive.map((entry, index) => (
+            {gauntletData.data.gauntletHistory.lastFive.map((entry, index) => (
               <div key={index}>{entry}</div>
             ))}
           </div>
