@@ -15,6 +15,8 @@ const AdminPage = () => {
   const [editingIdCurrent, setEditingIdCurrent] = useState(null);
   const [activeTab, setActiveTab] = useState("newQuestion"); // Track the active tab
   const { user } = useContext(UserContext);
+  const [pageIndexNew, setPageIndexNew] = useState(0); // For new questions
+  const [pageIndexCurrent, setPageIndexCurrent] = useState(0); // For current questions
 
   // Fetch new questions
   useEffect(() => {
@@ -73,12 +75,16 @@ const AdminPage = () => {
   );
 
   const tableInstanceNew = useTable(
-    { columns, data: newQuestions },
+    { columns, data: newQuestions, initialState: { pageIndex: pageIndexNew } },
     useSortBy,
     usePagination
   );
   const tableInstanceCurrent = useTable(
-    { columns, data: currentQuestions },
+    {
+      columns,
+      data: currentQuestions,
+      initialState: { pageIndex: pageIndexCurrent },
+    },
     useSortBy,
     usePagination
   );
@@ -94,7 +100,7 @@ const AdminPage = () => {
     canNextPage: canNextPageNew,
     canPreviousPage: canPreviousPageNew,
     pageOptions: pageOptionsNew,
-    state: { pageIndex: pageIndexNew },
+    state: { pageIndex: newPageIndex },
   } = tableInstanceNew;
 
   const {
@@ -108,15 +114,20 @@ const AdminPage = () => {
     canNextPage: canNextPageCurrent,
     canPreviousPage: canPreviousPageCurrent,
     pageOptions: pageOptionsCurrent,
-    state: { pageIndex: pageIndexCurrent },
+    state: { pageIndex: currentPageIndex },
   } = tableInstanceCurrent;
 
   const handleEditChange = (id, field, value) => {
     const updatedData = newQuestions.map((item) =>
-      item._id === id ? { ...item, [field]:
-        field === "incorrectAnswers" || field === "tags"
-        ? value.split(",").map((v) => v.trim())
-        : value } : item
+      item._id === id
+        ? {
+            ...item,
+            [field]:
+              field === "incorrectAnswers" || field === "tags"
+                ? value.split(",").map((v) => v.trim())
+                : value,
+          }
+        : item
     );
 
     setNewQuestions(updatedData);
@@ -124,12 +135,16 @@ const AdminPage = () => {
 
   const handleEditChangeCurrent = (id, field, value) => {
     const updatedData = currentQuestions.map((item) =>
-      item._id === id ? { ...item, [field]:
-        field === "incorrectAnswers" || field === "tags"
-        ? value.split(",").map((v) => v.trim())
-        : value } : item
+      item._id === id
+        ? {
+            ...item,
+            [field]:
+              field === "incorrectAnswers" || field === "tags"
+                ? value.split(",").map((v) => v.trim())
+                : value,
+          }
+        : item
     );
-
 
     setCurrentQuestions(updatedData);
   };
@@ -189,6 +204,16 @@ const AdminPage = () => {
       console.error("Failed to delete:", error);
     }
   };
+
+  // Update the saved pageIndex for new questions whenever it changes
+  useEffect(() => {
+    setPageIndexNew(newPageIndex);
+  }, [newPageIndex]);
+
+  // Update the saved pageIndex for current questions whenever it changes
+  useEffect(() => {
+    setPageIndexCurrent(currentPageIndex);
+  }, [currentPageIndex]);
 
   if (!user) return <LoginPanel />;
   if (loading) return <p>Loading...</p>;
@@ -281,7 +306,11 @@ const AdminPage = () => {
                         return (
                           <td {...cell.getCellProps()}>
                             <input
-                              value={Array.isArray(cell.value) ? cell.value.join(", ") : cell.value}
+                              value={
+                                Array.isArray(cell.value)
+                                  ? cell.value.join(", ")
+                                  : cell.value
+                              }
                               onChange={(e) =>
                                 handleEditChange(
                                   row.original._id,
@@ -387,7 +416,11 @@ const AdminPage = () => {
                         return (
                           <td {...cell.getCellProps()}>
                             <input
-                              value={Array.isArray(cell.value) ? cell.value.join(", ") : cell.value}
+                              value={
+                                Array.isArray(cell.value)
+                                  ? cell.value.join(", ")
+                                  : cell.value
+                              }
                               onChange={(e) =>
                                 handleEditChangeCurrent(
                                   row.original._id,
