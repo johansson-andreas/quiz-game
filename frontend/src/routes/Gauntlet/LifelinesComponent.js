@@ -12,14 +12,12 @@ const LifelinesComponent = ({
   setActiveQuestion
 }) => {
   const activateLifeline = async (lifeline) => {
-    console.log("cq", currentQuestion);
     switch (lifeline) {
       case "fifty":
-        if (playerData.lifelines.includes("fifty")) {
+        if (playerData && playerData.lifelines.includes("fifty")) {
           const fiftyResponse = await axios.get(
             `/api/gauntlet-routes/lifelines/fifty/${currentQuestion.id}?qtype=${currentQuestion.questionType}`
           );
-          console.log(fiftyResponse);
           setCurrentQuestion(fiftyResponse.data.question);
           delete playerData.lifelines[playerData.lifelines.indexOf("fifty")];
           break;
@@ -43,16 +41,13 @@ const LifelinesComponent = ({
             const randomQuestion = await axios.get(
               `/api/gauntlet-routes/question/random/${randomCat}`
             );
-            console.log("randomQuestion", randomQuestion.data);
 
             setCurrentQuestion(randomQuestion.data);
           } catch (error) {
             console.log(error);
           }
-          console.log("randomcat", randomCat);
         } else {
           setActiveGame(false);
-          console.log("Out of questions, showing new ");
         }
         delete playerData.lifelines[playerData.lifelines.indexOf("skip")];
 
@@ -65,7 +60,7 @@ const LifelinesComponent = ({
   const renderLifelines = () => {
     return (
       <div className={styles.lifelineIconDiv}>
-        {playerData.lifelines.map((lifeline) => (
+        {playerData && playerData.lifelines.map((lifeline) => (
           <label onClick={() => activateLifeline(lifeline)}>
             <IconComponent imageName={lifeline + "Icon"} />
           </label>

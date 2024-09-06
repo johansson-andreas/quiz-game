@@ -49,7 +49,6 @@ router.get("/question/:type/:tag", async (req, res, next) => {
         return questionTypes[index];
       };
 
-      // Example usage
       const randomQuestionType = getRandomQuestionType();
       console.log(`Randomly selected question type: ${randomQuestionType}`);
       questionType = randomQuestionType;
@@ -167,11 +166,11 @@ router.get("/lifelines/:type/:id", async (req, res) => {
 
 router.get("/categories", async (req, res) => {
   try {
-    const cachedCategories = await redis.get("categories");
+    const cachedCategories = JSON.parse(await redis.get("categories"));
     console.log(JSON.parse(await redis.get("questionCounts")));
 
     if (cachedCategories) {
-      res.status(200).json(JSON.parse(cachedCategories));
+      res.status(200).json((cachedCategories));
     } else {
       const categories = await getAllCategories();
 
@@ -184,6 +183,13 @@ router.get("/categories", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+router.get("/questions", async (req,res) => {
+  const questions = JSON.parse(await redis.get('questionsByTag'));
+  console.log(questions)
+
+  res.status(200).json(questions);
+})
 
 router.post("/score", async (req,res, next) => {
   const user = req.user.id;

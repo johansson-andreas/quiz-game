@@ -9,18 +9,40 @@ import redis from './redisClient.js';
 /**
  * Fetches question categories and question counts and stores them in Redis.
  */
-
 export const dataCache = async () => {
   try {
     // Fetch categories
-    const categories = await getAllCategories();
+    const categoriesPromise = getAllCategories();
 
-    const QuestionCount = await Question.countDocuments({});
-    const RankCount = await RankQuestion.countDocuments({});
-    const NewQuestionCount = await NewQuestion.countDocuments({});
-    const ConnectQuestionCount = await ConnectQuestion.countDocuments({});
+    // Fetch question IDs in parallel
+    const [OoTQuestionsIDs, NewQuestionsIDs, ConnectQuestionsIDs, RankQuestionsIDs] = await Promise.all([
+      Question.find().select('id tags').lean().exec(),
+      NewQuestion.find().select('id tags').lean().exec(),
+      ConnectQuestion.find().select('id tags').lean().exec(),
+      RankQuestion.find().select('id tags').lean().exec(),
+    ]);
 
-    // Fetch question counts
+
+    const allQuestionIDs = [...OoTQuestionsIDs, ...NewQuestionsIDs, ...ConnectQuestionsIDs, ...RankQuestionsIDs]
+
+    const questionIDsByTag = {}
+
+    Object.keys(allQuestionIDs).map(key => {
+      allQuestionIDs[key].tags.map(tag => {
+        if(!questionIDsByTag[tag]) questionIDsByTag[tag] = [allQuestionIDs[key]._id]
+        else questionIDsByTag[tag].push(allQuestionIDs[key]._id)
+      })
+    })
+
+    // Resolve categories
+    const categories = await categoriesPromise;
+
+    // Calculate counts
+    const QuestionCount = OoTQuestionsIDs.length;
+    const RankCount = RankQuestionsIDs.length;
+    const NewQuestionCount = NewQuestionsIDs.length;
+    const ConnectQuestionCount = ConnectQuestionsIDs.length;
+
     const questionCounts = {
       oot: QuestionCount,
       rank: RankCount,
@@ -28,13 +50,22 @@ export const dataCache = async () => {
       connect: ConnectQuestionCount,
     };
 
-    
+    const questionIDsByType = {
+      oot: OoTQuestionsIDs,
+      rank: RankQuestionsIDs,
+      newQuestions: NewQuestionsIDs,
+      connect: ConnectQuestionsIDs,
+    };
     
     questionCounts.totalQuestions = Object.values(questionCounts).reduce((sum, count) => sum + count, 0);
 
     // Store data in Redis
-    await redis.set('categories', JSON.stringify(categories));
-    await redis.set('questionCounts', JSON.stringify(questionCounts));
+    await Promise.all([
+      redis.set('categories', JSON.stringify(categories)),
+      redis.set('questionCounts', JSON.stringify(questionCounts)),
+      redis.set('questionIDsByType', JSON.stringify(questionIDsByType)),
+      redis.set('questionsByTag', JSON.stringify(questionIDsByTag))
+    ]);
 
     console.log('Data successfully cached in Redis');
   } catch (error) {

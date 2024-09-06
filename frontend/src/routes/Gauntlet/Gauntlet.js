@@ -1,4 +1,4 @@
-import { useState, useEffect, act } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import styles from "./gauntlet.module.css";
 import QuestionChoice from "./QuestionChoice";
@@ -8,7 +8,7 @@ import LifelinesComponent from "./LifelinesComponent";
 import GauntletHistory from "./GauntletHistory";
 
 const Gauntlet = () => {
-  const [questionCategories, setQuestionCategories] = useState([]);
+  const [questionCategories, setQuestionCategories] = useState([])
   const [playerData, setPlayerData] = useState({
     lives: 3,
     correctAnswers: 0,
@@ -16,41 +16,66 @@ const Gauntlet = () => {
     currentQuestions: {},
   });
   const [gameState, setGameState] = useState("preGameState");
-  const [question, setQuestion] = useState({});
   const [activeQuestion, setActiveQuestion] = useState(false);
   const [activeGame, setActiveGame] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState({});
   const [gauntletHistory, setGauntletHistory] = useState({});
+  const [unusedQuestions, setUnusedQuestions] = useState({});
 
-  const initialData = async () => {
+  // Function to mount or initialize data
+  const mount = async () => {
+    const gauntletData = JSON.parse(localStorage.getItem('gauntletData'));
+
+    if (gauntletData) {
+      console.log('local storage gauntlet data', gauntletData)
+      setActiveGame(gauntletData.activeGame);
+      setActiveQuestion(gauntletData.activeQuestion);
+      setCurrentQuestion(gauntletData.currentQuestion);
+      setGameState(gauntletData.gameState);
+      setPlayerData(gauntletData.playerData);
+      setUnusedQuestions(gauntletData.unusedQuestions);
+      setQuestionCategories(gauntletData.questionCategories);
+    } else {
+      createNewGame(); 
+    }
+  };
+
+  // Use effect to run mount and set up interval
+  useEffect(() => {
+    mount();
+
+  }, []); 
+  
+  const createNewGame = async () => {
     try {
-      console.log("getting data");
-      const categoriesResponse = await axios.get(
-        "/api/gauntlet-routes/categories"
-      );
-      console.log("categories response", categoriesResponse);
+      const [categoriesResponse, allQuestionsResponse] = await Promise.all([
+        axios.get("/api/gauntlet-routes/categories"),
+        axios.get("/api/gauntlet-routes/questions")
+      ]);
+
+
       setQuestionCategories(categoriesResponse.data);
+      setUnusedQuestions(allQuestionsResponse.data);
+
+      setPlayerData({
+        lives: 3,
+        correctAnswers: 0,
+        lifelines: ["fifty", "skip"],
+        currentQuestions: {},
+      });
+      setGameState("preGameState");
+      setActiveQuestion(false);
+      setActiveGame(false);
+      setCurrentQuestion({});
     } catch (error) {
       console.log(error);
     }
-  };
-  useEffect(() => {
-    console.log("Player data updated to", playerData);
-    if (playerData.lives <= 0) setGameState("endState");
-  }, [playerData]);
-
-  useEffect(() => {
-    initialData();
-  }, []);
-
-  useEffect(() => {
-    console.log("Question data updated to", currentQuestion);
-  }, [currentQuestion]);
+  }
 
   const renderLives = () => {
     return (
       <div className={styles.livesDiv}>
-        {[...Array(playerData.lives)].map((life, index) => (
+        {playerData && [...Array(playerData.lives)].map((life, index) => (
           <div key={index}>
             <IconComponent imageName="heartIcon" />
           </div>
@@ -94,8 +119,7 @@ const Gauntlet = () => {
   };
 
   const inGameState = () => {
-    if (Object.keys(playerData.currentQuestions).length > 0 || activeGame) {
-      console.log("Cats chosen. Getting questions");
+    if (playerData && Object.keys(playerData.currentQuestions).length > 0 || activeGame) {
       return (
         <QuestionPrompt
           playerData={playerData}
@@ -110,9 +134,12 @@ const Gauntlet = () => {
     } else if (Object.keys(playerData.currentQuestions).length < 1) {
       return (
         <QuestionChoice
+        playerData={playerData}
           questionCategories={questionCategories}
           setPlayerData={setPlayerData}
           className={styles.questionChoiceMain}
+          setCurrentQuestion={setCurrentQuestion}
+          unusedQuestions={unusedQuestions}
         />
       );
     }
@@ -124,29 +151,44 @@ const Gauntlet = () => {
         <div className={styles.endGameDiv}>
           It's game over man, it's game over. Poäng: {playerData.correctAnswers}{" "}
           <GauntletHistory gauntletData={gauntletHistory} />
-
+          <button onClick={createNewGame}>New game</button>
         </div>
       </>
     );
   };
 
   useEffect(() => {
-    console.log('new player lives', playerData.lives)
+    console.log("Player data updated to", playerData);
     const updateScore = async () => {
       try {
         const scoreResponse = await axios.post("/api/gauntlet-routes/score", {
           newScore: playerData.correctAnswers,
         });
-        console.log('scoreresponse', scoreResponse)
         setGauntletHistory(scoreResponse);
       } catch (error) {
         console.log(error);
       }
     };
     if (playerData.lives <= 0) {
+      setGameState("endState");
       updateScore();
     }
-  }, [playerData.lives]);
+
+    // Save data to localStorage
+    const dataToSave = {
+      activeGame,
+      activeQuestion,
+      currentQuestion,
+      gameState,
+      playerData,
+      unusedQuestions,
+      questionCategories,
+    };
+
+    localStorage.setItem('gauntletData', JSON.stringify(dataToSave));
+    console.log('Data saved to localStorage:', dataToSave);
+
+  }, [playerData]);
 
   const renderContent = () => {
     switch (gameState) {
