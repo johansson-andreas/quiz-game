@@ -13,6 +13,10 @@ const questionSchema = new Schema({
     type: String,
     default: 'oneOfThree'
   },
+  difficulty: {
+    type: String,             // Difficulty label: "Easy", "Medium", or "Hard"
+    default: 'Medium'         // Default value, can be updated based on logic
+  }
 });
 
 export const Question = mongoose.model('Question', questionSchema);
