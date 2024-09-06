@@ -4,62 +4,61 @@ import styles from "./gauntlet.module.css";
 import { randomProperty, shuffleArray } from "./GauntletUtils.js";
 import axios from "axios";
 import { UserContext } from "../../contexts/UserContext.js";
+import { getNewQuestion } from "./GauntletUtils.js";
 
-const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQuestion, setActiveGame, setCurrentQuestion, currentQuestion }) => {
+const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQuestion, setActiveGame, setCurrentQuestion, currentQuestion, unusedQuestions }) => {
   const [correctAnswer, setCorrectAnswer] = useState(null);
   const [answer, setAnswer] = useState("");
   const [submittedAnswer, setSubmittedAnswer] = useState("");
 
 
+
+
+  const loadInitialQuestion = async () => {
+    const {updatedPlayerData, randomQuestion} = await getNewQuestion(playerData, unusedQuestions);   
+    setPlayerData(updatedPlayerData);
+    setCurrentQuestion(randomQuestion);
+    setActiveGame(true)
+    setActiveQuestion(true)
+  }
+
   useState(() => {
-    console.log(playerData.currentQuestions);
-  }, [playerData]);
-
-  const getNextQuestion = async () => {
-    if (Object.keys(playerData.currentQuestions).length > 0) {
-      const randomCat = randomProperty(playerData.currentQuestions);
-      setActiveQuestion(true);
-      setActiveGame(true);
-
-
-      setPlayerData((prevData) => {
-        const newData = { ...prevData };
-        newData.currentQuestions[randomCat]--;
-        if (newData.currentQuestions[randomCat] <= 0)
-          delete newData.currentQuestions[randomCat];
-        return newData;
-      });
-      try {
-
-
-        const randomQuestion = await axios.get(`/api/gauntlet-routes/question/random/${randomCat}`);
-        console.log('randomQuestion', randomQuestion.data)
-
-        setCurrentQuestion(randomQuestion.data);
-      } catch (error) {
-        console.log(error);
+    console.log('current question', currentQuestion)
+    if(Object.keys(currentQuestion).length < 1)
+      {
+        console.log('No question detected')
+        loadInitialQuestion();
       }
-      console.log("randomcat", randomCat);
-    } else {
-      setActiveGame(false);
-        console.log('Out of questions, showing new ')
-    }
-  };
+}, []);
 
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
   };
 
   useEffect(() => {
-    console.log("Submitted answer:", submittedAnswer);
     if (submittedAnswer !== "") {
       postAnswer();
     }
   }, [submittedAnswer]);
 
+  const getNextQuestionHandler = async () => {
+        const {updatedPlayerData, randomQuestion} = await getNewQuestion(playerData, unusedQuestions);
+        if(updatedPlayerData){
+          setPlayerData(updatedPlayerData);
+          setCurrentQuestion(randomQuestion);
+          setActiveQuestion(true)
+        }
+        else {
+          console.log('out of questions');
+          setCurrentQuestion({})
+          setActiveGame(false);
+        }
+
+
+  } 
+
   const postAnswer = async () => {
     try {
-      console.log("questionid", currentQuestion);
       const response = await axios.post(
         `/api/gauntlet-routes/questions/answer`,
         { questionData: currentQuestion, submittedAnswer }
@@ -73,16 +72,12 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
         else newData.lives--;
         return newData;
     })
-      console.log("Correct answer:", response.data.correctAnswer);
       setCorrectAnswer(response.data.correctAnswer);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
-  useState(() => {
-    getNextQuestion();
-  }, []);
 
   return (
     <div className={styles.questionPromptMain}>
@@ -91,7 +86,7 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
         answer={answer}
         question={currentQuestion}
         activeQuestion={activeQuestion}
-        nextQuestion={getNextQuestion}
+        nextQuestion={getNextQuestionHandler}
         submitAnswer={submitAnswer}
         submittedAnswer={submittedAnswer}
         correctAnswer={correctAnswer}

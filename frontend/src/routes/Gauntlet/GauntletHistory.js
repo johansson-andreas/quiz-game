@@ -1,10 +1,9 @@
 const GauntletHistory = ({ gauntletData }) => {
-  console.log("gauntletData", gauntletData);
 
   const renderGauntletHistory = (gauntletData) => {
     if (gauntletData.data) {
-      console.log("renderGauntletHistory", gauntletData.data);
 
+      
       return (
         <div className="gauntletHistoryMainDiv">
           <div>

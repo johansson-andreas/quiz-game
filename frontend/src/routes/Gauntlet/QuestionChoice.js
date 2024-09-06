@@ -1,6 +1,7 @@
 import styles from './gauntlet.module.css'
 
-const QuestionChoice = ({ questionCategories, setPlayerData }) => {
+
+const QuestionChoice = ({ questionCategories, setPlayerData, unusedQuestions }) => {
   if (questionCategories) {
     const getRandomAmount = () => Math.floor(Math.random() * 3) + 2;
 
@@ -57,19 +58,19 @@ const QuestionChoice = ({ questionCategories, setPlayerData }) => {
     const getQuestionChoice = () => {
       const firstOption = getQuestionCats(true);
       const secondOption = getQuestionCats(false);
-      console.log({ firstOption, secondOption });
       return { firstOption, secondOption };
     };
 
     const catOptions = getQuestionChoice();
 
-    const pickChoice = (choice) => {
+    const pickChoice = async (choice) => {
+      // Update playerData
       setPlayerData(prevValue => {
-        const newValue = {...prevValue}
-        newValue.currentQuestions = choice
+        const newValue = {...prevValue, currentQuestions: choice};
         return newValue;
-      })
+      });
     };
+    
 
     return (
       <div className={styles.questionChoiceMain}>
@@ -85,8 +86,10 @@ const QuestionChoice = ({ questionCategories, setPlayerData }) => {
       </div>
     );
   } else {
+
     return <>Error</>;
   }
+  
 };
 
 export default QuestionChoice;
