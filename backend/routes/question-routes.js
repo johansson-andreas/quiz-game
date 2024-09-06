@@ -8,6 +8,7 @@ import {
   updateScoresInDatabase,
   updateQuestionCounts,
   obfRankQuestion,
+  calculateDifficulty,
   obfConnectQuestion
 } from "./questionRouteUtils.js";
 import { createClientData } from "./loginRouteUtils.js";
@@ -201,6 +202,7 @@ router.post("/question/answers", async (req, res) => {
       });
     }
     await updateQuestionCounts(clientData.currentQuestion._id, correct);
+
   }
 });
 
@@ -423,5 +425,17 @@ router.get("/categories", async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+router.get("/difficulty", async (req, res) => {
+    // Update difficulty
+    const question = await Question.findById(clientData.currentQuestion._id);
+    const difficulty = calculateDifficulty(
+      question.correctAnswerCount,
+      question.incorrectAnswersCount
+    );
+
+    await Question.findByIdAndUpdate(clientData.currentQuestion._id, { difficulty });
+})
+
 
 export default router;
