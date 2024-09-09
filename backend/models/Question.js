@@ -2,25 +2,44 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-const questionSchema = new Schema({
+const baseQuestionSchema = new Schema({
   text: String,              // Question text
-  correctAnswer: String,     // Correct answer
-  incorrectAnswers: [String],// Array of incorrect answers
-  tags: [String],             // Array of tags
+  tags: [String],            // Array of tags
   correctAnswerCount: { type: Number, default: 0 },
   incorrectAnswerCount: { type: Number, default: 0 },
-  questionType: {
-    type: String,
-    default: 'oneOfThree'
-  },
+  questionType: { type: String, required: true },
   difficulty: {
     type: String,             // Difficulty label: "Easy", "Medium", or "Hard"
     default: 'Medium'         // Default value, can be updated based on logic
-  }
+  },
+}, { discriminatorKey: 'questionType' });         
+
+export const Question = mongoose.model('Question', baseQuestionSchema);
+
+
+const questionSchema = new Schema({
+  correctAnswer: String,     // Correct answer
+  incorrectAnswers: [String],// Array of incorrect answers
 });
 
-export const Question = mongoose.model('Question', questionSchema);
+export const OoTQuestion = Question.discriminator('oneOfThree', questionSchema);
 
+
+const rankQuestionSchema = new Schema({
+  correctOrder: [String], 
+});
+
+export const RankQuestion = Question.discriminator('rank', rankQuestionSchema);
+
+
+const connectQuestionSchema = new Schema({
+  connectedPairs: {
+    type: [[String]],
+    default: []
+  },
+});
+
+export const ConnectQuestion = Question.discriminator('connect', connectQuestionSchema);
 
 export const getRandomQuestionByTag = async (tag) => {
   try {
