@@ -215,6 +215,28 @@ const AdminPage = () => {
     setPageIndexCurrent(currentPageIndex);
   }, [currentPageIndex]);
 
+  const handleUpdateDifficulty = async () => {
+    try {
+      // Gather question IDs depending on the active tab
+      const questionIds = activeTab === "newQuestions"
+        ? newQuestions.map((q) => q._id)  // IDs of new questions
+        : currentQuestions.map((q) => q._id); // IDs of current questions
+  
+      if (questionIds.length === 0) {
+        console.log("No questions to update");
+        return;
+      }
+  
+      // Send request to update difficulties for all questions
+      const response = await axios.post(`/api/question-routes/difficulty`, { questionIds });
+      console.log(`Difficulty updated for ${questionIds.length} questions`, response.data);
+  
+    } catch (error) {
+      console.error("Error updating difficulty", error);
+    }
+  };
+  
+
   if (!user) return <LoginPanel />;
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
@@ -224,6 +246,7 @@ const AdminPage = () => {
   return (
     <div className="main-div">
       <h1>Administrationspanel</h1>
+     
       <Tabs
         activeKey={activeTab}
         onSelect={(k) => setActiveTab(k)}
@@ -464,6 +487,10 @@ const AdminPage = () => {
           </div>
         </Tab>
       </Tabs>
+      <div>
+          {/* Button to trigger manual difficulty update */}
+          <button onClick={handleUpdateDifficulty}>Update Difficulty</button>
+        </div>
     </div>
   );
 };

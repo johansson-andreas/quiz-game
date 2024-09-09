@@ -299,7 +299,7 @@ export const calculateDifficulty = (correctAnswerCount, incorrectAnswerCount) =>
     return 'Medium'; // Default to "Medium" if no answers exist
   }
 
-  const correctPercentage = (correctPercentage / totalAnswers) * 100;
+  const correctPercentage = (correctAnswerCount / totalAnswers) * 100;
 
   if (correctPercentage <= 33) {
     return 'Difficult';

@@ -426,22 +426,9 @@ router.get("/categories", async (req, res) => {
   }
 });
 
-/* Not sure if we should implement this. I am currently coming up with a different approach that 
-    manually updates the question's difficulty
-router.get("/difficulty", async (req, res) => {
-    // Update difficulty
-    const question = await Question.findById(clientData.currentQuestion._id);
-    const difficulty = calculateDifficulty(
-      question.correctAnswerCount,
-      question.incorrectAnswersCount
-    );
-
-    await Question.findByIdAndUpdate(clientData.currentQuestion._id, { difficulty });
-})
-*/
-
 // Route to update the difficulty manually
-router.post('/update-difficulty/:id', async (req, res) => {
+/*
+router.post('/difficulty/:id', async (req, res) => {
   try {
     const questionId = req.params.id;
   
@@ -465,5 +452,42 @@ router.post('/update-difficulty/:id', async (req, res) => {
     return res.status(500).json({ message: 'Server error', error });
   }
 });
+*/
+
+router.post('/difficulty/update', async (req, res) => {
+  try {
+    const { questionIds } = req.body;
+
+    // Find all questions by the array of IDs
+    const questions = await Question.find({ _id: { $in: questionIds } });
+
+    if (!questions || questions.length === 0) {
+      return res.status(404).json({ message: 'No questions found' });
+    }
+
+    // Prepare the update operations
+    const bulkOperations = questions.map((question) => {
+      const difficulty = calculateDifficulty(
+        question.correctAnswerCount,
+        question.incorrectAnswerCount
+      );
+
+      return {
+        updateOne: {
+          filter: { _id: question._id },
+          update: { $set: { difficulty } }
+        }
+      };
+    });
+
+    // Perform all updates at once
+    await Question.bulkWrite(bulkOperations);
+
+    return res.status(200).json({ message: 'Difficulties updated successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error', error });
+  }
+});
+
 
 export default router;
