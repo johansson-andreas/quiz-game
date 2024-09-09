@@ -1,4 +1,4 @@
-import { RankQuestion } from "../models/RankQuestion.js";
+import { RankQuestion } from "../models/Question.js";
 import { Account } from "../models/Account.js";
 
 export const handleRankAnswer = async (question, submittedAnswer) => {

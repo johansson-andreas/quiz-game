@@ -1,9 +1,9 @@
 import cron from 'node-cron';
 import { getAllCategories } from './routes/questionRouteUtils.js';
-import { Question } from './models/Question.js';
-import { RankQuestion } from './models/RankQuestion.js';
+import { OoTQuestion } from './models/Question.js';
+import { RankQuestion } from './models/Question.js';
 import { NewQuestion } from './models/NewQuestion.js';
-import { ConnectQuestion } from './models/ConnectQuestion.js';
+import { ConnectQuestion } from './models/Question.js';
 import redis from './redisClient.js';
 
 /**
@@ -16,7 +16,7 @@ export const dataCache = async () => {
 
     // Fetch question IDs in parallel
     const [OoTQuestionsIDs, NewQuestionsIDs, ConnectQuestionsIDs, RankQuestionsIDs] = await Promise.all([
-      Question.find().select('id tags').lean().exec(),
+      OoTQuestion.find().select('id tags').lean().exec(),
       NewQuestion.find().select('id tags').lean().exec(),
       ConnectQuestion.find().select('id tags').lean().exec(),
       RankQuestion.find().select('id tags').lean().exec(),

@@ -1,5 +1,5 @@
-import { RankQuestion } from "../models/RankQuestion.js";
-import { Question } from "../models/Question.js";
+import { RankQuestion } from "../models/Question.js";
+import { OoTQuestion } from "../models/Question.js";
 import {
   getAllCategories,
   updateQuestionCounts,
@@ -11,7 +11,7 @@ import {
 } from "./questionRouteUtils.js";
 import express from "express";
 import redis from "../redisClient.js";
-import { ConnectQuestion } from "../models/ConnectQuestion.js";
+import { ConnectQuestion } from "../models/Question.js";
 import { handleRankAnswer } from "./gauntletRoutesUtils.js";
 import { addNewScoreToGauntletHistory } from "./gauntletRoutesUtils.js";
 import { Account } from "../models/Account.js";
@@ -105,7 +105,7 @@ router.post("/questions/answer", async (req, res, next) => {
         ({correct, correctAnswer} = await handleRankAnswer(questionData, submittedAnswer))
         break;
       case "oneOfThree":
-        question = await Question.findById(questionID);
+        question = await OoTQuestion.findById(questionID);
         if (!question)
           return res.status(404).send({ error: "Question not found" });
 

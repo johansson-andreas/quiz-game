@@ -1,9 +1,7 @@
 import QuestionComponent from "../../components/QuestionComponent/QuestionComponent.js";
-import { useState, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styles from "./gauntlet.module.css";
-import { randomProperty, shuffleArray } from "./GauntletUtils.js";
 import axios from "axios";
-import { UserContext } from "../../contexts/UserContext.js";
 import { getNewQuestion } from "./GauntletUtils.js";
 
 const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQuestion, setActiveGame, setCurrentQuestion, currentQuestion, unusedQuestions }) => {
