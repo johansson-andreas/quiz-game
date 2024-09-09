@@ -75,12 +75,29 @@ export const getNewQuestionQueueByTags = async (tags) => {
   }
 };
 
+export const obfQuestion = (question) => { 
+  switch(question.questionType) {
+    case "oneOfThree":
+      return obfOoTQuestion(question);
+      break;
+    case "connect": 
+      return obfConnectQuestion(question);
+      break;
+    case "rank": 
+      return obfRankQuestion(question);
+      break;
+    default: 
+      throw new error ("Unknown question type");
+  }
+
+}
+
 /**
  * Obfuscates a oneOfThree (OoT)-question for the client.
  * @param {Object} question - The question object.
  * @return {Object} The obfuscated question object.
  */
-export const obfOoTQuestion = (question) => {
+const obfOoTQuestion = (question) => {
   return {
     text: question.text,
     tags: question.tags,
@@ -95,7 +112,7 @@ export const obfOoTQuestion = (question) => {
  * @param {Object} question - The question object.
  * @return {Object} The obfuscated question object.
  */
-export const obfRankQuestion = (question) => {
+const obfRankQuestion = (question) => {
   return {
     text: question.text,
     tags: question.tags,
@@ -110,7 +127,7 @@ export const obfRankQuestion = (question) => {
  * @param {Object} question - The question object.
  * @return {Object} The obfuscated question object.
  */
-export const obfConnectQuestion = (question) => {
+const obfConnectQuestion = (question) => {
   console.log(question)
   const columnA = shuffleArray(question.connectedPairs.map(pair => {return pair[0]}))
   const columnB = shuffleArray(question.connectedPairs.map(pair => {return pair[1]}))

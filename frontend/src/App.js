@@ -4,7 +4,7 @@ import LandingPage from './routes/LandingPage.js';
 import NewPage from './routes/NewPage.js';
 import SP from './routes/SinglePlayer.js';
 import MPLanding from './routes/MultiPlayerLandingPage.js';
-import DailyChallengeLanding from './routes/DailyChallengeLanding.js'; 
+import DailyChallenge from './routes/DailyChallenge.js'; 
 import Layout from './layouts/Layout.js';
 import { UserProvider } from './contexts/UserContext.js';
 import QuestionForm from './routes/QuestionForm.js';
@@ -32,7 +32,7 @@ const App = () => {
         <Route path="/QuestionForm" element={<QuestionForm />} />
         <Route path="/NewPage" element={<NewPage />} />
 
-        <Route path="/daily" element={<DailyChallengeLanding />} />
+        <Route path="/daily" element={<DailyChallenge />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/Admin" element={<AdminPage />} />
         <Route path="/MultiPlayer" element={<MultiPlayer />} />
