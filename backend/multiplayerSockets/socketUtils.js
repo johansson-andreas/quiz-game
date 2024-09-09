@@ -1,7 +1,6 @@
 
 import { randomizeArrayIndex } from "../utils/generalUtils.js";
 import { Question, getRandomQuestionByTag } from "../models/Question.js";
-import { obfOoTQuestion } from "../routes/questionRouteUtils.js";
 
 const delayCompensation = 2.4; // in seconds (2 sec for animation + 0.4 sec for connection delay)
 

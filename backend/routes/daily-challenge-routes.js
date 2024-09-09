@@ -30,7 +30,7 @@ router.get('/initial-contact', async (req, res, next) => {
       // Store daily questions in Redis cache
       await redis.set(`dailyQuestions:${today}`, JSON.stringify(todaysQuestions));
       for (const questionId of todaysQuestions.questionIDs) {
-        const questionData = await Question.findById(questionId).lean();  
+        const questionData = await Question.findById(questionId).lean(); 
         if (questionData) {
           await redis.set(questionId, JSON.stringify(questionData));
         }
@@ -39,7 +39,6 @@ router.get('/initial-contact', async (req, res, next) => {
     } else {
       todaysQuestions = JSON.parse(todaysQuestions);
     }
-
     // Check if there is no session data or if the date in session data is different from today
     if (!req.session.dailyChallengeData || req.session.dailyChallengeData.date != today) {
       const todaysDailyScoreInfo = await DailyScore.findOne({ date: today, userId: req.user._id }).lean();
@@ -62,6 +61,9 @@ router.get('/initial-contact', async (req, res, next) => {
         await getNewQuestion(req);
       }
     }
+
+        console.log('no current question found')
+        getNewQuestion(req)
 
     let categories = await getQuestionCategoriesWithCount();
     const initialDataToSend = {
