@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./gauntlet.module.css";
 import QuestionChoice from "./QuestionChoice";
@@ -40,7 +40,7 @@ const Gauntlet = () => {
     }
   };
 
-  // Use effect to run mount and set up interval
+  // Use effect to run mount
   useEffect(() => {
     mount();
 
@@ -119,7 +119,7 @@ const Gauntlet = () => {
   };
 
   const inGameState = () => {
-    if (playerData && Object.keys(playerData.currentQuestions).length > 0 || activeGame) {
+    if (Object.keys(playerData.currentQuestions).length > 0 || activeGame) {
       return (
         <QuestionPrompt
           playerData={playerData}

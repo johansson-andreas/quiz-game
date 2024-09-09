@@ -14,9 +14,9 @@ import {
 import { createClientData } from "./loginRouteUtils.js";
 import { Question } from "../models/Question.js";
 import { NewQuestion } from "../models/NewQuestion.js";
-import { RankQuestion } from "../models/RankQuestion.js";
+import { RankQuestion } from "../models/Question.js";
 import redis from '../redisClient.js'
-import { ConnectQuestion } from "../models/ConnectQuestion.js";
+import { ConnectQuestion } from "../models/Question.js";
 
 const router = express.Router();
 
