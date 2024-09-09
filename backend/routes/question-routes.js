@@ -426,6 +426,8 @@ router.get("/categories", async (req, res) => {
   }
 });
 
+/* Not sure if we should implement this. I am currently coming up with a different approach that 
+    manually updates the question's difficulty
 router.get("/difficulty", async (req, res) => {
     // Update difficulty
     const question = await Question.findById(clientData.currentQuestion._id);
@@ -436,6 +438,32 @@ router.get("/difficulty", async (req, res) => {
 
     await Question.findByIdAndUpdate(clientData.currentQuestion._id, { difficulty });
 })
+*/
 
+// Route to update the difficulty manually
+router.post('/update-difficulty/:id', async (req, res) => {
+  try {
+    const questionId = req.params.id;
+  
+    // Find the question by ID
+    const question = await Question.findById(questionId);
+    if (!question) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
+
+    // Calculate difficult base on correct and incorrect answers counts
+    const difficulty = calculateDifficulty(
+      question.correctAnswerCount,
+      question.incorrectAnswerCount
+    );
+
+    // Update the question's difficulty
+    await Question.findByIdAndUpdate(questionId, { difficulty });
+
+    return res.status(200).json({ message: 'Difficulty updated', difficulty });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error', error });
+  }
+});
 
 export default router;
