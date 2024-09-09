@@ -1,8 +1,9 @@
-import {Question} from '../models/Question.js';
+import {OoTQuestion} from '../models/Question.js';
 import {CategoryIcon} from '../models/CategoryIcon.js';
 import { Account } from '../models/Account.js';
-import { ConnectQuestion } from '../models/ConnectQuestion.js';
-import { RankQuestion } from '../models/RankQuestion.js';
+import { ConnectQuestion } from '../models/Question.js';
+import { RankQuestion } from '../models/Question.js';
+import { Question } from '../models/Question.js';
 
 
 
@@ -37,7 +38,7 @@ export const getNewQuestion = async (client) => {
   const [newQuestionId] = client.unusedQuestions.splice(randomIndex, 1); // Splices a question at randomIndex to randomize the order of the questions provided
 
   try {
-    const newQuestion = await Question.findById(newQuestionId).lean();
+    const newQuestion = await OoTQuestion.findById(newQuestionId).lean();
     client.currentQuestion = newQuestion;
     return newQuestion;
   } catch (error) {
@@ -277,7 +278,7 @@ export const getQuestionByIDAndType = async (questionID, questionType) => {
   let question;
   switch (questionType) {
     case "oneOfThree":
-      question = await Question.findById(questionID).lean().exec();
+      question = await OoTQuestion.findById(questionID).lean().exec();
       return question;
     case "connect":
       question = await ConnectQuestion.findById(questionID).lean().exec();

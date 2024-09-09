@@ -45,8 +45,10 @@ export const getNewQuestion = async (req) => {
   }
   
   const nextQuestionId = req.session.dailyChallengeData.questionsRemaining.pop();
+  console.log(nextQuestionId)
   try {
     const questionData = await redis.get(nextQuestionId);
+    console.log('questiondata', questionData)
     if (!questionData) {
       throw new Error('Question data not found in cache');
     }
