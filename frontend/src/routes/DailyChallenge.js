@@ -205,7 +205,7 @@ const DailyChallenge = () => {
                     nextQuestion={nextQuestion}
                     activeQuestion={activeQuestion}
                     submittedAnswer={submittedAnswer}
-                  correctAnswer={correctAnswer}
+                    correctAnswer={correctAnswer}
 
 
                   />

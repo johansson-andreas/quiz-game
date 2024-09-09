@@ -4,9 +4,7 @@ import {
   getAllCategories,
   updateQuestionCounts,
   updateScoreArray,
-  obfOoTQuestion as obfOoTQuestion,
-  obfRankQuestion,
-  obfConnectQuestion,
+  obfQuestion,
   getQuestionByIDAndType,
 } from "./questionRouteUtils.js";
 import express from "express";
@@ -57,12 +55,12 @@ router.get("/question/:type/:tag", async (req, res, next) => {
     console.log("questiontype", questionType);
     switch (questionType) {
       case "connect":
-        question = obfConnectQuestion(
+        question = obfQuestion(
           (await ConnectQuestion.aggregate([{ $sample: { size: 1 } }]))[0]
         );
         break;
       case "rank":
-        question = obfRankQuestion(
+        question = obfQuestion(
           (
             await RankQuestion.aggregate([
               { $match: { tags: tag } },
@@ -72,9 +70,9 @@ router.get("/question/:type/:tag", async (req, res, next) => {
         );
         break;
       case "oot":
-        question = obfOoTQuestion(
+        question = obfQuestion(
           (
-            await Question.aggregate([
+            await OoTQuestion.aggregate([
               { $match: { tags: tag } },
               { $sample: { size: 1 } },
             ])
@@ -140,7 +138,7 @@ router.get("/lifelines/:type/:id", async (req, res) => {
         case "oneOfThree":
           //Fifty - One of three logic
           question.incorrectAnswers = question.incorrectAnswers.splice(0, 1);
-          res.status(200).json({ question: obfOoTQuestion(question) });
+          res.status(200).json({ question: obfQuestion(question) });
           break;
         case "connect":
           //Fifty - connect logic
@@ -151,7 +149,7 @@ router.get("/lifelines/:type/:id", async (req, res) => {
             0,
             Math.floor(question.correctOrder.length / 2)
           );
-          res.status(200).json({ question: obfRankQuestion(question) });
+          res.status(200).json({ question: obfQuestion(question) });
           break;
       }
       break;

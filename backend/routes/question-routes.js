@@ -1,15 +1,13 @@
 import express from "express";
 import {
   getNewQuestion,
-  obfOoTQuestion,
+  obfQuestion,
   updateScoreArray,
   getNewQuestionQueueByTags,
   updateCurrentTotals,
   updateScoresInDatabase,
   updateQuestionCounts,
-  obfRankQuestion,
-  calculateDifficulty,
-  obfConnectQuestion
+  calculateDifficulty
 } from "./questionRouteUtils.js";
 import { createClientData } from "./loginRouteUtils.js";
 import { Question } from "../models/Question.js";
@@ -44,7 +42,7 @@ router.get("/initial-contact", async (req, res) => {
   const newQuestion = await getNewQuestion(req.session.clientData);
   console.log(req.session.clientData.unusedQuestions.length);
   res.send({
-    question: obfOoTQuestion(newQuestion),
+    question: obfQuestion(newQuestion),
     categories: req.session.clientData.categories,
     scoreArray: req.session.clientData.scoreArray,
     currentTotals: req.session.clientData.currentTotals,
@@ -59,7 +57,7 @@ router.get("/initial-contact", async (req, res) => {
 router.get("/question", async (req, res) => {
   const clientData = req.session.clientData;
   if (clientData.currentQuestion) {
-    res.send(obfOoTQuestion(await getNewQuestion(clientData)));
+    res.send(obfQuestion(await getNewQuestion(clientData)));
   }
 });
 
@@ -70,7 +68,7 @@ router.get("/question", async (req, res) => {
  */
 router.get("/question/rank", async (req, res) => {
   const rankQuestion = await RankQuestion.aggregate([{ $sample: { size: 1 } }]);
-  res.send(obfRankQuestion(rankQuestion[0]));
+  res.send(obfQuestion(rankQuestion[0]));
 });
 /**
  * @route GET /question/connect
@@ -96,7 +94,7 @@ router.get("/question/:tag", async (req, res) => {
       { $sample: { size: 1 } }
     ]);
     console.log(tagQuestion);
-    res.send(obfOoTQuestion(tagQuestion[0]));
+    res.send(obfQuestion(tagQuestion[0]));
   } catch (error) {
     console.log(error);
   }
@@ -153,13 +151,13 @@ router.get("/question/:type/:tag", async (req, res, next) => {
     let question = {};
     switch (questionType) {
       case "connectQuestions":
-        question = obfConnectQuestion((await ConnectQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        question = obfQuestion((await ConnectQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
         break;
       case "rankQuestions":
-        question = obfRankQuestion((await RankQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        question = obfQuestion((await RankQuestion.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
         break;
       case "oneOfThreeQuestions":
-        question = obfOoTQuestion((await Question.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
+        question = obfQuestion((await Question.aggregate([{ $match: { tags: tag } }, { $sample: { size: 1 } }]))[0]);
         break;
     }
 

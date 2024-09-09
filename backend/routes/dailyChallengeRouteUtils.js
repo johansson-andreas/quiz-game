@@ -73,6 +73,7 @@ export const getNewQuestion = async (req) => {
  * @return {Object} The obfuscated question object.
  */
 export const obfOoTQuestion = (question) => {
+  console.log('obfootquestion', question)
   try {
     const obfQuestion = {
       text: question.text,
