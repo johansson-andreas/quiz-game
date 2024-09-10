@@ -17,20 +17,22 @@ export const randomProperty = (obj) => {
 };
 
 
-export const getNewQuestion = async (playerData) => {
+export const getNewQuestion = async (playerData, unusedQuestions) => {
 
   const updatedPlayerData = {...playerData}
+  const newUnusedQuestions = {...unusedQuestions}
+  console.log('updatedPlayerData', updatedPlayerData)
 
   if (Object.keys(updatedPlayerData.currentQuestions).length > 0) {
-    const randomCat = randomProperty(updatedPlayerData.currentQuestions);
+    const randomCat = randomProperty(updatedPlayerData.currentQuestions.categories);
     console.log('random cat chosen:', randomCat)
 
-    updatedPlayerData.currentQuestions[randomCat]--;
+    updatedPlayerData.currentQuestions.categories[randomCat]--;
 
-    if (updatedPlayerData.currentQuestions[randomCat] <= 0) delete updatedPlayerData.currentQuestions[randomCat];
+    if (updatedPlayerData.currentQuestions.categories[randomCat] <= 0) delete updatedPlayerData.currentQuestions.categories[randomCat];
 
     try {
-      const randomQuestion = await axios.get(`/api/gauntlet-routes/question/connect/${randomCat}`);
+      const randomQuestion = await axios.get(`/api/gauntlet-routes/question?type=random&tag=${randomCat}&difficulty=medium`);
       return ({updatedPlayerData, randomQuestion: randomQuestion.data})
 
     } catch (error) { 

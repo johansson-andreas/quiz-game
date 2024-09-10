@@ -48,7 +48,7 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
         }
         else {
           console.log('out of questions');
-          setCurrentQuestion({})
+          setCurrentQuestion({categories: {}, difficulties: {}})
           setActiveGame(false);
         }
 

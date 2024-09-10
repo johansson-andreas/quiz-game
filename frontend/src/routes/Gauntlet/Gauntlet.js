@@ -14,6 +14,8 @@ const Gauntlet = () => {
     correctAnswers: 0,
     lifelines: ["fifty", "skip"],
     currentQuestions: {},
+    categories: {},
+    difficulties: {}
   });
   const [gameState, setGameState] = useState("preGameState");
   const [activeQuestion, setActiveQuestion] = useState(false);
@@ -61,7 +63,10 @@ const Gauntlet = () => {
         lives: 3,
         correctAnswers: 0,
         lifelines: ["fifty", "skip"],
-        currentQuestions: {},
+        currentQuestions: {
+          categories: {},
+          difficulties: {}
+        },
       });
       setGameState("preGameState");
       setActiveQuestion(false);
@@ -119,7 +124,8 @@ const Gauntlet = () => {
   };
 
   const inGameState = () => {
-    if (Object.keys(playerData.currentQuestions).length > 0 || activeGame) {
+    console.log('ingamestate playerdata', playerData)
+    if (Object.keys(playerData.currentQuestions.categories).length > 0 || activeGame) {
       return (
         <QuestionPrompt
           playerData={playerData}
@@ -131,7 +137,7 @@ const Gauntlet = () => {
           currentQuestion={currentQuestion}
         />
       );
-    } else if (Object.keys(playerData.currentQuestions).length < 1) {
+    } else if (Object.keys(playerData.currentQuestions.categories).length < 1) {
       return (
         <QuestionChoice
         playerData={playerData}

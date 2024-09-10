@@ -2,7 +2,8 @@ import { ConnectQuestion, RankQuestion } from "../models/Question.js";
 import { Account } from "../models/Account.js";
 
 export const handleRankAnswer = async (questionData, submittedAnswer) => {
-    question = await RankQuestion.findById(questionData.id);
+
+    const question = await RankQuestion.findById(questionData.id);
     let correctAnswer = []
 
     let correct = false;

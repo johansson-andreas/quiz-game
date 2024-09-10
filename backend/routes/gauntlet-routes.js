@@ -1,5 +1,5 @@
-import { RankQuestion } from "../models/Question.js";
-import { OoTQuestion } from "../models/Question.js";
+import { OoTQuestion, RankQuestion, Question } from "../models/Question.js";
+
 import {
   getAllCategories,
   updateQuestionCounts,
@@ -17,76 +17,86 @@ import { halfObjectProperties } from "../utils/generalUtils.js";
 
 const router = express.Router();
 
-router.get("/question/:type/:tag", async (req, res, next) => {
-  let questionType = req.params.type;
-  const tag = req.params.tag;
+router.get("/question", async (req, res) => {
+  const { type, tag, difficulty } = req.query;
+  let questionType = type;
 
   try {
-    if (questionType === "random") {
-      let questionCounts = JSON.parse(await redis.get("questionCounts"));
-      delete questionCounts["newQuestions"];
-      delete questionCounts["totalQuestions"];
-
+    // Function to get a random question type based on weights
+    const getRandomQuestionType = (questionCounts) => {
       const questionTypes = Object.keys(questionCounts);
       const weights = Object.values(questionCounts);
-
-      // Create a cumulative weights array
+      
+      // Create cumulative weights array
       const cumulativeWeights = weights.reduce((acc, weight, index) => {
         acc.push(weight + (acc[index - 1] || 0));
         return acc;
       }, []);
 
-      // Function to pick a random index based on weights
-      const getRandomQuestionType = () => {
-        const totalWeight = cumulativeWeights[cumulativeWeights.length - 1];
-        const random = Math.random() * totalWeight;
+      const totalWeight = cumulativeWeights[cumulativeWeights.length - 1];
+      const random = Math.random() * totalWeight;
+      
+      return questionTypes[cumulativeWeights.findIndex(weight => random < weight)];
+    };
 
-        // Find the index in the cumulative weights array
-        const index = cumulativeWeights.findIndex((weight) => random < weight);
+    if (questionType === "random") {
+      const questionCounts = JSON.parse(await redis.get("questionCounts"));
+      delete questionCounts["newQuestions"];
+      delete questionCounts["totalQuestions"];
 
-        return questionTypes[index];
-      };
-
-      const randomQuestionType = getRandomQuestionType();
-      console.log(`Randomly selected question type: ${randomQuestionType}`);
-      questionType = randomQuestionType;
-    }
-    let question = {};
-    console.log("questiontype", questionType);
-    switch (questionType) {
-      case "connect":
-        question = obfQuestion(
-          (await ConnectQuestion.aggregate([{ $sample: { size: 1 } }]))[0]
-        );
-        break;
-      case "rank":
-        question = obfQuestion(
-          (
-            await RankQuestion.aggregate([
-              { $match: { tags: tag } },
-              { $sample: { size: 1 } },
-            ])
-          )[0]
-        );
-        break;
-      case "oot":
-        question = obfQuestion(
-          (
-            await OoTQuestion.aggregate([
-              { $match: { tags: tag } },
-              { $sample: { size: 1 } },
-            ])
-          )[0]
-        );
-        break;
+      questionType = getRandomQuestionType(questionCounts);
+      console.log(`Randomly selected question type: ${questionType}`);
     }
 
-    console.log("Question", question);
-    res.status(200).json(question);
+    // Define aggregation queries for each question type
+    const aggregationQueries = {
+      connect: [{ $sample: { size: 1 } }],
+      rank: [
+        { $match: { tags: tag } },
+        { $sample: { size: 1 } }
+      ],
+      oot: [
+        { $match: { tags: tag } },
+        { $sample: { size: 1 } }
+      ]
+    };
+
+    if (!aggregationQueries[questionType]) {
+      throw new Error(`Unknown question type: ${questionType}`);
+    }
+
+    // Fetch question based on the selected type
+    const [question] = await {
+      connect: ConnectQuestion.aggregate(aggregationQueries.connect),
+      rank: RankQuestion.aggregate(aggregationQueries.rank),
+      oot: OoTQuestion.aggregate(aggregationQueries.oot)
+    }[questionType];
+
+    const obfuscatedQuestion = obfQuestion(question);
+    console.log("Question", obfuscatedQuestion);
+    res.status(200).json(obfuscatedQuestion);
+    
   } catch (error) {
-    res.status(500).json(error);
-    console.log(error);
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
+});
+
+router.get("/question/:id", async (req, res) => {
+  const  id  = req.params.id;
+  
+  try {
+    const question = await Question.findById(id).lean().exec();
+
+    res.status(200).json(obfQuestion(question))
+  }
+  catch (error)
+  {
+    console.log(error);
+    res.status(500).json(error);
+  }
+
+
 });
 
 router.post("/questions/answer", async (req, res, next) => {
