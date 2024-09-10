@@ -4,6 +4,7 @@ import styles from "./QuestionComponent.module.css";
 import IconComponent from "../IconComponent";
 import { RankQuestion } from "./QuestionTypes/RankQuestionComponent";
 import { OneOfThreeQuestion } from "./QuestionTypes/OneOfThreeQuestionComponent";
+import { ConnectQuestion } from "./QuestionTypes/ConnectQuestionComponent";
 
 const QuestionComponent = ({
   question,
@@ -30,7 +31,6 @@ const QuestionComponent = ({
   const renderQuestionOptions = useMemo(() => {
     switch (question.questionType) {
       case "oneOfThree":
-        console.log('oneofthree')
         return (
           <OneOfThreeQuestion
             question={question}
@@ -44,6 +44,9 @@ const QuestionComponent = ({
         );
       case "rank":
         return <RankQuestion question={question} setAnswer={setAnswer} correctAnswer={correctAnswer} answer={answer}/>;
+        
+      case "connect":
+        return <ConnectQuestion question={question} setAnswer={setAnswer} correctAnswer={correctAnswer} answer={answer}/>
       default:
         return null;
     }

@@ -1,8 +1,8 @@
-import { RankQuestion } from "../models/Question.js";
+import { ConnectQuestion, RankQuestion } from "../models/Question.js";
 import { Account } from "../models/Account.js";
 
-export const handleRankAnswer = async (question, submittedAnswer) => {
-    question = await RankQuestion.findById(question.id);
+export const handleRankAnswer = async (questionData, submittedAnswer) => {
+    question = await RankQuestion.findById(questionData.id);
     let correctAnswer = []
 
     let correct = false;
@@ -21,6 +21,26 @@ export const handleRankAnswer = async (question, submittedAnswer) => {
 
     return {correct, correctAnswer};
 }
+
+export const handleConnectAnswer = async (question, submittedAnswer) => {
+  question = await ConnectQuestion.findById(question.id);
+  const correctAnswer = question.connectedPairs;
+
+  let correct = false;
+  if (!question)
+    return false;
+
+  console.log(correctAnswer, submittedAnswer)
+
+  correctAnswer.forEach(key => {
+    console.log(key[0])
+  })
+
+  correct = JSON.stringify(correctAnswer) === JSON.stringify(submittedAnswer);
+
+  return {correct, correctAnswer};
+}
+
 
 export const addNewScoreToGauntletHistory = async (accountId, newScore) => {
     const account = await Account.findById(accountId);

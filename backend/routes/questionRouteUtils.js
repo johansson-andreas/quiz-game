@@ -87,7 +87,7 @@ export const obfQuestion = (question) => {
       return obfRankQuestion(question);
       break;
     default: 
-      throw new error ("Unknown question type");
+      throw new Error("Unknown question type");
   }
 
 }

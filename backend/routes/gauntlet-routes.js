@@ -10,7 +10,7 @@ import {
 import express from "express";
 import redis from "../redisClient.js";
 import { ConnectQuestion } from "../models/Question.js";
-import { handleRankAnswer } from "./gauntletRoutesUtils.js";
+import { handleRankAnswer, handleConnectAnswer } from "./gauntletRoutesUtils.js";
 import { addNewScoreToGauntletHistory } from "./gauntletRoutesUtils.js";
 import { Account } from "../models/Account.js";
 
@@ -22,7 +22,6 @@ router.get("/question/:type/:tag", async (req, res, next) => {
 
   try {
     if (questionType === "random") {
-      console.log('random question')
       let questionCounts = JSON.parse(await redis.get("questionCounts"));
       delete questionCounts["newQuestions"];
       delete questionCounts["totalQuestions"];
@@ -111,6 +110,9 @@ router.post("/questions/answer", async (req, res, next) => {
         correctAnswer = question.correctAnswer;
 
         break;
+        case "connect":
+          ({correct, correctAnswer} = await handleConnectAnswer(questionData, submittedAnswer))
+          break;
       default:
         return res.status(400).send({ error: "Invalid question type" });
     }

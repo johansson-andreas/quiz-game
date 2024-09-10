@@ -61,6 +61,7 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
         `/api/gauntlet-routes/questions/answer`,
         { questionData: currentQuestion, submittedAnswer }
       );
+      console.log(response)
 
       setActiveQuestion(false);
       const isCorrect = response.data.correct;
