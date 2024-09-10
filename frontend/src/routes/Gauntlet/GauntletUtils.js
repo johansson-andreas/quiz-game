@@ -18,6 +18,8 @@ export const randomProperty = (obj) => {
 
 
 export const getNewQuestion = async (playerData) => {
+
+  //TODO: FIX ANSWER LOGIC
   const updatedPlayerData = {...playerData}
 
   if (Object.keys(updatedPlayerData.currentQuestions).length > 0) {
@@ -29,7 +31,7 @@ export const getNewQuestion = async (playerData) => {
     if (updatedPlayerData.currentQuestions[randomCat] <= 0) delete updatedPlayerData.currentQuestions[randomCat];
 
     try {
-      const randomQuestion = await axios.get(`/api/gauntlet-routes/question/random/${randomCat}`);
+      const randomQuestion = await axios.get(`/api/gauntlet-routes/question/connect/${randomCat}`);
       return ({updatedPlayerData, randomQuestion: randomQuestion.data})
 
     } catch (error) { 

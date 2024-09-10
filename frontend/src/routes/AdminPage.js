@@ -228,7 +228,7 @@ const AdminPage = () => {
       }
   
       // Send request to update difficulties for all questions
-      const response = await axios.post(`/api/question-routes/difficulty`, { questionIds });
+      const response = await axios.patch(`/api/question-routes/difficulty`, { questionIds });
       console.log(`Difficulty updated for ${questionIds.length} questions`, response.data);
   
     } catch (error) {
@@ -246,7 +246,7 @@ const AdminPage = () => {
   return (
     <div className="main-div">
       <h1>Administrationspanel</h1>
-     
+      <div>
       <Tabs
         activeKey={activeTab}
         onSelect={(k) => setActiveTab(k)}
@@ -487,7 +487,7 @@ const AdminPage = () => {
           </div>
         </Tab>
       </Tabs>
-      <div>
+
           {/* Button to trigger manual difficulty update */}
           <button onClick={handleUpdateDifficulty}>Update Difficulty</button>
         </div>

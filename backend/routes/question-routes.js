@@ -77,7 +77,7 @@ router.get("/question/rank", async (req, res) => {
  */
 router.get("/question/connect", async (req, res) => {
   const connectQuestion = await ConnectQuestion.aggregate([{ $sample: { size: 1 } }]);
-  res.send((connectQuestion[0]));
+  res.send((obfQuestion(connectQuestion[0])));
 });
 
 /**
@@ -452,7 +452,7 @@ router.post('/difficulty/:id', async (req, res) => {
 });
 */
 
-router.post('/difficulty/update', async (req, res) => {
+router.patch('/difficulty', async (req, res) => {
   try {
     const { questionIds } = req.body;
 
