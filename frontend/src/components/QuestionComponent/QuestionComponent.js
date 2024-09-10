@@ -43,10 +43,25 @@ const QuestionComponent = ({
           />
         );
       case "rank":
-        return <RankQuestion question={question} setAnswer={setAnswer} correctAnswer={correctAnswer} answer={answer}/>;
-        
+        return (
+          <RankQuestion
+            question={question}
+            setAnswer={setAnswer}
+            correctAnswer={correctAnswer}
+            answer={answer}
+          />
+        );
+
       case "connect":
-        return <ConnectQuestion question={question} setAnswer={setAnswer} correctAnswer={correctAnswer} answer={answer}/>
+        return (
+          <ConnectQuestion
+            question={question}
+            setAnswer={setAnswer}
+            correctAnswer={correctAnswer}
+            answer={answer}
+            activeQuestion={activeQuestion}
+          />
+        );
       default:
         return null;
     }

@@ -152,7 +152,6 @@
 .connectChoice
 {
   padding: 15px;
-  background-color: var(--main-gray-color);
   border-radius: 15px;
   border: var(--default-border)
 }

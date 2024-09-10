@@ -60,11 +60,12 @@ const LifelinesComponent = ({
   const renderLifelines = () => {
     return (
       <div className={styles.lifelineIconDiv}>
-        {playerData && playerData.lifelines.map((lifeline) => (
-          <label onClick={() => activateLifeline(lifeline)}>
+        {playerData && playerData.lifelines.map((lifeline) => {
+          if(lifeline != null) return (
+           <label onClick={() => activateLifeline(lifeline)}>
             <IconComponent imageName={lifeline + "Icon"} />
-          </label>
-        ))}
+          </label> )
+        })}
       </div>
     );
   };
