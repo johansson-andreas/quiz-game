@@ -16,10 +16,10 @@ export const dataCache = async () => {
 
     // Fetch question IDs in parallel
     const [OoTQuestionsIDs, NewQuestionsIDs, ConnectQuestionsIDs, RankQuestionsIDs] = await Promise.all([
-      OoTQuestion.find().select('id tags').lean().exec(),
-      NewQuestion.find().select('id tags').lean().exec(),
-      ConnectQuestion.find().select('id tags').lean().exec(),
-      RankQuestion.find().select('id tags').lean().exec(),
+      OoTQuestion.find().select('id tags difficulty').lean().exec(),
+      NewQuestion.find().select('id tags difficulty').lean().exec(),
+      ConnectQuestion.find().select('id tags difficulty').lean().exec(),
+      RankQuestion.find().select('id tags difficulty').lean().exec(),
     ]);
 
 
@@ -27,12 +27,28 @@ export const dataCache = async () => {
 
     const questionIDsByTag = {}
 
-    Object.keys(allQuestionIDs).map(key => {
-      allQuestionIDs[key].tags.map(tag => {
-        if(!questionIDsByTag[tag]) questionIDsByTag[tag] = [allQuestionIDs[key]._id]
-        else questionIDsByTag[tag].push(allQuestionIDs[key]._id)
-      })
-    })
+    Object.keys(allQuestionIDs).forEach(key => {
+      const question = allQuestionIDs[key];
+      const diff = question.difficulty;
+    
+      // Iterate through each tag associated with the question
+      question.tags.forEach(tag => {
+        // Ensure the tag property exists
+        if (!questionIDsByTag[tag]) {
+          questionIDsByTag[tag] = {};
+        }
+    
+        // Ensure the difficulty property exists within the tag
+        if (!questionIDsByTag[tag][diff]) {
+          questionIDsByTag[tag][diff] = [];
+        }
+    
+        // Push the question ID to the appropriate difficulty level
+        questionIDsByTag[tag][diff].push(question._id);
+      });
+    });
+
+    console.log(questionIDsByTag)
 
     // Resolve categories
     const categories = await categoriesPromise;
