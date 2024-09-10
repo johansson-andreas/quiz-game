@@ -129,8 +129,8 @@ const obfRankQuestion = (question) => {
  */
 const obfConnectQuestion = (question) => {
   console.log(question)
-  const columnA = shuffleArray(question.connectedPairs.map(pair => {return pair[0]}))
-  const columnB = shuffleArray(question.connectedPairs.map(pair => {return pair[1]}))
+  const columnA = shuffleArray(Object.keys(question.connectedPairs))
+  const columnB = shuffleArray(Object.values(question.connectedPairs))
 
   console.log(columnA)
   return {

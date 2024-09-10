@@ -24,21 +24,19 @@ export const handleRankAnswer = async (questionData, submittedAnswer) => {
 
 export const handleConnectAnswer = async (question, submittedAnswer) => {
   question = await ConnectQuestion.findById(question.id);
-  const correctAnswer = question.connectedPairs;
 
-  let correct = false;
+  const correctPairs = question.connectedPairs;
+  let correct = true;
+
   if (!question)
     return false;
 
-  console.log(correctAnswer, submittedAnswer)
-
-  correctAnswer.forEach(key => {
-    console.log(key[0])
+  Object.keys(submittedAnswer).forEach(key => {
+    if(correctPairs[key] !== submittedAnswer[key]) {
+      correct = false;
+    }
   })
-
-  correct = JSON.stringify(correctAnswer) === JSON.stringify(submittedAnswer);
-
-  return {correct, correctAnswer};
+  return {correct, correctAnswer: correctPairs};
 }
 
 

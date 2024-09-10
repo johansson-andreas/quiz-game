@@ -19,7 +19,6 @@ export const randomProperty = (obj) => {
 
 export const getNewQuestion = async (playerData) => {
 
-  //TODO: FIX ANSWER LOGIC
   const updatedPlayerData = {...playerData}
 
   if (Object.keys(updatedPlayerData.currentQuestions).length > 0) {

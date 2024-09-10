@@ -13,6 +13,7 @@ import { ConnectQuestion } from "../models/Question.js";
 import { handleRankAnswer, handleConnectAnswer } from "./gauntletRoutesUtils.js";
 import { addNewScoreToGauntletHistory } from "./gauntletRoutesUtils.js";
 import { Account } from "../models/Account.js";
+import { halfObjectProperties } from "../utils/generalUtils.js";
 
 const router = express.Router();
 
@@ -108,7 +109,6 @@ router.post("/questions/answer", async (req, res, next) => {
 
         correct = question.correctAnswer === submittedAnswer;
         correctAnswer = question.correctAnswer;
-
         break;
         case "connect":
           ({correct, correctAnswer} = await handleConnectAnswer(questionData, submittedAnswer))
@@ -143,7 +143,8 @@ router.get("/lifelines/:type/:id", async (req, res) => {
           res.status(200).json({ question: obfQuestion(question) });
           break;
         case "connect":
-          //Fifty - connect logic
+          question.connectedPairs = halfObjectProperties(question.connectedPairs)
+          res.status(200).json({ question: obfQuestion(question) });
 
           break;
         case "rank":

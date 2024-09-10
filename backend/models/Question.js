@@ -34,7 +34,7 @@ export const RankQuestion = Question.discriminator('rank', rankQuestionSchema);
 
 const connectQuestionSchema = new Schema({
   connectedPairs: {
-    type: [[String]],
+    type: {},
     default: []
   },
 });
