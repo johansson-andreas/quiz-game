@@ -56,14 +56,7 @@ const MultiPlayer = ({ lobbyName }) => {
   const timerFinished = () => {
     const currentSubmittedAnswer = submittedAnswerRef.current;
     const currentAnswer = answerRef.current;
-    console.log(new Date().toISOString());
 
-    console.log(
-      "submittedAnswer on timerFinished",
-      currentSubmittedAnswer,
-      "answer:",
-      currentAnswer
-    );
 
     if (!currentSubmittedAnswer) {
       if (currentAnswer) setSubmittedAnswer(currentAnswer);
@@ -77,7 +70,6 @@ const MultiPlayer = ({ lobbyName }) => {
 
 
   const nextQuestion = () => {
-    console.log("next question");
     socket.emit("getNextQuestion", lobbyName);
   };
 
@@ -86,7 +78,6 @@ const MultiPlayer = ({ lobbyName }) => {
     submittedAnswerRef.current = submittedAnswer;
 
     if (submittedAnswer) {
-      console.log("submitting answer", submittedAnswer);
       socket.emit("submitAnswer", { lobbyName, submittedAnswer });
       setIsLocked(true);
       setActive(false);
@@ -106,7 +97,6 @@ const MultiPlayer = ({ lobbyName }) => {
   };
 
   const setFade = (chosenCategory) => {
-    console.log(lobbyInfoRef);
     const notChosenCategories =
       lobbyInfoRef.current.currentChooser.categoryChoices.reduce(
         (acc, category) => {
@@ -119,7 +109,6 @@ const MultiPlayer = ({ lobbyName }) => {
   };
 
   useEffect(() => {
-    console.log("new lobby info", lobbyInfo);
     lobbyInfoRef.current = lobbyInfo;
     setCurrentQuestion(lobbyInfo.currentQuestion);
   }, [lobbyInfo]);
@@ -143,8 +132,7 @@ const MultiPlayer = ({ lobbyName }) => {
     const handleCorrectAnswer = (correctAnswer) => {
       setCorrectAnswer(correctAnswer);
       setTriggeredOption(correctAnswer);
-      console.log('received correct answer')
-      console.log('lobbyInfo.host', lobbyInfo.host, 'user', user)
+
 
 
     };
@@ -235,9 +223,6 @@ const MultiPlayer = ({ lobbyName }) => {
     [users]
   );
 
-  useEffect(() => {
-    console.log("updated question", currentQuestion);
-  }, [currentQuestion]);
 
   const categoryChoice = (category, active) => {
     if(active) {
@@ -304,7 +289,6 @@ const MultiPlayer = ({ lobbyName }) => {
 
   useEffect(() => {
     const handleUpdatedScores = (newUsersInfo) => {
-      console.log("Handling updated scores");
       updateScores(newUsersInfo);
     };
 

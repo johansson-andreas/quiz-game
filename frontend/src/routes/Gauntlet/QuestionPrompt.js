@@ -13,21 +13,20 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
 
 
   const loadInitialQuestion = async () => {
-    const {updatedPlayerData, randomQuestion} = await getNewQuestion(playerData, unusedQuestions);   
+    const {updatedPlayerData, randomQuestion} = await getNewQuestion(playerData, unusedQuestions); 
+    setActiveGame(true)
+    setActiveQuestion(true) 
     setPlayerData(updatedPlayerData);
     setCurrentQuestion(randomQuestion);
-    setActiveGame(true)
-    setActiveQuestion(true)
   }
 
   useState(() => {
-    console.log('current question', currentQuestion)
     if(Object.keys(currentQuestion).length < 1)
       {
         console.log('No question detected')
         loadInitialQuestion();
       }
-}, []);
+  }, []);
 
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
@@ -42,13 +41,18 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
   const getNextQuestionHandler = async () => {
         const {updatedPlayerData, randomQuestion} = await getNewQuestion(playerData, unusedQuestions);
         if(updatedPlayerData){
+          setActiveQuestion(true)
           setPlayerData(updatedPlayerData);
           setCurrentQuestion(randomQuestion);
-          setActiveQuestion(true)
         }
         else {
           console.log('out of questions');
-          setCurrentQuestion({categories: {}, difficulties: {}})
+          setCurrentQuestion({})
+          setPlayerData(prevData => {
+            const newData = {...prevData}
+            newData.currentQuestions = {categories: {}, difficulties: {}};
+            return newData;
+          })
           setActiveGame(false);
         }
 
@@ -61,7 +65,6 @@ const QuestionPrompt = ({ playerData, setPlayerData, setActiveQuestion, activeQu
         `/api/gauntlet-routes/questions/answer`,
         { questionData: currentQuestion, submittedAnswer }
       );
-      console.log(response)
 
       setActiveQuestion(false);
       const isCorrect = response.data.correct;

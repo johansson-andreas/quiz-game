@@ -27,7 +27,6 @@ const HeaderPanel = ({ togglePanelVisibility }) => {
   useEffect(() => {
     (user) ? loggedIn = true : loggedIn = false;
     (role) == "admin" ? setAdminUser(true) : setAdminUser(false)
-    console.log(role)
   }, [user]);
 
   const logoutUser = async () => {

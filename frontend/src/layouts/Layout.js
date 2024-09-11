@@ -17,7 +17,6 @@ const Layout = () => {
           setUser(response.data.username);
           setRole(response.data.role);
 
-          console.log("Setting user to", response.data.username)
         }
         else
         {

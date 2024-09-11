@@ -12,7 +12,7 @@ const Gauntlet = () => {
   const [playerData, setPlayerData] = useState({
     lives: 3,
     correctAnswers: 0,
-    lifelines: ["fifty", "skip"],
+    lifelines: {fifty: 1, skip: 1},
     currentQuestions: {},
     categories: {},
     difficulties: {}
@@ -62,7 +62,7 @@ const Gauntlet = () => {
       setPlayerData({
         lives: 3,
         correctAnswers: 0,
-        lifelines: ["fifty", "skip"],
+        lifelines: {fifty: 1, skip: 1},
         currentQuestions: {
           categories: {},
           difficulties: {}
@@ -97,6 +97,7 @@ const Gauntlet = () => {
         setCurrentQuestion={setCurrentQuestion}
         setActiveGame={setActiveGame}
         setActiveQuestion={setActiveQuestion}
+        unusedQuestions={unusedQuestions}
       />
     );
   };
@@ -124,7 +125,6 @@ const Gauntlet = () => {
   };
 
   const inGameState = () => {
-    console.log('ingamestate playerdata', playerData)
     if (Object.keys(playerData.currentQuestions.categories).length > 0 || activeGame) {
       return (
         <QuestionPrompt
@@ -135,12 +135,15 @@ const Gauntlet = () => {
           setActiveGame={setActiveGame}
           setCurrentQuestion={setCurrentQuestion}
           currentQuestion={currentQuestion}
+          unusedQuestions={unusedQuestions}
+
         />
       );
     } else if (Object.keys(playerData.currentQuestions.categories).length < 1) {
+
       return (
         <QuestionChoice
-        playerData={playerData}
+          playerData={playerData}
           questionCategories={questionCategories}
           setPlayerData={setPlayerData}
           className={styles.questionChoiceMain}
@@ -164,7 +167,6 @@ const Gauntlet = () => {
   };
 
   useEffect(() => {
-    console.log("Player data updated to", playerData);
     const updateScore = async () => {
       try {
         const scoreResponse = await axios.post("/api/gauntlet-routes/score", {
