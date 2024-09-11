@@ -58,7 +58,6 @@ const MultiPlayerLobby = ({ state, setState, joinedLobby }) => {
 
   useEffect(() => {
     socket.on('createdNewLobby', (data) => {
-      console.log(data);
       if(data == "A lobby with that name already exists")
         {
           setLobbyCreateErrorText(data);

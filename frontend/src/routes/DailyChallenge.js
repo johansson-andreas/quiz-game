@@ -40,7 +40,6 @@ const DailyChallenge = () => {
       );
       const { todaysScore, questionsRemaining, currentQuestion } =
         response.data.dcd;
-      console.log(response);
       const categories = response.data.categories;
       setQuestionCategories(categories);
       setQuestion(currentQuestion);
@@ -61,9 +60,6 @@ const DailyChallenge = () => {
   const assignQuestion = (questionData) => {
     setQuestion(questionData);
   };
-  useEffect(() => {
-    console.log("question", question);
-  }, [question]);
 
   //Request new question from backend block
   const nextQuestion = async () => {
@@ -71,7 +67,6 @@ const DailyChallenge = () => {
       const response = await axios.get(
         "/api/daily-challenge-routes/question"
       );
-      console.log("response:", response);
 
       if (response.data.status === "ok") {
         assignQuestion(response.data.question);
@@ -99,7 +94,6 @@ const DailyChallenge = () => {
           const dailyQuestionKey = await axios.get(
             "/api/daily-challenge-routes/daily-question-key"
           );
-          console.log(dailyQuestionKey.data.submittedAnswers);
 
           setQuestionKey(dailyQuestionKey.data.correctAnswers);
           setSubmittedAnswers(dailyQuestionKey.data.submittedAnswers);
@@ -131,12 +125,6 @@ const DailyChallenge = () => {
       const response = await axios.post(`/api/daily-challenge-routes/answer/${submittedAnswer}`)
 
       setActive(false);
-      console.log(
-        "todaysscore:",
-        response.data.todaysScore,
-        "Correct answer:",
-        response.data.correctAnswer
-      );
       setCurrentScore(response.data.todaysScore);
       setCorrectAnswer(response.data.correctAnswer);
 
@@ -146,7 +134,6 @@ const DailyChallenge = () => {
   }
 
   useEffect(() => {
-    console.log("Submitted answer:", submittedAnswer);
     if (submittedAnswer !== "") {
       postAnswer();
     }

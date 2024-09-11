@@ -13,10 +13,8 @@ const DailyHistoryPanel = ({historyPanelTitle}) => {
 
 
     const getUserHistory = async () => {
-        console.log('getting user history')
         try {
             const response = await axios.get('/api/daily-challenge-routes/user-history');
-            console.log(response.data)
             return response.data;
         } catch (error) {
             throw error;

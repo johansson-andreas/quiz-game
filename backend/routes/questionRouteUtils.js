@@ -79,13 +79,10 @@ export const obfQuestion = (question) => {
   switch(question.questionType) {
     case "oneOfThree":
       return obfOoTQuestion(question);
-      break;
     case "connect": 
       return obfConnectQuestion(question);
-      break;
     case "rank": 
       return obfRankQuestion(question);
-      break;
     default: 
       throw new Error("Unknown question type");
   }
@@ -319,7 +316,7 @@ export const calculateDifficulty = (correctAnswerCount, incorrectAnswerCount) =>
   const correctPercentage = (correctAnswerCount / totalAnswers) * 100;
 
   if (correctPercentage <= 33) {
-    return 'Difficult';
+    return 'Hard';
   } else if (correctPercentage <= 66) {
     return 'Medium';
   } else {

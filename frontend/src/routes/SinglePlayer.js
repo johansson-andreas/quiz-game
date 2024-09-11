@@ -53,7 +53,6 @@ const Controller = () => {
 
       if (scoreArray) setScoreArray(scoreArray);
       if (currentTotals) {
-        console.log("currentotals", currentTotals);
         setTotalQuestionsScore([currentTotals[0], currentTotals[1]]);
       }
     } catch (error) {
@@ -71,7 +70,6 @@ const Controller = () => {
   };
 
   const nextQuestion = async () => {
-    console.log("Next question");
 
     try {
       const response = await axios.get("/api/question-routes/question");
@@ -121,12 +119,6 @@ const Controller = () => {
         setCurrentStreak(0);
       }
 
-      console.log(
-        "ScoreArray:",
-        response.data.scoreArray,
-        "Correct answer:",
-        response.data.correctAnswer
-      );
       setScoreArray(response.data.scoreArray);
       setCorrectAnswer(response.data.correctAnswer);
       setTotalQuestionsScore((prevCount) => {

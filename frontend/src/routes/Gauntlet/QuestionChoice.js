@@ -4,6 +4,7 @@ const QuestionChoice = ({
   questionCategories,
   setPlayerData,
   unusedQuestions,
+  playerData
 }) => {
   if (questionCategories) {
     const getRandomAmount = () => Math.floor(Math.random() * 3) + 2;
@@ -56,19 +57,23 @@ const QuestionChoice = ({
         }
       }
 
+
       const questionDifficulties = getQuestionDifficulties(questionAmount);
-      console.log(questionDifficulties);
+      const bonuses = generateBonuses(questionDifficulties)
+      
+
       option.difficulties = questionDifficulties;
+      option.bonuses = bonuses;
       return option;
     };
 
     const randomDiff = () => {
-      const difficulties = ["easy", "medium", "hard"];
+      const difficulties = ["Easy", "Medium", "Hard"];
       return difficulties[Math.floor(Math.random() * difficulties.length)];
     };
 
     const getQuestionDifficulties = (questionAmount) => {
-      const difficulties = { easy: 0, medium: 0, hard: 0 };
+      const difficulties = { Easy: 0, Medium: 0, Hard: 0 };
       let lastDifficulty = randomDiff();
 
       for (let i = 0; i < questionAmount; i++) {
@@ -81,6 +86,41 @@ const QuestionChoice = ({
       return difficulties;
     };
 
+    const generateBonuses = (difficulties) => {
+
+      const bonusScore = Object.keys(difficulties).reduce((acc, diff) => {
+        let score = 0;
+        switch (diff) {
+          case "Easy": {
+            score = 10;
+            break;
+          }
+          case "Medium": {
+            score = 15;
+            break;
+          }
+          case "Hard": {
+            score = 25;
+            break;
+          }
+        }
+        return (acc += difficulties[diff] * score), acc;
+      }, 0);
+      const roll = Math.random();
+      const rollToBeat = (bonusScore / 100) / 2
+      if(roll < rollToBeat) {
+        let potBonus = [];
+        Object.keys(playerData.lifelines).map(lifeline => {
+          if(playerData.lifelines[lifeline] < 3) potBonus.push(lifeline);
+        })
+        if(playerData.lives < 5) potBonus.push("life")
+
+        return (potBonus[randomizeArrayIndex(potBonus)]);
+      }
+      return null;
+
+    };
+
     const getQuestionChoice = () => {
       const firstOption = getQuestionCats(true);
       const secondOption = getQuestionCats(false);
@@ -88,15 +128,45 @@ const QuestionChoice = ({
     };
 
     const catOptions = getQuestionChoice();
-    console.log(catOptions);
 
     const pickChoice = async (choice) => {
-      // Update playerData
       setPlayerData((prevValue) => {
         const newValue = { ...prevValue, currentQuestions: choice };
         return newValue;
       });
+      if(choice.bonuses) switch(choice.bonuses) {
+        case ("fifty"): 
+        setPlayerData((prevValue) => {
+          const newValue = { ...prevValue };
+          newValue.lifelines["fifty"]++
+          return newValue;
+        });
+        break;
+        case ("skip"): 
+        setPlayerData((prevValue) => {
+          const newValue = { ...prevValue };
+          newValue.lifelines["skip"]++
+          return newValue;
+        });
+        break;
+        case ("life"): 
+        setPlayerData((prevValue) => {
+          const newValue = { ...prevValue };
+          newValue.lives++;
+          return newValue;
+        });
+        break;
+      }
     };
+
+    const diffName = (diff) => {
+      switch (diff) {
+        case "Hard": return "Svår";
+        case "Medium": return "Medel";
+        case "Easy": return "Lätt";
+        default: return "Error";
+      }
+    }
 
     return (
       <div className={styles.questionChoiceMain}>
@@ -106,16 +176,21 @@ const QuestionChoice = ({
             onClick={() => pickChoice(catOptions[optionKey])}
             className={styles.categoryChoicesLabel}
           >
+             <div className={styles.qChoiceCategoriesDiv}>
             {Object.keys(catOptions[optionKey].categories).map((cat) => (
-              <div>
+             <div>
                 {cat}: {catOptions[optionKey].categories[cat]}
-              </div>
+                </div>
             ))}
+             </div>
+            <div className={styles.qChoiceDiffDiv}>
             {Object.keys(catOptions[optionKey].difficulties).map((diff) => (
               <div>
-                {diff}: {catOptions[optionKey].difficulties[diff]}
-              </div>
+                {diffName(diff)}: {catOptions[optionKey].difficulties[diff]}
+             </div>
             ))}
+             </div>
+             {catOptions[optionKey].bonuses}
           </label>
         ))}
       </div>

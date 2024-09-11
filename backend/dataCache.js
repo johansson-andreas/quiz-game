@@ -60,14 +60,14 @@ export const dataCache = async () => {
     const ConnectQuestionCount = ConnectQuestionsIDs.length;
 
     const questionCounts = {
-      oot: QuestionCount,
+      oneOfThree: QuestionCount,
       rank: RankCount,
       newQuestions: NewQuestionCount,
       connect: ConnectQuestionCount,
     };
 
     const questionIDsByType = {
-      oot: OoTQuestionsIDs,
+      oneOfThree: OoTQuestionsIDs,
       rank: RankQuestionsIDs,
       newQuestions: NewQuestionsIDs,
       connect: ConnectQuestionsIDs,
