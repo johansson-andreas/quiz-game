@@ -215,6 +215,7 @@ router.post("/question", async (req, res) => {
     const questionToAdd = req.body.newQuestion;
 
     const newQuestion = new NewQuestion({
+      questionType: questionToAdd.questionType,
       text: questionToAdd.questions,
       correctAnswer: questionToAdd.correctAnswer,
       incorrectAnswers: questionToAdd.answers,
