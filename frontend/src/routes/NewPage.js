@@ -1,100 +1,81 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import "./styles/newPageStyle.css";
-import QuestionComponent from "../components/QuestionComponent/QuestionComponent.js";
 
-const NewPage = () => {
-  const [buttonValue, setButtonValue] = useState(0);
-  const [correctAnswer, setCorrectAnswer] = useState(null);
-  const [questionIcons, setQuestionIcons] = useState([]);
-  const [question, setQuestion] = useState({});
-  const [answer, setAnswer] = useState("");
-  const [submittedAnswer, setSubmittedAnswer] = useState("");
-  const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
-  const [activeQuestion, setActive] = useState(true);
-  const [currentQuestionCategories, setCurrentQuestionCategories] = useState(
-    []
-  );
-  const [newQuestionCategories, setNewQuestionCategories] = useState([]);
-  const [scoreArray, setScoreArray] = useState({});
-  const [questionTags, setQuestionTags] = useState([]);
-  const [catCanvasShow, setCatCanvasShow] = useState(false);
-  const [triggeredOption, setTriggeredOption] = useState(null);
-  const [fading, setFading] = useState(false);
-  const [currentStreak, setCurrentStreak] = useState(0);
-  const [streakRecord, setStreakRecord] = useState(0);
-
-  function buttonPlusOne() {
-    setButtonValue(buttonValue + 1);
-    console.log("increased button value by 1");
+const TimeLineQuestion = () => {
+  const [questionData, setQuestionData] = useState ({})
+  const [minMaxValue, setMinMaxValue]= useState ({})
+  const [value, setValue] = useState (Number)
+  const [correctAnswer, setCorrectAnswer] = [useState (Number)]
+  const [answer, setAnswer] = [useState(Number)]
+  const [submitResponse, setSubmitResponse] = [useState("")]
+  const [numberOff, setNumberOff] = [useState(Number)]
+  const [points, setPoints] = useState(0)
+  const [currentPoints, setCurrentPoints] = [useState(0)]
+  const getData = async() => {
+  
+    try {
+      const response = await axios.get(
+        "/api/question-routes/question/timeLine"
+      );
+      setQuestionData(response.data)
+      setMinMaxValue(response.data.minMax)
+      console.log(response)
+      console.log(minMaxValue)
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+    }
   }
-  const mount = async () => {
-    try {
-      const questionResponse = await axios.get("/api/question-routes/question/connect");
-      console.log(questionResponse.data);
-      setQuestion(questionResponse.data);
-    } catch (error) {
-      console.log(error);
+  useEffect(()=> {
+    getData()
+  }, [])
+
+  const pointsCalc = () =>{
+
+    if (answer === correctAnswer){
+      setCurrentPoints(10)
+      setPoints(points + 10)
     }
-  };
 
-  useEffect(() => {
-    mount();
-  }, []);
-
-  const nextQuestion = async () => {
-    console.log("Next question");
-
-    try {
-      const response = await axios.get("/api/question-routes/question");
-      console.log("GET request successful:", response.data);
-
-      setFading(true);
-      setTimeout(() => {
-        setFading(false);
-      }, 1500);
-      setTimeout(() => {
-        setActive(true);
-        assignQuestion(response.data);
-      }, 450);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    if (correctAnswer * 0.9 > answer < correctAnswer * 1.1) {
+      setCurrentPoints(5)
+      setPoints(points + 5)
     }
-  };
 
-  const assignQuestion = (questionData) => {
-    setQuestion(questionData);
-    setQuestionTags(questionData.tags);
-  };
+    if (correctAnswer * 0.5 > answer < correctAnswer * 1.5) {
+      setCurrentPoints(1)
+      setPoints(points + 1)
+    } 
+  }
 
-  const submitAnswer = (e) => {
-    setSubmittedAnswer(answer);
-  };
-
-  const handleCheckboxChange = (category) => {
-    setNewQuestionCategories((prevCategories) =>
-      prevCategories.map((cat) =>
-        cat._id === category._id ? { ...cat, enabled: !cat.enabled } : cat
-      )
-    );
-  };
-
+  const handleSubmit = () => {
+    setAnswer(value)
+    setNumberOff(correctAnswer - answer)
+    pointsCalc()
+    if (numberOff < 0) {
+      answer *= -1
+    }
+    if (answer === correctAnswer) {
+      setSubmitResponse("That's the correct answer! You got " + currentPoints +" Points. Total Points:" + points)
+      console.log(submitResponse)
+    }
+    else {
+      setSubmitResponse("Your answer:" + answer + " the correct answer is:" + correctAnswer + "You were " + numberOff + " off and got " + currentPoints + " Points. Total Points:" + points)
+      console.log(submitResponse)
+    }
+  }
   return (
-    <>
-      <QuestionComponent
-        answer={answer}
-        setAnswer={setAnswer}
-        question={question}
-        questionIcons={questionIcons}
-        activeQuestion={activeQuestion}
-        nextQuestion={nextQuestion}
-        submitAnswer={submitAnswer}
-        submittedAnswer={submittedAnswer}
-        correctAnswer={correctAnswer}
-        triggeredOption={triggeredOption}
-        setTriggeredOption={setTriggeredOption}
-      />
-    </>
-  );
-};
-export default NewPage;
+    <div className="slider">
+      <h1>{questionData.text}</h1>
+      <form onSubmit={handleSubmit}>
+        <input type="range" min={minMaxValue.min } max={minMaxValue.max} value={value} onChange={({target: {value: radius} }) => {setValue(radius)}}></input>
+        <button type ="submit">Submit Answer</button>
+        <h2>{value}</h2>
+      </form>
+      <h3>{submitResponse}</h3>
+      </div>
+  )
+}
+
+
+export default TimeLineQuestion
