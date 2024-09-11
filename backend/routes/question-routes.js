@@ -10,7 +10,7 @@ import {
   calculateDifficulty
 } from "./questionRouteUtils.js";
 import { createClientData } from "./loginRouteUtils.js";
-import { Question } from "../models/Question.js";
+import { Question, TimeLineQuestion } from "../models/Question.js";
 import { NewQuestion } from "../models/NewQuestion.js";
 import { RankQuestion } from "../models/Question.js";
 import redis from '../redisClient.js'
@@ -78,6 +78,11 @@ router.get("/question/rank", async (req, res) => {
 router.get("/question/connect", async (req, res) => {
   const connectQuestion = await ConnectQuestion.aggregate([{ $sample: { size: 1 } }]);
   res.send((obfQuestion(connectQuestion[0])));
+});
+
+router.get("/question/timeLine", async (req, res) => {
+  const timeLineQuestion = await TimeLineQuestion.aggregate([{ $sample: { size: 1 } }]);
+  res.send(((timeLineQuestion[0])));
 });
 
 /**

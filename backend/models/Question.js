@@ -41,6 +41,17 @@ const connectQuestionSchema = new Schema({
 
 export const ConnectQuestion = Question.discriminator('connect', connectQuestionSchema);
 
+
+const timeLineQuestionSchema = new Schema({
+  minMax: {
+    min: Number,
+    max: Number
+  },
+  correctAnswer: Number
+});
+
+export const TimeLineQuestion = Question.discriminator('timeLine', timeLineQuestionSchema)
+
 export const getRandomQuestionByTag = async (tag) => {
   try {
     const result = await Question.aggregate([
