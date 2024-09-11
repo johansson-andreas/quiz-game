@@ -55,7 +55,7 @@ router.get("/question", async (req, res) => {
         { $match: { tags: tag } },
         { $sample: { size: 1 } }
       ],
-      oot: [
+      oneOfThree: [
         { $match: { tags: tag } },
         { $sample: { size: 1 } }
       ]
@@ -69,11 +69,11 @@ router.get("/question", async (req, res) => {
     const [question] = await {
       connect: ConnectQuestion.aggregate(aggregationQueries.connect),
       rank: RankQuestion.aggregate(aggregationQueries.rank),
-      oot: OoTQuestion.aggregate(aggregationQueries.oot)
+      oneOfThree: OoTQuestion.aggregate(aggregationQueries.oneOfThree)
     }[questionType];
 
+    console.log('question', question)
     const obfuscatedQuestion = obfQuestion(question);
-    console.log("Question", obfuscatedQuestion);
     res.status(200).json(obfuscatedQuestion);
     
   } catch (error) {
@@ -178,7 +178,6 @@ router.get("/lifelines/:type/:id", async (req, res) => {
 router.get("/categories", async (req, res) => {
   try {
     const cachedCategories = JSON.parse(await redis.get("categories"));
-    console.log(JSON.parse(await redis.get("questionCounts")));
 
     if (cachedCategories) {
       res.status(200).json((cachedCategories));
@@ -197,7 +196,6 @@ router.get("/categories", async (req, res) => {
 
 router.get("/questions", async (req,res) => {
   const questions = JSON.parse(await redis.get('questionsByTag'));
-  console.log(questions)
 
   res.status(200).json(questions);
 })

@@ -64,10 +64,6 @@ export const RankQuestion = ({ question, setAnswer, answer, correctAnswer }) => 
   }, [correctAnswer]);
 
   useEffect(() => {
-    console.log('correct rank list', correctRankList)
-  }, [correctRankList]);
-
-  useEffect(() => {
     setCorrectRankList([]);
     const items = question.choices.map((option) => {
       return { id: option, content: option };

@@ -16,23 +16,35 @@ export const randomProperty = (obj) => {
     return keys[keys.length * Math.random() << 0];
 };
 
+export const randomizeArrayIndex = (array) => {
+  const randomIndex = Math.floor(Math.random() * array.length);
+  return randomIndex;
+}
+
+
 
 export const getNewQuestion = async (playerData, unusedQuestions) => {
 
   const updatedPlayerData = {...playerData}
   const newUnusedQuestions = {...unusedQuestions}
-  console.log('updatedPlayerData', updatedPlayerData)
 
-  if (Object.keys(updatedPlayerData.currentQuestions).length > 0) {
+  if (Object.keys(updatedPlayerData.currentQuestions.categories).length > 0) {
     const randomCat = randomProperty(updatedPlayerData.currentQuestions.categories);
-    console.log('random cat chosen:', randomCat)
+    const randomDiff = randomProperty(updatedPlayerData.currentQuestions.difficulties);
 
     updatedPlayerData.currentQuestions.categories[randomCat]--;
+    updatedPlayerData.currentQuestions.difficulties[randomDiff]--;
 
-    if (updatedPlayerData.currentQuestions.categories[randomCat] <= 0) delete updatedPlayerData.currentQuestions.categories[randomCat];
+    if (updatedPlayerData.currentQuestions.categories[randomCat] <= 0) {
+      delete updatedPlayerData.currentQuestions.categories[randomCat];
+    }
+    if (updatedPlayerData.currentQuestions.difficulties[randomDiff] <= 0) {
+      delete updatedPlayerData.currentQuestions.difficulties[randomDiff];
+    }
+    const questionID = newUnusedQuestions[randomCat][randomDiff].splice(randomizeArrayIndex(newUnusedQuestions[randomCat][randomDiff]), 1)[0];
 
     try {
-      const randomQuestion = await axios.get(`/api/gauntlet-routes/question?type=random&tag=${randomCat}&difficulty=medium`);
+      const randomQuestion = await axios.get(`/api/gauntlet-routes/question/${questionID}`);
       return ({updatedPlayerData, randomQuestion: randomQuestion.data})
 
     } catch (error) { 

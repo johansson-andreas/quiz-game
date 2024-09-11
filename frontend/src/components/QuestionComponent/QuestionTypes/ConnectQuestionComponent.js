@@ -77,7 +77,6 @@ export const ConnectQuestion = ({
       baseClass[0] = "neutral";
       baseClass[1] = "nopulse";
       {
-        console.log(getKeyByValue(correctAnswer, option), getKeyByValue(chosenPairs, option))
         if (getKeyByValue(correctAnswer, option) == getKeyByValue(chosenPairs, option)) {
           baseClass[0] = "correct"
           baseClass[1] = "pulse"
@@ -101,7 +100,6 @@ export const ConnectQuestion = ({
       baseClass[0] = "neutral";
       baseClass[1] = "nopulse";
       {
-        console.log(getKeyByValue(correctAnswer, option), getKeyByValue(chosenPairs, option))
         if (correctAnswer[option] == chosenPairs[option]) {
           baseClass[0] = "correct"
           baseClass[1] = "pulse"
