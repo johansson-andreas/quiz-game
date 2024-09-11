@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./styles/questionFormStyle.css";
+import { Tab, Tabs } from "react-bootstrap";
 
 const QuestionForm = () => {
   const [questions, setQuestions] = useState("");
@@ -10,6 +11,7 @@ const QuestionForm = () => {
   const [quizData, setQuizData] = useState([]);
   const [submissionStatus, setSubmissionStatus] = useState("idle");
   const [allCategories, setAllCategories] = useState([]);
+  const [activeTab, setActiveTab] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,6 +19,7 @@ const QuestionForm = () => {
     console.log("Submit button clicked");
 
     const newQuestion = {
+      questionType:"newOneOfThree",
       questions,
       answers: Object.values(answers),
       correctAnswer,
@@ -73,9 +76,20 @@ const QuestionForm = () => {
   }, []);
 
   return (
+    <div className="main-div">
+    <h1>Questionform</h1>
+    <div>
+    <Tabs
+      activeKey={activeTab}
+      onSelect={(k) => setActiveTab(k)}
+      id="question-tabs"
+      className="mb-3"
+    >
+      <Tab eventKey="newQuestions" title="Rätt eller fel">
+      
     <section className="questionForm">
       <form onSubmit={handleSubmit} className="main-form">
-        <h2>Quiz Game Form</h2>
+        <h2>Rätt eller fel</h2>
         <div className="input-box">
           <label htmlFor="question">Question:</label>
           <input
@@ -145,6 +159,12 @@ const QuestionForm = () => {
         )}
       </form>
     </section>
+    </Tab>
+      <Tab eventKey="connectedPairs" title="Connect the pairs">
+        </Tab>
+    </Tabs>
+    </div>
+    </div>
   );
 };
 
