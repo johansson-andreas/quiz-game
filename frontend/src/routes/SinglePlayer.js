@@ -8,21 +8,19 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import Button from "react-bootstrap/Button";
 import QuestionComponent from "../components/QuestionComponent/QuestionComponent.js";
 import classNames from "classnames";
+import { randomizeArrayIndex } from "../GeneralUtils.js";
 
 const Controller = () => {
   const [correctAnswer, setCorrectAnswer] = useState(null);
-  const [questionIcons, setQuestionIcons] = useState([]);
+  const [unusedQuestions, setUnusedQuestions] = useState({})
   const [question, setQuestion] = useState({});
   const [answer, setAnswer] = useState("");
   const [submittedAnswer, setSubmittedAnswer] = useState("");
   const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
   const [activeQuestion, setActive] = useState(true);
-  const [currentQuestionCategories, setCurrentQuestionCategories] = useState(
-    []
-  );
-  const [newQuestionCategories, setNewQuestionCategories] = useState([]);
+  const [enabledCategories, setEnabledCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([])
   const [scoreArray, setScoreArray] = useState({});
-  const [questionTags, setQuestionTags] = useState([]);
   const { user } = useContext(UserContext);
   const [catCanvasShow, setCatCanvasShow] = useState(false);
   const [triggeredOption, setTriggeredOption] = useState(null);
@@ -33,63 +31,69 @@ const Controller = () => {
   useEffect(() => {
     setTotalQuestionsScore([0, 0]);
     setScoreArray({});
-    initialContact();
+    mount();
   }, [user]);
 
-  const initialContact = async () => {
+  const mount = async () => {
     try {
-      const response = await axios.get("/api/question-routes/initial-contact");
-      console.log("Received initial data:", response.data);
-      const { question, categories, scoreArray, currentTotals } = response.data;
-      assignQuestion(question);
-      const newCategories = categories.map((category) => ({
-        _id: category._id,
-        count: category.count,
-        icon: category.icon,
-        enabled: category.enabled,
-      }));
-      setCurrentQuestionCategories(newCategories);
-      setNewQuestionCategories(newCategories);
+      const spData = JSON.parse(localStorage.getItem('spData'));
 
-      if (scoreArray) setScoreArray(scoreArray);
-      if (currentTotals) {
-        setTotalQuestionsScore([currentTotals[0], currentTotals[1]]);
+      if (spData) {
+        console.log('local storage gauntlet data', spData)
+        setQuestion(spData.question);
+        setUnusedQuestions(spData.unusedQuestions);
+        setEnabledCategories(spData.enabledCategories);
+        setCurrentStreak(spData.currentStreak);
+        setStreakRecord(spData.streakRecord);
+      } else {
+        createNewGame(); 
       }
     } catch (error) {
       console.log(error);
     }
   };
 
+  const createNewGame = async () => {
+    try {
+      const [categoriesResponse, allQuestionsResponse] = await Promise.all([
+        axios.get("/api/gauntlet-routes/categories"),
+        axios.get("/api/gauntlet-routes/questions")
+      ]);
+
+      setEnabledCategories(categoriesResponse.data);
+      setAllCategories(categoriesResponse.data);
+      setUnusedQuestions(allQuestionsResponse.data);
+
+      setQuestion(await getNewQuestion(unusedQuestions, enabledCategories))
+
+    } catch (error) {
+      console.log(error);
+    }
+
+  }
+
+  const getNewQuestion = async (unusedQuestions, enabledCategories) => {
+    try {
+    const randomCat = randomizeArrayIndex(enabledCategories); 
+    const randomDiff = randomizeArrayIndex(unusedQuestions[randomCat]);
+    const questionID = unusedQuestions[randomCat][randomDiff][randomizeArrayIndex(unusedQuestions[randomCat][randomDiff])];
+    const newQuestion = await axios.get(`/api/question-routes/question/:${questionID}`)
+
+    setQuestion(newQuestion);
+
+  }
+  catch (error)
+  {
+    console.error(error)
+  }
+  }
+
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
   };
 
-  const assignQuestion = (questionData) => {
-    setQuestion(questionData);
-    setQuestionTags(questionData.tags);
-  };
-
-  const nextQuestion = async () => {
-
-    try {
-      const response = await axios.get("/api/question-routes/question");
-      console.log("GET request successful:", response.data);
-
-      setFading(true);
-      setTimeout(() => {
-        setFading(false);
-      }, 1500);
-      setTimeout(() => {
-        setActive(true);
-        assignQuestion(response.data);
-      }, 450);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
   const handleCheckboxChange = (category) => {
-    setNewQuestionCategories((prevCategories) =>
+    setEnabledCategories((prevCategories) =>
       prevCategories.map((cat) =>
         cat._id === category._id ? { ...cat, enabled: !cat.enabled } : cat
       )
@@ -101,34 +105,7 @@ const Controller = () => {
 
   const postAnswer = async () => {
     try{
-      const response = await axios.post(`/api/question-routes/question/answers`, {answer});
-      console.log(response)
-      setActive(false);
-      const isCorrect = response.data.correctAnswer === submittedAnswer;
-      if (isCorrect) {
-        // Update current streak
-        setCurrentStreak((prevStreak) => {
-          const newStreak = prevStreak + 1;
-          if (newStreak > streakRecord) {
-            setStreakRecord(newStreak);
-          }
-          return newStreak;
-        });
-      } else {
-        // Reset current streak, but keep the record unchanged
-        setCurrentStreak(0);
-      }
-
-      setScoreArray(response.data.scoreArray);
-      setCorrectAnswer(response.data.correctAnswer);
-      setTotalQuestionsScore((prevCount) => {
-        const newCount = [...prevCount];
-        if (response.data.correctAnswer === submittedAnswer)
-          newCount[0] += 1;
-        newCount[1] += 1;
-        return newCount;
-      });
-      setTriggeredOption(response.data.correctAnswer);
+   
   } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -141,42 +118,6 @@ const Controller = () => {
     }
   }, [submittedAnswer]);
 
-  useEffect(() => {
-    setQuestionIcons(
-      questionTags
-        .map((tag) => {
-          const categoryIcon = currentQuestionCategories.find(
-            (category) => category._id === tag
-          );
-          return categoryIcon ? categoryIcon.icon : null;
-        })
-        .filter((icon) => icon !== null)
-    );
-  }, [questionTags]);
-
-  const getNewQuestionQueue = async () => {
-    if (
-      newQuestionCategories !== currentQuestionCategories &&
-      Object.keys(newQuestionCategories).length > 0
-    ) {
-      setCurrentQuestionCategories(newQuestionCategories);
-      console.log("requestion new question queue");
-      try {
-        const response = await axios.patch(
-          "/api/question-routes/question-queue/",
-          { newQuestionCategories }
-        );
-        console.log(response);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  };
-
-  useEffect(() => {
-    getNewQuestionQueue();
-  }, [newQuestionCategories]);
-
   return (
     <div className="mainBody">
       <div className={classNames("questionBody", fading ? "fadePulse" : "")}>
@@ -184,9 +125,8 @@ const Controller = () => {
           answer={answer}
           setAnswer={setAnswer}
           question={question}
-          questionIcons={questionIcons}
           activeQuestion={activeQuestion}
-          nextQuestion={nextQuestion}
+          nextQuestion={getNewQuestion}
           submitAnswer={submitAnswer}
           submittedAnswer={submittedAnswer}
           correctAnswer={correctAnswer}
@@ -198,7 +138,6 @@ const Controller = () => {
         <ScorePanel
           scoreArray={scoreArray}
           totalQuestionsScore={totalQuestionsScore}
-          questionCategories={currentQuestionCategories}
           currentStreak={currentStreak} // pass current streak
           streakRecord={streakRecord} // pass streak record
         />
@@ -221,7 +160,7 @@ const Controller = () => {
             <Offcanvas.Title>Kategorier</Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body>
-            {currentQuestionCategories.map((category, index) => (
+            {allCategories.map((category, index) => (
               <label key={category._id} className="checkboxLabels">
                 <div className="topLineCheckbox">
                   <input

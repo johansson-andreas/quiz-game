@@ -96,6 +96,12 @@ router.get("/question/:id", async (req, res) => {
 
 });
 
+router.get("/questions", async (req,res) => {
+  const questions = JSON.parse(await redis.get('questionsByTag'));
+
+  res.status(200).json(questions);
+})
+
 router.post("/questions/answer", async (req, res, next) => {
   const { questionData, submittedAnswer } = req.body;
 
@@ -170,11 +176,6 @@ router.get("/categories", async (req, res) => {
   }
 });
 
-router.get("/questions", async (req,res) => {
-  const questions = JSON.parse(await redis.get('questionsByTag'));
-
-  res.status(200).json(questions);
-})
 
 router.post("/score", async (req,res, next) => {
   const user = req.user.id;

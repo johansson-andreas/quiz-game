@@ -20,20 +20,6 @@ import { checkAnswer } from "./questionRouteUtils.js";
 const router = express.Router();
 
 /**
- * Middleware to create client data if not present.
- * Logs the session ID and creates new client data if necessary.
- */
-const timeLog = async (req, res, next) => {
-  if (!req.session.clientData) {
-    console.log("Found no data for", req.sessionID, "creating new data");
-    await createClientData(req);
-    await getNewQuestion(req.session.clientData);
-  }
-  next();
-};
-router.use(timeLog);
-
-/**
  * @route GET /initial-contact
  * @description Initializes client session with a new question and session data.
  * @returns {Object} JSON object containing the obfuscated question, categories, score array, and current totals.
