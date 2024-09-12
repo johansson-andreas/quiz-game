@@ -1,3 +1,4 @@
+import IconComponent from "../../components/IconComponent";
 import styles from "./gauntlet.module.css";
 
 const QuestionChoice = ({
@@ -113,7 +114,7 @@ const QuestionChoice = ({
         Object.keys(playerData.lifelines).map(lifeline => {
           if(playerData.lifelines[lifeline] < 3) potBonus.push(lifeline);
         })
-        if(playerData.lives < 5) potBonus.push("life")
+        if(playerData.lives < 5) potBonus.push("lives")
 
         return (potBonus[randomizeArrayIndex(potBonus)]);
       }
@@ -129,35 +130,29 @@ const QuestionChoice = ({
 
     const catOptions = getQuestionChoice();
 
-    const pickChoice = async (choice) => {
-      setPlayerData((prevValue) => {
-        const newValue = { ...prevValue, currentQuestions: choice };
-        return newValue;
-      });
-      if(choice.bonuses) switch(choice.bonuses) {
-        case ("fifty"): 
-        setPlayerData((prevValue) => {
-          const newValue = { ...prevValue };
-          newValue.lifelines["fifty"]++
-          return newValue;
-        });
-        break;
-        case ("skip"): 
-        setPlayerData((prevValue) => {
-          const newValue = { ...prevValue };
-          newValue.lifelines["skip"]++
-          return newValue;
-        });
-        break;
-        case ("life"): 
-        setPlayerData((prevValue) => {
-          const newValue = { ...prevValue };
+const pickChoice = async (choice) => {
+  setPlayerData((prevValue) => {
+    // Create a copy of the previous value
+    const newValue = { ...prevValue, currentQuestions: choice };
+
+    // Handle bonuses
+    if (choice.bonuses) {
+      switch (choice.bonuses) {
+        case "fifty":
+          newValue.lifelines["fifty"]++;
+          break;
+        case "skip":
+          newValue.lifelines["skip"]++;
+          break;
+        case "lives":
           newValue.lives++;
-          return newValue;
-        });
-        break;
+          break;
       }
-    };
+    }
+
+    return newValue;
+  });
+};
 
     const diffName = (diff) => {
       switch (diff) {
@@ -190,7 +185,7 @@ const QuestionChoice = ({
              </div>
             ))}
              </div>
-             {catOptions[optionKey].bonuses}
+             {catOptions[optionKey].bonuses && <div className={styles.bonusIcon}>+<IconComponent imageName={catOptions[optionKey].bonuses  + "Icon"}  /></div>}
           </label>
         ))}
       </div>

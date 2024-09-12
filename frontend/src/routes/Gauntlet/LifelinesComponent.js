@@ -10,10 +10,10 @@ const LifelinesComponent = ({
   setCurrentQuestion,
   setActiveGame,
   setActiveQuestion,
-  unusedQuestions
+  unusedQuestions,
 }) => {
   const activateLifeline = async (lifeline) => {
-    const newPlayerData = {...playerData}
+    const newPlayerData = { ...playerData };
     switch (lifeline) {
       case "fifty":
         if (newPlayerData && newPlayerData.lifelines["fifty"] > 0) {
@@ -28,19 +28,21 @@ const LifelinesComponent = ({
         }
       case "skip":
         if (Object.keys(newPlayerData.currentQuestions).length > 0) {
-          const {updatedPlayerData, randomQuestion} = await getNewQuestion(playerData, unusedQuestions);
-          if(updatedPlayerData){
-            setActiveQuestion(true)
+          const { updatedPlayerData, randomQuestion } = await getNewQuestion(
+            playerData,
+            unusedQuestions
+          );
+          if (updatedPlayerData) {
+            setActiveQuestion(true);
             setPlayerData(updatedPlayerData);
             setCurrentQuestion(randomQuestion);
-          }
-          else {
-            setCurrentQuestion({})
-            setPlayerData(prevData => {
-              const newData = {...prevData}
-              newData.currentQuestions = {categories: {}, difficulties: {}};
+          } else {
+            setCurrentQuestion({});
+            setPlayerData((prevData) => {
+              const newData = { ...prevData };
+              newData.currentQuestions = { categories: {}, difficulties: {} };
               return newData;
-            })
+            });
             setActiveGame(false);
           }
         } else {
@@ -48,7 +50,7 @@ const LifelinesComponent = ({
         }
         newPlayerData.lifelines["skip"]--;
         return newPlayerData;
-        
+
       default:
         return;
     }
@@ -57,12 +59,19 @@ const LifelinesComponent = ({
   const renderLifelines = () => {
     return (
       <div className={styles.lifelineIconDiv}>
-        {playerData && Object.keys(playerData.lifelines).map((lifeline) => {
-          if(playerData.lifelines[lifeline] > 0 ) return (
-           <label onClick={() => activateLifeline(lifeline)}>
-            <IconComponent imageName={lifeline + "Icon"} />
-          </label> )
-        })}
+        {playerData &&
+          Object.keys(playerData.lifelines).map((lifeline) => {
+            if (playerData.lifelines[lifeline] > 0)
+              return (
+                <label onClick={() => activateLifeline(lifeline)}>
+                  <div className={styles.llAmountCounter}>
+                    {playerData.lifelines[lifeline] > 1 &&
+                      "x" + playerData.lifelines[lifeline]}
+                  </div>
+                  <IconComponent imageName={lifeline + "Icon"} />
+                </label>
+              );
+          })}
       </div>
     );
   };

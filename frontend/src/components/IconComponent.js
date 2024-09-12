@@ -45,6 +45,8 @@ iconList["economyIcon"] = economyIcon;
 iconList["heartIcon"] = heartIcon;
 iconList["fiftyIcon"] = fiftyIcon;
 iconList["skipIcon"] = skipIcon;
+iconList["livesIcon"] = heartIcon;
+
 
 
 

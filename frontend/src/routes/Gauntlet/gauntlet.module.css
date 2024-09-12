@@ -70,11 +70,14 @@
     background-color: var(--main-gray-color);
     align-content: center;
   text-align: center;
+  gap: 15px;
+  display: flex;
+flex-direction: column;
 }
 .sideBarMain
 {
     background-color: var(--main-light-gray);
-    padding: 5px;
+    padding: 7px;
     height: 300px;
     border-radius: 15px;
     grid-area: sidebar;
@@ -107,14 +110,19 @@
     margin-top: 20px;
     display: flex;
     flex-direction: column;
+    gap:12px;
+}
+.llAmountCounter
+{
+    position: fixed;
+    transform: translate(23px,-14px);
+font-size: small;
+}
+.bonusIcon
+{
+    display:flex;
+    align-content: center;
+    justify-content: center;
+    font-size: x-large;
     gap:5px;
-}
-.qChoiceCategoriesDiv
-{
-
-}
-
-.qChoiceDiffDiv
-{
-    margin-top:10px;
 }
