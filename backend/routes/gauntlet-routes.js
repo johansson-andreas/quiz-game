@@ -10,7 +10,7 @@ import {
 import express from "express";
 import redis from "../redisClient.js";
 import { ConnectQuestion } from "../models/Question.js";
-import { handleRankAnswer, handleConnectAnswer } from "./gauntletRoutesUtils.js";
+import { handleRankAnswer, handleConnectAnswer, checkAnswer } from "./gauntletRoutesUtils.js";
 import { addNewScoreToGauntletHistory } from "./gauntletRoutesUtils.js";
 import { Account } from "../models/Account.js";
 import { halfObjectProperties } from "../utils/generalUtils.js";
@@ -101,33 +101,12 @@ router.get("/question/:id", async (req, res) => {
 
 router.post("/questions/answer", async (req, res, next) => {
   const { questionData, submittedAnswer } = req.body;
-  const questionID = questionData.id;
 
-  let question = {};
   let correct = false;
   let correctAnswer = {};
 
   try {
-    switch (questionData.questionType) {
-      case "rank":
-        ({correct, correctAnswer} = await handleRankAnswer(questionData, submittedAnswer))
-        break;
-      case "oneOfThree":
-        question = await OoTQuestion.findById(questionID);
-        if (!question)
-          return res.status(404).send({ error: "Question not found" });
-
-        correct = question.correctAnswer === submittedAnswer;
-        correctAnswer = question.correctAnswer;
-        break;
-        case "connect":
-          ({correct, correctAnswer} = await handleConnectAnswer(questionData, submittedAnswer))
-          break;
-      default:
-        return res.status(400).send({ error: "Invalid question type" });
-    }
-
-    updateQuestionCounts(questionID, correct);
+    ({correct, correctAnswer} = await checkAnswer(questionData, submittedAnswer))
 
     res.status(200).json({ correctAnswer, correct });
   } catch (error) {

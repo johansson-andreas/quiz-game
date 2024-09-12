@@ -48,7 +48,6 @@ export const dataCache = async () => {
       });
     });
 
-    console.log(questionIDsByTag)
 
     // Resolve categories
     const categories = await categoriesPromise;
