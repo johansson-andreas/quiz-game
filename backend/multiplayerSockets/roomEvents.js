@@ -7,9 +7,10 @@ import {
   getNewQuestion,
   generateLobbyName,
   getNextQuestion,
-  getRandomChooser
+  getRandomChooser,
 } from "./socketUtils.js";
 import { updateQuestionCounts } from "../routes/questionRouteUtils.js";
+import { checkAnswer } from "../routes/gauntletRoutesUtils.js";
 
 export const roomEvents = (socket, rooms, io) => {
   let username = "";
@@ -112,36 +113,36 @@ socket.on("startGame", (lobbyName) => {
   }
 });
 
-socket.on("submitAnswer", (lobbyInfo) => {
+socket.on("submitAnswer", async (lobbyInfo) => {
 
   const submittedAnswer = lobbyInfo.submittedAnswer;
   const lobbyName = lobbyInfo.lobbyName;
+
+  let socketMessage = "";
  
   console.log("received", submittedAnswer, "from", username);
   if (
     rooms[lobbyName] && 
-    checkTimer(rooms[lobbyName].timer) &&
-    submittedAnswer == rooms[lobbyName].currentQuestion.correctAnswer
+    checkTimer(rooms[lobbyName].timer)
   ) {
-    updateQuestionCounts(rooms[lobbyName].currentQuestion._id, true);
-    rooms[lobbyName].users[username].score += 1;
-    io.to(lobbyName).emit("updatedScore", {
-      newUsersInfo: rooms[lobbyName].users,
-    });
+    const {correct, correctAnswer} = await checkAnswer(rooms[lobbyName].currentQuestion, submittedAnswer)
+    if(correct) {
+      rooms[lobbyName].users[username].score += 1;
+      io.to(lobbyName).emit("updatedScore", {
+        newUsersInfo: rooms[lobbyName].users,
+      });
+    }
+    socketMessage = correctAnswer;
+
   } else if (!checkTimer(rooms[lobbyName].timer)) {
     socket.emit("timedOut");
     console.log("timed out answer");
-  } else {
-    updateQuestionCounts(rooms[lobbyName].currentQuestion._id, false);
-    io.to(lobbyName).emit("updatedScore", {
-      newUsersInfo: rooms[lobbyName].users,
-    });
-  }
-  socket.emit("correctAnswer", rooms[lobbyName].currentQuestion.correctAnswer);
+  } 
+  socket.emit("correctAnswer", socketMessage);
 });
 
 socket.on("getNextQuestion", async (lobbyName) => {
-  console.log(rooms[lobbyName]);
+  if(!rooms[lobbyName]) return false;
   const winners = checkWinCon(rooms[lobbyName]);
 
   if (winners.length > 0) {

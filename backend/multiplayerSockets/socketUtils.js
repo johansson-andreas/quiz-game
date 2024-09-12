@@ -2,7 +2,7 @@
 import { randomizeArrayIndex } from "../utils/generalUtils.js";
 import { Question, getRandomQuestionByTag } from "../models/Question.js";
 
-const delayCompensation = 2.4; // in seconds (2 sec for animation + 0.4 sec for connection delay)
+const delayCompensation = 1.4; // in seconds (1 sec for animation + 0.4 sec for connection delay)
 
 export const getCategoryChoices = (lobbyInfo) => {
   const categoryChoices = []
@@ -23,6 +23,7 @@ export const checkTimer = (timer) => {
 };
 
 export  const checkWinCon = (lobbyInfo) => {
+  if(!lobbyInfo) return;
   const chosenWinCon = lobbyInfo.chosenWinCon;
   const winConNumber = lobbyInfo.winConNumber;
   const usersData = lobbyInfo.users;
@@ -59,7 +60,6 @@ export const generateLobbyName = (currentRooms) => {
     for (let i = 0; i <= 4; i++) {
       const randomIndex = Math.floor(Math.random() * possibleChars.length);
       newLobbyName = newLobbyName + possibleChars[randomIndex];
-      console.log(newLobbyName);
     }
     if (!currentRooms[newLobbyName]) return newLobbyName;
     else newLobbyName = "";
@@ -109,3 +109,4 @@ export const getRandomChooser = (lobbyInfo) => {
   
   return newChooser; // If all attempts fail, return the old chooser
 };
+

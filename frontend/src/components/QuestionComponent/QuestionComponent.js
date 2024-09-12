@@ -93,7 +93,7 @@ const QuestionComponent = ({
             style={submitButtonStyle}
             disabled={isLocked}
           >
-            Submit Answer
+            Svara
           </button>
           {!hostname && (
             <button
@@ -102,7 +102,7 @@ const QuestionComponent = ({
               className={styles.submitNextButton}
               disabled={!canProgress}
             >
-              Next question
+              Nästa fråga
             </button>
           )}
         </>

@@ -13,7 +13,7 @@ const MultiPlayerLobby = ({ state, setState, joinedLobby }) => {
   const [correctWinConNumber, setCorrectWinConNumber] = useState(10);
   const [amountWinConNumber, setAmountWinConNumber] = useState(15);
   const [newLobbyPassword, setNewLobbyPassword] = useState('');
-  const [newLobbyTimer, setNewLobbyTimer] = useState(5);
+  const [newLobbyTimer, setNewLobbyTimer] = useState(15);
   const [joinLobbyPassword, setJoinLobbyPassword] = useState('');
   const [currentLobby, setCurrentLobby] = useState(null);
   const [users, setUsers] = useState([]);

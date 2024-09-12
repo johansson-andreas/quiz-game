@@ -39,6 +39,7 @@ export const ConnectQuestion = ({
   };
 
   const selectValue = (e) => {
+    if(!activeQuestion) return false;
     if (!lastSelectedKey) setLastSelectedValue(e);
     else {
       setChosenPairs((prevValue) => {

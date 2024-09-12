@@ -1,5 +1,6 @@
-import { ConnectQuestion, RankQuestion } from "../models/Question.js";
+import { ConnectQuestion, OoTQuestion, RankQuestion } from "../models/Question.js";
 import { Account } from "../models/Account.js";
+import { updateQuestionCounts } from "./questionRouteUtils.js";
 
 export const handleRankAnswer = async (questionData, submittedAnswer) => {
 
@@ -23,8 +24,9 @@ export const handleRankAnswer = async (questionData, submittedAnswer) => {
     return {correct, correctAnswer};
 }
 
-export const handleConnectAnswer = async (question, submittedAnswer) => {
-  question = await ConnectQuestion.findById(question.id);
+export const handleConnectAnswer = async (questionData, submittedAnswer) => {
+
+  const question = await ConnectQuestion.findById(questionData.id ? questionData.id : questionData._id);
 
   const correctPairs = question.connectedPairs;
   let correct = true;
@@ -38,6 +40,40 @@ export const handleConnectAnswer = async (question, submittedAnswer) => {
     }
   })
   return {correct, correctAnswer: correctPairs};
+}
+
+export const handleOoTAnswer = async (questionData, submittedAnswer) => {
+  const question = await OoTQuestion.findById(questionData.id);
+
+  if (!question)
+    return false;
+
+  const correct = question.correctAnswer === submittedAnswer;
+  const correctAnswer = question.correctAnswer;
+
+  return {correct, correctAnswer};
+}
+
+export const checkAnswer = async (question, submittedAnswer) => {
+  let correct = false;
+  let correctAnswer = {};
+
+
+  switch (question.questionType) {
+    case "rank":
+      ({correct, correctAnswer} = await handleRankAnswer(question, submittedAnswer))
+      break;
+    case "oneOfThree":
+      ({correct, correctAnswer} = await handleOoTAnswer(question, submittedAnswer))
+      break;
+    case "connect":
+      ({correct, correctAnswer} = await handleConnectAnswer(question, submittedAnswer))
+      break;
+    default:
+      return false;
+  }
+  updateQuestionCounts(question.id ? question.id : question._id, correct);
+  return {correct, correctAnswer};
 }
 
 
