@@ -9,8 +9,7 @@ import {
   getNextQuestion,
   getRandomChooser,
 } from "./socketUtils.js";
-import { updateQuestionCounts } from "../routes/questionRouteUtils.js";
-import { checkAnswer } from "../routes/gauntletRoutesUtils.js";
+import { checkAnswer } from "../routes/questionRouteUtils.js";
 
 export const roomEvents = (socket, rooms, io) => {
   let username = "";

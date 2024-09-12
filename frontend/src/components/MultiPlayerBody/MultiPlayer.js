@@ -1,4 +1,4 @@
-import socket from "../Socket.js";
+import socket from "../../Socket.js";
 import React, {
   useState,
   useEffect,
@@ -6,9 +6,9 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { UserContext } from "../contexts/UserContext.js";
-import QuestionComponent from "../components/QuestionComponent/QuestionComponent.js";
-import "./styles/multiPlayerStyle.css";
+import { UserContext } from "../../contexts/UserContext.js";
+import QuestionComponent from "../QuestionComponent/QuestionComponent.js";
+import "./multiPlayerStyle.css";
 
 const MultiPlayer = ({ lobbyName }) => {
   // State Variables
@@ -130,6 +130,7 @@ const MultiPlayer = ({ lobbyName }) => {
       setCurrentQuestion(newQuestion.newQuestion);
     };
     const handleCorrectAnswer = (correctAnswer) => {
+      console.log(correctAnswer)
       setCorrectAnswer(correctAnswer);
       setTriggeredOption(correctAnswer);
 
