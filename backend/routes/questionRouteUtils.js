@@ -38,7 +38,7 @@ export const getNewQuestion = async (client) => {
   const [newQuestionId] = client.unusedQuestions.splice(randomIndex, 1); // Splices a question at randomIndex to randomize the order of the questions provided
 
   try {
-    const newQuestion = await OoTQuestion.findById(newQuestionId).lean();
+    const newQuestion = await Question.findById(newQuestionId).lean();
     client.currentQuestion = newQuestion;
     return newQuestion;
   } catch (error) {
@@ -76,6 +76,7 @@ export const getNewQuestionQueueByTags = async (tags) => {
 };
 
 export const obfQuestion = (question) => { 
+  console.log(question)
   switch(question.questionType) {
     case "oneOfThree":
       return obfOoTQuestion(question);
@@ -287,25 +288,6 @@ export const updateQuestionCounts = async (questionId, correct) => {
   }
 };
 
-export const getQuestionByIDAndType = async (questionID, questionType) => {
-
-  let question;
-  switch (questionType) {
-    case "oneOfThree":
-      question = await OoTQuestion.findById(questionID).lean().exec();
-      return question;
-    case "connect":
-      question = await ConnectQuestion.findById(questionID).lean().exec();
-      return question;
-    case "rank":
-      question = await RankQuestion.findById(questionID).lean().exec();
-      return question;
-    default:
-      throw new Error("Ineligible question type");     
-  }
-
-}
-
 export const calculateDifficulty = (correctAnswerCount, incorrectAnswerCount) => {
   const totalAnswers = correctAnswerCount + incorrectAnswerCount;
 
@@ -322,4 +304,88 @@ export const calculateDifficulty = (correctAnswerCount, incorrectAnswerCount) =>
   } else {
     return 'Easy';
   }
+};
+export const checkAnswer = async (question, submittedAnswer) => {
+  let correct = false;
+  let correctAnswer = {};
+
+  switch (question.questionType) {
+    case "rank":
+      ({ correct, correctAnswer } = await handleRankAnswer(
+        question,
+        submittedAnswer
+      ));
+      break;
+    case "oneOfThree":
+      ({ correct, correctAnswer } = await handleOoTAnswer(
+        question,
+        submittedAnswer
+      ));
+      break;
+    case "connect":
+      ({ correct, correctAnswer } = await handleConnectAnswer(
+        question,
+        submittedAnswer
+      ));
+      break;
+    default:
+      return false;
+  }
+  updateQuestionCounts(question.id ? question.id : question._id, correct);
+  return { correct, correctAnswer };
+};
+const handleRankAnswer = async (questionData, submittedAnswer) => {
+  const question = await RankQuestion.findById(
+    questionData.id ? questionData.id : questionData._id
+  );
+  let correctAnswer = [];
+
+  let correct = false;
+  if (!question) return false;
+
+  // Check if lifeline has been used in which case remove the options from the correct order which arent part of the submitted answer
+  if (submittedAnswer.length < question.correctOrder.length) {
+    correctAnswer = question.correctOrder.filter((option) => {
+      if (submittedAnswer.includes(option)) return option;
+    });
+    correct = JSON.stringify(correctAnswer) === JSON.stringify(submittedAnswer);
+  } else {
+    correctAnswer = question.correctOrder;
+    correct = JSON.stringify(correctAnswer) === JSON.stringify(submittedAnswer);
+  }
+
+  return { correct, correctAnswer };
+};
+const handleConnectAnswer = async (questionData, submittedAnswer) => {
+  const question = await ConnectQuestion.findById(
+    questionData.id ? questionData.id : questionData._id
+  );
+
+  const correctPairs = question.connectedPairs;
+  let correct = true;
+
+  if (!question) return false;
+
+  Object.keys(submittedAnswer).forEach((key) => {
+    if (correctPairs[key] !== submittedAnswer[key]) {
+      correct = false;
+    }
+  });
+  return { correct, correctAnswer: correctPairs };
+};
+const handleOoTAnswer = async (questionData, submittedAnswer) => {
+  const question = await OoTQuestion.findById(
+    questionData.id ? questionData.id : questionData._id
+  );
+  if (!question) {
+    console.log("Error: Question not found");
+    return false;
+  }
+
+  const correct = question.correctAnswer === submittedAnswer;
+  const correctAnswer = question.correctAnswer;
+
+  console.log({ correct, correctAnswer });
+
+  return { correct, correctAnswer };
 };

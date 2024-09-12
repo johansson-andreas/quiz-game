@@ -1,7 +1,8 @@
 import IconComponent from "../../components/IconComponent";
 import styles from "./gauntlet.module.css";
 import axios from "axios";
-import { getNewQuestion, randomProperty } from "./GauntletUtils";
+import { getNewQuestion } from "./GauntletUtils";
+import { randomProperty } from '../../GeneralUtils';
 
 const LifelinesComponent = ({
   playerData,

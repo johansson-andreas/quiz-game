@@ -4,7 +4,7 @@ import { UserContext } from "../contexts/UserContext";
 import socket from "../Socket";
 import "./styles/multiPlayerLandingStyle.css";
 import MultiPlayerLobby from "../components/MultiPlayerBody/MultiPlayerLobby";
-import MultiPlayer from "./MultiPlayer";
+import MultiPlayer from "../components/MultiPlayerBody/MultiPlayer";
 
 function LandingPage() {
   const navigate = useNavigate();

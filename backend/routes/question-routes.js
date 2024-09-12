@@ -15,6 +15,7 @@ import { NewQuestion } from "../models/NewQuestion.js";
 import { RankQuestion } from "../models/Question.js";
 import redis from '../redisClient.js'
 import { ConnectQuestion } from "../models/Question.js";
+import { checkAnswer } from "./questionRouteUtils.js";
 
 const router = express.Router();
 
@@ -183,14 +184,13 @@ router.post("/question/answers", async (req, res) => {
   const clientData = req.session.clientData;
 
   if (clientData) {
-    const answer = req.params.submittedAnswer;
-    let correct = false;
-    if (answer === clientData.currentQuestion.correctAnswer) correct = true;
-
+    const answer = req.body.answer;
+    const {correct, correctAnswer} = await checkAnswer(clientData.currentQuestion, answer)
+    console.log({correct, correctAnswer} )
     clientData.scoreArray = updateScoreArray(clientData, correct);
     res.send({
       scoreArray: clientData.scoreArray,
-      correctAnswer: clientData.currentQuestion.correctAnswer,
+      correctAnswer: correctAnswer,
     });
 
     if (req.user && req.user._id) {

@@ -101,8 +101,8 @@ const Controller = () => {
 
   const postAnswer = async () => {
     try{
-      const response = await axios.post(`/api/question-routes/question/answers`);
-    
+      const response = await axios.post(`/api/question-routes/question/answers`, {answer});
+      console.log(response)
       setActive(false);
       const isCorrect = response.data.correctAnswer === submittedAnswer;
       if (isCorrect) {

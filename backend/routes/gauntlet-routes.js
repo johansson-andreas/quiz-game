@@ -2,18 +2,15 @@ import { OoTQuestion, RankQuestion, Question } from "../models/Question.js";
 
 import {
   getAllCategories,
-  updateQuestionCounts,
-  updateScoreArray,
   obfQuestion,
-  getQuestionByIDAndType,
 } from "./questionRouteUtils.js";
 import express from "express";
 import redis from "../redisClient.js";
 import { ConnectQuestion } from "../models/Question.js";
-import { handleRankAnswer, handleConnectAnswer, checkAnswer } from "./gauntletRoutesUtils.js";
 import { addNewScoreToGauntletHistory } from "./gauntletRoutesUtils.js";
 import { Account } from "../models/Account.js";
 import { halfObjectProperties } from "../utils/generalUtils.js";
+import { checkAnswer } from "./questionRouteUtils.js";
 
 const router = express.Router();
 
@@ -121,7 +118,7 @@ router.get("/lifelines/:type/:id", async (req, res) => {
 
   console.log(lifelineType, questionID, questionType);
 
-  const question = await getQuestionByIDAndType(questionID, questionType);
+  const question = await Question.findById(questionID);
 
   switch (lifelineType) {
     case "fifty":

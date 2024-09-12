@@ -58,7 +58,6 @@ const QuestionChoice = ({
         }
       }
 
-
       const questionDifficulties = getQuestionDifficulties(questionAmount);
       const bonuses = generateBonuses(questionDifficulties)
       
@@ -70,7 +69,7 @@ const QuestionChoice = ({
 
     const randomDiff = () => {
       const difficulties = ["Easy", "Medium", "Hard"];
-      return difficulties[Math.floor(Math.random() * difficulties.length)];
+      return ["Easy", "Medium", "Hard"][Math.floor(Math.random() * difficulties.length)];
     };
 
     const getQuestionDifficulties = (questionAmount) => {
