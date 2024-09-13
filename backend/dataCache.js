@@ -1,9 +1,6 @@
 import cron from 'node-cron';
-import { getAllCategories } from './routes/questionRouteUtils.js';
-import { OoTQuestion } from './models/Question.js';
-import { RankQuestion } from './models/Question.js';
+import { OoTQuestion, RankQuestion, ConnectQuestion, Question } from './models/Question.js';
 import { NewQuestion } from './models/NewQuestion.js';
-import { ConnectQuestion } from './models/Question.js';
 import redis from './redisClient.js';
 
 /**
@@ -12,7 +9,7 @@ import redis from './redisClient.js';
 export const dataCache = async () => {
   try {
     // Fetch categories
-    const categoriesPromise = getAllCategories();
+    const categories = await getAllCategories();
 
     // Fetch question IDs in parallel
     const [OoTQuestionsIDs, NewQuestionsIDs, ConnectQuestionsIDs, RankQuestionsIDs] = await Promise.all([
@@ -47,10 +44,6 @@ export const dataCache = async () => {
         questionIDsByTag[tag][diff].push(question._id);
       });
     });
-
-
-    // Resolve categories
-    const categories = await categoriesPromise;
 
     // Calculate counts
     const QuestionCount = OoTQuestionsIDs.length;
@@ -87,6 +80,18 @@ export const dataCache = async () => {
     console.error('Error caching data:', error);
   }
 };
+
+const getAllCategories = async () => {
+  const categories = await Question.aggregate([
+    { $unwind: '$tags' },
+    { $group: { _id: '$tags'} },
+  ]);
+  const categoriesArray = [];
+  Object.keys(categories).forEach(category => {
+    categoriesArray.push(categories[category]._id);
+  });
+  return categoriesArray;
+}
 
 // Run cacheData function when server starts
 dataCache();

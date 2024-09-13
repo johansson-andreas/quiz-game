@@ -230,16 +230,58 @@ const updateCategoryStats = async (userId, category, correctIncrement, totalIncr
  * @returns {Promise<Array<String>>} Array of unique category names.
  */
 export const getAllCategories = async () => {
-  const categories = await Question.aggregate([
-    { $unwind: '$tags' },
-    { $group: { _id: '$tags'} },
-  ]);
-  const categoriesArray = [];
-  Object.keys(categories).forEach(category => {
-    categoriesArray.push(categories[category]._id);
-  });
-  return categoriesArray;
+  try {
+    const cachedCategories = JSON.parse(await redis.get("categories"));
+    if (cachedCategories) {
+      return cachedCategories;
+    } else {
+      const categories = await Question.aggregate([
+        { $unwind: '$tags' },
+        { $group: { _id: '$tags'} },
+      ]);
+      const categoriesArray = [];
+      Object.keys(categories).forEach(category => {
+        categoriesArray.push(categories[category]._id);
+      });
+
+      await redis.set("categories", JSON.stringify(categoriesArray));
+
+      return categoriesArray;
+    }
+  }
+  catch (error)
+  {
+    return error;
+  }
 };
+
+export const getAllQuestions = async () => {
+  try {
+    const cachedQuestions = JSON.parse(await redis.get("questionsByTag"));
+    if (cachedQuestions) {
+      return cachedQuestions;
+    } else {
+      const categories = await Question.aggregate([
+        { $unwind: '$tags' },
+        { $group: { _id: '$tags'} },
+      ]);
+      const categoriesArray = [];
+      Object.keys(categories).forEach(category => {
+        categoriesArray.push(categories[category]._id);
+      });
+
+      await redis.set("categories", JSON.stringify(categoriesArray));
+
+      return categoriesArray;
+    }
+  }
+  catch (error)
+  {
+    return error;
+  }
+
+
+}
 
 /**
  * Retrieves categories with their question counts, and matches them with corresponding icons.

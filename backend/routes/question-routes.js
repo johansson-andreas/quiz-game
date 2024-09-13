@@ -7,15 +7,13 @@ import {
   updateCurrentTotals,
   updateScoresInDatabase,
   updateQuestionCounts,
-  calculateDifficulty
+  calculateDifficulty,
+  getAllCategories,
+  checkAnswer
 } from "./questionRouteUtils.js";
-import { createClientData } from "./loginRouteUtils.js";
-import { Question, TimeLineQuestion } from "../models/Question.js";
+import { Question, TimeLineQuestion, RankQuestion, ConnectQuestion } from "../models/Question.js";
 import { NewQuestion } from "../models/NewQuestion.js";
-import { RankQuestion } from "../models/Question.js";
 import redis from '../redisClient.js'
-import { ConnectQuestion } from "../models/Question.js";
-import { checkAnswer } from "./questionRouteUtils.js";
 
 const router = express.Router();
 
@@ -25,8 +23,8 @@ const router = express.Router();
  * @returns {Object} JSON object containing the obfuscated question, categories, score array, and current totals.
  */
 router.get("/initial-contact", async (req, res) => {
-  await createClientData(req);
-  const newQuestion = await getNewQuestion(req.session.clientData);
+  const allCategories = await getAllCategories();
+  const allQuestions = await getAllQuestions();
   console.log(req.session.clientData.unusedQuestions.length);
   res.send({
     question: obfQuestion(newQuestion),
