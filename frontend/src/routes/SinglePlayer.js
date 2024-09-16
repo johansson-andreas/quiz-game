@@ -12,14 +12,14 @@ import { randomizeArrayIndex } from "../GeneralUtils.js";
 
 const Controller = () => {
   const [correctAnswer, setCorrectAnswer] = useState(null);
-  const [unusedQuestions, setUnusedQuestions] = useState({})
+  const [unusedQuestions, setUnusedQuestions] = useState({});
   const [question, setQuestion] = useState({});
   const [answer, setAnswer] = useState("");
   const [submittedAnswer, setSubmittedAnswer] = useState("");
   const [totalQuestionsScore, setTotalQuestionsScore] = useState([0, 0]);
   const [activeQuestion, setActive] = useState(true);
   const [enabledCategories, setEnabledCategories] = useState([]);
-  const [allCategories, setAllCategories] = useState([])
+  const [allCategories, setAllCategories] = useState([]);
   const [scoreArray, setScoreArray] = useState({});
   const { user } = useContext(UserContext);
   const [catCanvasShow, setCatCanvasShow] = useState(false);
@@ -36,17 +36,17 @@ const Controller = () => {
 
   const mount = async () => {
     try {
-      const spData = JSON.parse(localStorage.getItem('spData'));
+      const spData = JSON.parse(localStorage.getItem("spData"));
 
       if (spData) {
-        console.log('local storage gauntlet data', spData)
+        console.log("local storage gauntlet data", spData);
         setQuestion(spData.question);
         setUnusedQuestions(spData.unusedQuestions);
         setEnabledCategories(spData.enabledCategories);
         setCurrentStreak(spData.currentStreak);
         setStreakRecord(spData.streakRecord);
       } else {
-        createNewGame(); 
+        createNewGame();
       }
     } catch (error) {
       console.log(error);
@@ -57,36 +57,36 @@ const Controller = () => {
     try {
       const [categoriesResponse, allQuestionsResponse] = await Promise.all([
         axios.get("/api/gauntlet-routes/categories"),
-        axios.get("/api/gauntlet-routes/questions")
+        axios.get("/api/gauntlet-routes/questions"),
       ]);
 
       setEnabledCategories(categoriesResponse.data);
       setAllCategories(categoriesResponse.data);
       setUnusedQuestions(allQuestionsResponse.data);
 
-      setQuestion(await getNewQuestion(unusedQuestions, enabledCategories))
-
+      setQuestion(await getNewQuestion(unusedQuestions, enabledCategories));
     } catch (error) {
       console.log(error);
     }
-
-  }
+  };
 
   const getNewQuestion = async (unusedQuestions, enabledCategories) => {
     try {
-    const randomCat = randomizeArrayIndex(enabledCategories); 
-    const randomDiff = randomizeArrayIndex(unusedQuestions[randomCat]);
-    const questionID = unusedQuestions[randomCat][randomDiff][randomizeArrayIndex(unusedQuestions[randomCat][randomDiff])];
-    const newQuestion = await axios.get(`/api/question-routes/question/:${questionID}`)
+      const randomCat = randomizeArrayIndex(enabledCategories);
+      const randomDiff = randomizeArrayIndex(unusedQuestions[randomCat]);
+      const questionID =
+        unusedQuestions[randomCat][randomDiff][
+          randomizeArrayIndex(unusedQuestions[randomCat][randomDiff])
+        ];
+      const newQuestion = await axios.get(
+        `/api/question-routes/question/:${questionID}`
+      );
 
-    setQuestion(newQuestion);
-
-  }
-  catch (error)
-  {
-    console.error(error)
-  }
-  }
+      setQuestion(newQuestion);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const submitAnswer = (e) => {
     setSubmittedAnswer(answer);
@@ -100,49 +100,9 @@ const Controller = () => {
     );
   };
 
-  const handleCatCanvasClose = () => setCatCanvasShow(false);
-  const handleCatCanvasShow = () => setCatCanvasShow(true);
-
-  const postAnswer = async () => {
-    try{
-   
-  } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  }
-
-  useEffect(() => {
-    console.log("Submitted answer:", submittedAnswer);
-    if (submittedAnswer !== "") {
-      postAnswer();
-    }
-  }, [submittedAnswer]);
-
-  return (
-    <div className="mainBody">
-      <div className={classNames("questionBody", fading ? "fadePulse" : "")}>
-        <QuestionComponent
-          answer={answer}
-          setAnswer={setAnswer}
-          question={question}
-          activeQuestion={activeQuestion}
-          nextQuestion={getNewQuestion}
-          submitAnswer={submitAnswer}
-          submittedAnswer={submittedAnswer}
-          correctAnswer={correctAnswer}
-          triggeredOption={triggeredOption}
-          setTriggeredOption={setTriggeredOption}
-        />
-      </div>
-      <div className="scoreDiv">
-        <ScorePanel
-          scoreArray={scoreArray}
-          totalQuestionsScore={totalQuestionsScore}
-          currentStreak={currentStreak} // pass current streak
-          streakRecord={streakRecord} // pass streak record
-        />
-      </div>
-      <div className="categoriesDiv">
+  const renderCatDiv = () => {
+    return (
+      <>
         <Button
           variant="primary"
           onClick={handleCatCanvasShow}
@@ -175,7 +135,52 @@ const Controller = () => {
             ))}
           </Offcanvas.Body>
         </Offcanvas>
+      </>
+    );
+  };
+
+  const handleCatCanvasClose = () => setCatCanvasShow(false);
+  const handleCatCanvasShow = () => setCatCanvasShow(true);
+
+  const postAnswer = async () => {
+    try {
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Submitted answer:", submittedAnswer);
+    if (submittedAnswer !== "") {
+      postAnswer();
+    }
+  }, [submittedAnswer]);
+
+  return (
+    <div className="mainBody">
+      <div className={classNames("questionBody", fading ? "fadePulse" : "")}>
+        <QuestionComponent
+          answer={answer}
+          setAnswer={setAnswer}
+          question={question}
+          activeQuestion={activeQuestion}
+          nextQuestion={getNewQuestion}
+          submitAnswer={submitAnswer}
+          submittedAnswer={submittedAnswer}
+          correctAnswer={correctAnswer}
+          triggeredOption={triggeredOption}
+          setTriggeredOption={setTriggeredOption}
+        />
       </div>
+      <div className="scoreDiv">
+        <ScorePanel
+          scoreArray={scoreArray}
+          totalQuestionsScore={totalQuestionsScore}
+          currentStreak={currentStreak} // pass current streak
+          streakRecord={streakRecord} // pass streak record
+        />
+      </div>
+      <div className="categoriesDiv">{renderCatDiv()}</div>
     </div>
   );
 };
