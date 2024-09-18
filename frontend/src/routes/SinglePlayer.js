@@ -8,7 +8,7 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import Button from "react-bootstrap/Button";
 import QuestionComponent from "../components/QuestionComponent/QuestionComponent.js";
 import classNames from "classnames";
-import { randomizeArrayIndex } from "../GeneralUtils.js";
+import { randomProperty, randomizeArrayIndex } from "../GeneralUtils.js";
 
 const Controller = () => {
   const [correctAnswer, setCorrectAnswer] = useState(null);
@@ -64,25 +64,46 @@ const Controller = () => {
       setAllCategories(categoriesResponse.data);
       setUnusedQuestions(allQuestionsResponse.data);
 
-      setQuestion(await getNewQuestion(unusedQuestions, enabledCategories));
+      
     } catch (error) {
       console.log(error);
     }
   };
 
+  useEffect(() => {
+    const requestNewQuestion = async () => {
+      if(Object.keys(question) < 1 && Object.keys(unusedQuestions).length > 0)
+        {
+          const {newUnusedQuestions, newQuestion} = await getNewQuestion(unusedQuestions, enabledCategories)
+          setQuestion(newQuestion);
+          setUnusedQuestions(newUnusedQuestions);
+        }
+    }
+    requestNewQuestion();
+  }, [question, enabledCategories, unusedQuestions])
+
   const getNewQuestion = async (unusedQuestions, enabledCategories) => {
     try {
-      const randomCat = randomizeArrayIndex(enabledCategories);
-      const randomDiff = randomizeArrayIndex(unusedQuestions[randomCat]);
-      const questionID =
-        unusedQuestions[randomCat][randomDiff][
-          randomizeArrayIndex(unusedQuestions[randomCat][randomDiff])
-        ];
-      const newQuestion = await axios.get(
-        `/api/question-routes/question/:${questionID}`
-      );
 
-      setQuestion(newQuestion);
+      const newUnusedQuestions =  {...unusedQuestions}
+      console.log({unusedQuestions, enabledCategories})
+      const randomCat = enabledCategories[randomizeArrayIndex(enabledCategories)];
+      console.log('randomCat', randomCat)
+      const randomDiff = randomProperty(unusedQuestions[randomCat]);
+      console.log('randomDiff', randomDiff)
+
+
+      const questionID = newUnusedQuestions[randomCat][randomDiff].splice(randomizeArrayIndex(newUnusedQuestions[randomCat][randomDiff]), 1)[0]
+
+      console.log('questionID', questionID)
+
+      const newQuestion = await axios.get(
+        `/api/question-routes/question/${questionID}`
+      );
+      console.log('new question', newQuestion)
+
+      return ({newUnusedQuestions, newQuestion:newQuestion.data})
+      
     } catch (error) {
       console.error(error);
     }

@@ -18,32 +18,13 @@ import redis from '../redisClient.js'
 const router = express.Router();
 
 /**
- * @route GET /initial-contact
- * @description Initializes client session with a new question and session data.
- * @returns {Object} JSON object containing the obfuscated question, categories, score array, and current totals.
- */
-router.get("/initial-contact", async (req, res) => {
-  const allCategories = await getAllCategories();
-  const allQuestions = await getAllQuestions();
-  console.log(req.session.clientData.unusedQuestions.length);
-  res.send({
-    question: obfQuestion(newQuestion),
-    categories: req.session.clientData.categories,
-    scoreArray: req.session.clientData.scoreArray,
-    currentTotals: req.session.clientData.currentTotals,
-  });
-});
-
-/**
  * @route GET /question
- * @description Retrieves the current question for the client session.
+ * @description Retrieves a random question of any type and tag.
  * @returns {Object} Obfuscated question object.
  */
 router.get("/question", async (req, res) => {
-  const clientData = req.session.clientData;
-  if (clientData.currentQuestion) {
-    res.send(obfQuestion(await getNewQuestion(clientData)));
-  }
+  const randomQuesiton = await Question.aggregate([{ $sample: { size: 1 } }]);
+  res.send(obfQuestion(randomQuesiton[0]));
 });
 
 /**
@@ -76,14 +57,14 @@ router.get("/question/timeLine", async (req, res) => {
  * @param {String} tag - The tag to filter questions by.
  * @returns {Object} Obfuscated question object.
  */
-router.get("/question/:tag", async (req, res) => {
+router.get("/question/tags/:tag", async (req, res) => {
   const tag = req.params.tag;
   try {
     const tagQuestion = await Question.aggregate([
       { $match: { tags: tag } },
       { $sample: { size: 1 } }
     ]);
-    console.log(tagQuestion);
+    console.log('tagQuestion', tagQuestion);
     res.send(obfQuestion(tagQuestion[0]));
   } catch (error) {
     console.log(error);
@@ -164,33 +145,45 @@ router.get("/question/:type/:tag", async (req, res, next) => {
  * @param {Object} req.body - The submitted answer object.
  * @returns {Object} JSON object containing the updated score array and the correct answer.
  */
-router.post("/question/answers", async (req, res) => {
-  const clientData = req.session.clientData;
+router.get("/answer/:id", async (req, res) => {
 
-  if (clientData) {
-    const answer = req.body.answer;
-    const {correct, correctAnswer} = await checkAnswer(clientData.currentQuestion, answer)
-    console.log({correct, correctAnswer} )
-    clientData.scoreArray = updateScoreArray(clientData, correct);
-    res.send({
-      scoreArray: clientData.scoreArray,
-      correctAnswer: correctAnswer,
+  const questionID = req.params.id;
+  const submittedAnswer= req.query.answer;
+
+  const question = await Question.findById(questionID).lean().exec();
+
+  const { correct, correctAnswer } = checkAnswer(question, submittedAnswer)
+
+  if (req.user && req.user._id) {
+    console.log(clientData.currentQuestion);
+
+    updateScoresInDatabase(
+      req.user._id,
+      clientData.currentQuestion.tags,
+      correct
+    ).catch((error) => {
+      console.error("Failed to update scores in database:", error);
     });
-
-    if (req.user && req.user._id) {
-      console.log(clientData.currentQuestion);
-
-      updateScoresInDatabase(
-        req.user._id,
-        clientData.currentQuestion.tags,
-        correct
-      ).catch((error) => {
-        console.error("Failed to update scores in database:", error);
-      });
-    }
-    await updateQuestionCounts(clientData.currentQuestion._id, correct);
-
   }
+  }
+);
+
+router.get("/question/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log('id', id)
+  
+  try {
+    const question = await Question.findById(id).lean().exec();
+
+    res.status(200).json(obfQuestion(question))
+  }
+  catch (error)
+  {
+    console.log(error);
+    res.status(500).json(error);
+  }
+
+
 });
 
 /**
